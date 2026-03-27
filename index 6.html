@@ -1,0 +1,2711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RE Fund Financial Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Noto+Kufi+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Desert Oasis Editorial — Rich Oasis Palette */
+  --primary:#00322d;--primary-c:#004b44;--primary-on:#ffffff;
+  --secondary:#775a19;--secondary-l:#8d6e24;--secondary-on:#ffffff;
+  --surface:#fbf9f4;--surface-cl:#f5f3ee;--surface-ch:#eceae4;--surface-cw:#ffffff;
+  --on-surface:#1b1c19;--on-surface-v:#49483f;--on-surface-vl:#767669;
+  --outline:rgba(27,28,25,.12);--outline-v:rgba(27,28,25,.06);
+  --error:#ba1a1a;--success:#1a6b3c;
+  --radius:0.5rem;--radius-s:0.375rem;
+  --shadow:0 8px 32px rgba(27,28,25,.05);--shadow-l:0 4px 16px rgba(27,28,25,.03);
+  --t:all .25s cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--surface);color:var(--on-surface);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+[dir=rtl]{font-family:'Noto Kufi Arabic','Manrope',system-ui,sans-serif}
+
+
+/* ── LOGIN SCREEN ── */
+.login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--primary),var(--primary-c));z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-overlay.hidden{display:none}
+.login-box{background:var(--surface-cw);border-radius:var(--radius);padding:48px 40px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+.login-box .login-logo{width:64px;height:64px;background:var(--secondary);border-radius:var(--radius);display:inline-flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:20px}
+.login-box h2{font-family:'Noto Serif',serif;font-size:1.4rem;color:var(--primary);margin-bottom:6px}
+.login-box p{font-size:.88rem;color:var(--on-surface-vl);margin-bottom:28px}
+.login-field{display:flex;flex-direction:column;text-align:left;margin-bottom:16px}
+.login-field label{font-size:.82rem;font-weight:600;color:var(--on-surface-v);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.login-field input{padding:12px 14px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.95rem;font-family:inherit;transition:var(--t);background:var(--surface)}
+.login-field input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(0,50,45,.08)}
+.login-btn{width:100%;padding:14px;border:none;border-radius:var(--radius-s);background:linear-gradient(135deg,var(--primary),var(--primary-c));color:#fff;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Noto Serif',serif;margin-top:8px;transition:var(--t)}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,50,45,.25)}
+.login-error{color:var(--error);font-size:.85rem;margin-top:10px;display:none}
+.login-success{color:var(--success);font-size:.85rem;margin-top:10px;display:none}
+.login-toggle{margin-top:20px;font-size:.88rem;color:var(--on-surface-vl)}.login-toggle a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none}.login-toggle a:hover{text-decoration:underline}
+.signup-fields{display:none}.signup-fields.show{display:block}
+/* ── PROJECT BAR ── */
+.project-bar{background:var(--surface-cl);padding:8px 40px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--outline-v)}
+.project-bar select{padding:8px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.88rem;font-family:inherit;background:var(--surface-cw);min-width:200px}
+.project-bar button{padding:8px 16px;border:none;border-radius:var(--radius-s);font-size:.85rem;cursor:pointer;font-weight:600;font-family:inherit;transition:var(--t)}
+.project-bar .proj-new{background:var(--primary);color:#fff}
+.project-bar .proj-del{background:var(--error);color:#fff}
+.project-bar .proj-save{background:var(--secondary);color:#fff}
+.project-bar label{font-size:.85rem;font-weight:600;color:var(--on-surface-v)}
+.user-badge{font-size:.82rem;color:rgba(255,255,255,.6);font-weight:500}
+.btn-logout{background:rgba(186,26,26,.7);color:#fff}
+.btn-logout:hover{background:rgba(186,26,26,.9)}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-c));color:var(--primary-on);padding:0 40px;height:72px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-left{display:flex;align-items:center;gap:16px}
+.hdr-logo{width:44px;height:44px;background:var(--secondary);border-radius:var(--radius-s);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.hdr h1{font-family:'Noto Serif',serif;font-size:1.35rem;font-weight:600;letter-spacing:-.01em}
+.hdr-sub{font-size:.78rem;color:rgba(255,255,255,.45);font-weight:400;margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+.hdr-btns{display:flex;gap:10px;align-items:center}
+.hdr-btns button{padding:10px 22px;border-radius:var(--radius-s);cursor:pointer;font-size:.88rem;border:none;font-weight:600;transition:var(--t);font-family:inherit}
+.btn-lang{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.12)!important}
+.btn-lang:hover{background:rgba(255,255,255,.14);color:#fff}
+.btn-dl{background:var(--secondary);color:#fff;letter-spacing:.02em}
+.btn-dl:hover{background:var(--secondary-l);transform:translateY(-1px)}
+.btn-dl:not(.show){display:none}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--surface-cl);padding:0 40px;gap:4px}
+.tab{padding:15px 24px;border:none;background:none;cursor:pointer;color:var(--on-surface-vl);border-bottom:2px solid transparent;font-weight:500;font-size:.92rem;transition:var(--t);position:relative;letter-spacing:.02em}
+.tab:hover:not(:disabled){color:var(--primary);background:rgba(0,50,45,.03)}
+.tab.act{color:var(--primary);border-bottom-color:var(--secondary);font-weight:700}
+.tab:disabled{color:var(--on-surface-vl);cursor:not-allowed;opacity:.4}
+.tab .tab-icon{margin-right:7px;font-size:.85rem}
+[dir=rtl] .tab .tab-icon{margin-right:0;margin-left:7px}
+
+
+/* ── ROLE TABS (under dashboard) ── */
+.role-tabs{display:flex;gap:8px;margin-bottom:24px}
+.role-btn{padding:10px 20px;border-radius:var(--radius-s);cursor:pointer;font-size:.88rem;border:1.5px solid var(--outline);background:var(--surface-cw);color:var(--on-surface);font-weight:600;transition:var(--t)}
+.role-btn:hover{border-color:var(--primary);background:rgba(0,50,45,.03)}
+.role-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+/* ── MAIN ── */
+.main{padding:32px 40px;max-width:1560px;margin:0 auto}
+.pnl{display:none;animation:fadeIn .35s ease}.pnl.act{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:24px}
+.sec{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);transition:var(--t)}
+.sec:hover{box-shadow:var(--shadow)}
+.sec-t{font-family:'Noto Serif',serif;font-size:1.05rem;font-weight:600;color:var(--primary);margin-bottom:16px;padding-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:.01em}
+.sec-t::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
+.frow{display:grid;grid-template-columns:1fr 130px 130px;gap:10px;align-items:center;margin-bottom:8px;padding:4px 0}
+.frow label{font-size:.88rem;color:var(--on-surface-v);font-weight:500}
+.frow input,.frow select{padding:9px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.92rem;background:var(--surface-cw);transition:var(--t);font-family:inherit;color:var(--on-surface)}
+.frow input:focus,.frow select:focus{border-color:var(--primary);outline:none;background:rgba(0,50,45,.02);box-shadow:0 0 0 3px rgba(0,50,45,.08)}
+.frow input[readonly]{color:var(--on-surface-v);background:var(--surface-cl);border:none;border-radius:var(--radius-s);padding:9px 12px;font-weight:600}
+.frow-2{grid-template-columns:1fr 130px}
+.sep{height:1px;background:var(--outline-v);margin:12px 0;border:none}
+.calc-bar{margin-top:32px;text-align:center}
+.btn-calc{background:linear-gradient(135deg,var(--primary),var(--primary-c));color:var(--primary-on);border:none;padding:16px 64px;border-radius:var(--radius-s);font-size:1.1rem;font-weight:700;cursor:pointer;transition:var(--t);letter-spacing:.03em;font-family:'Noto Serif',serif}
+.btn-calc:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,50,45,.25)}
+.btn-calc:active{transform:translateY(0)}
+
+/* ── SCHEDULE ── */
+.sch-wrap{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);overflow-x:auto;margin-bottom:24px}
+.sch-wrap h3{font-family:'Noto Serif',serif;color:var(--primary);margin-bottom:14px;font-size:1rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.sch-wrap h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px}
+.sch-tbl{border-collapse:collapse;font-size:.9rem;width:100%}
+.sch-tbl th{background:var(--primary);color:var(--primary-on);padding:10px 12px;text-align:center;min-width:72px;font-weight:500;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase}
+.sch-tbl th:first-child{border-radius:var(--radius-s) 0 0 0;text-align:left}
+.sch-tbl th:last-child{border-radius:0 var(--radius-s) 0 0}
+.sch-tbl td{padding:7px 8px;text-align:center}
+.sch-tbl td:first-child{text-align:left;font-weight:500;min-width:200px;background:var(--surface-cl);color:var(--on-surface)}
+.sch-tbl input{width:66px;text-align:center;border:none;border-bottom:1.5px solid var(--outline);border-radius:0;padding:6px 4px;font-size:.9rem;transition:var(--t);font-family:inherit;background:transparent}
+.sch-tbl input:focus{border-bottom-color:var(--primary);border-bottom-width:2px;outline:none}
+.sch-tbl .tot{background:rgba(119,90,25,.08);font-weight:700;color:var(--primary);font-family:'Noto Serif',serif}
+.sch-tbl tbody tr:hover td{background:rgba(0,50,45,.02)}
+
+/* ── KPIs ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:32px}
+.kpi{background:var(--surface-cw);border-radius:var(--radius);padding:20px 16px;text-align:center;box-shadow:var(--shadow-l);position:relative;overflow:hidden;transition:var(--t)}
+.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.kpi-v{font-family:'Noto Serif',serif;font-size:1.3rem;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:-.02em}
+.kpi-l{font-size:.8rem;color:var(--on-surface-vl);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── CHARTS ── */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:24px;margin-top:12px}
+.ch-card{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);transition:var(--t);overflow:hidden}
+.ch-card:hover{box-shadow:var(--shadow)}
+.ch-card h3{font-family:'Noto Serif',serif;font-size:1rem;color:var(--primary);margin-bottom:14px;font-weight:600}
+
+/* ── TABLES ── */
+.tbl-wrap{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);overflow-x:auto;margin-bottom:24px}
+.tbl-wrap h3{font-family:'Noto Serif',serif;color:var(--primary);margin-bottom:14px;font-size:1rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.tbl-wrap h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px}
+.dt{border-collapse:separate;border-spacing:0;font-size:.88rem;white-space:nowrap;width:100%}
+.dt th{background:var(--primary);color:var(--primary-on);padding:10px 14px;text-align:right;font-weight:500;position:sticky;top:0;z-index:4;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+.dt th:first-child{border-radius:var(--radius-s) 0 0 0;position:sticky;left:0;z-index:5}.dt th:last-child{border-radius:0 var(--radius-s) 0 0}
+.dt td{padding:8px 14px;text-align:right;background:var(--surface-cw)}
+.dt tbody tr{transition:background .15s}
+.dt tbody tr:hover td{background:rgba(0,50,45,.02)}
+.dt .rl{position:sticky;left:0;background:var(--surface-cw);text-align:left;font-weight:500;min-width:220px;z-index:3;color:var(--on-surface);border-right:1px solid var(--outline-v)}
+[dir=rtl] .dt .rl{text-align:right;left:auto;right:0}
+.dt .bld td{font-weight:700;background:var(--surface-cl);color:var(--primary);font-family:'Noto Serif',serif}
+.dt .sep td{height:10px;border:none;background:var(--surface)}
+.dt .neg{color:var(--error)}
+.dt .sub td{font-weight:700;background:#f5f0e4;color:var(--primary);font-family:'Noto Serif',serif}
+.dt .sub td.rl,.dt .bld td.rl{z-index:3}
+
+/* ── DEBT SUMMARY ── */
+.debt-sum{display:flex;gap:20px;margin-bottom:24px;flex-wrap:wrap}
+.ds-item{background:var(--surface-cw);border-radius:var(--radius);padding:18px 28px;box-shadow:var(--shadow-l);min-width:170px}
+.ds-lbl{font-size:.8rem;color:var(--on-surface-vl);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.ds-val{font-family:'Noto Serif',serif;font-size:1.3rem;font-weight:700;color:var(--primary);margin-top:6px}
+
+/* ── SCENARIOS ── */
+.scenario-wrap{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);margin-bottom:24px}
+.scenario-wrap h3{font-family:'Noto Serif',serif;color:var(--primary);margin-bottom:20px;font-size:1rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.scenario-wrap h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px}
+.scenario-btns{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.scenario-btn{padding:10px 20px;border-radius:var(--radius-s);cursor:pointer;font-size:.9rem;border:1.5px solid var(--outline);background:var(--surface-cw);color:var(--on-surface);font-weight:600;transition:var(--t)}
+.scenario-btn:hover{border-color:var(--primary);background:rgba(0,50,45,.02)}
+.scenario-btn.saved{background:var(--primary);color:#fff;border-color:var(--primary)}
+.scenario-comp{overflow-x:auto}
+.scenario-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.scenario-tbl th{background:var(--primary);color:#fff;padding:12px;text-align:left;font-weight:600;font-size:.85rem}
+.scenario-tbl td{padding:12px;text-align:left;border-bottom:1px solid var(--outline-v)}
+.scenario-tbl tbody tr:hover td{background:rgba(0,50,45,.02)}
+
+/* ── SENSITIVITY ── */
+.sens-layout{display:grid;grid-template-columns:300px 1fr;gap:24px}
+.sens-sidebar{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);position:sticky;top:92px;height:fit-content}
+.sens-sidebar h3{font-family:'Noto Serif',serif;color:var(--primary);font-size:1rem;font-weight:600;margin-bottom:20px;padding-bottom:12px;display:flex;align-items:center;gap:10px}
+.sens-sidebar h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px}
+.sens-main{display:flex;flex-direction:column;gap:24px;overflow:hidden;min-width:0}
+.sld-group{margin-bottom:20px}
+.sld-group label{display:flex;justify-content:space-between;font-size:.88rem;color:var(--on-surface-v);margin-bottom:8px;font-weight:500}
+.sld-group label b{font-family:'Noto Serif',serif;color:var(--primary);font-size:1rem;background:rgba(0,50,45,.04);padding:3px 10px;border-radius:var(--radius-s);white-space:nowrap;min-width:60px;text-align:center}
+.sld-group input[type=range]{width:100%;accent-color:var(--secondary);cursor:pointer;height:4px;-webkit-appearance:none;background:var(--surface-ch);border-radius:2px;outline:none}
+.sld-group input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--secondary);cursor:pointer;box-shadow:0 2px 8px rgba(119,90,25,.25)}
+.sens-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.sens-kpi{background:var(--surface-cw);border-radius:var(--radius);padding:18px;text-align:center;box-shadow:var(--shadow-l);position:relative;overflow:hidden}
+.sens-kpi .sv{font-family:'Noto Serif',serif;font-size:1.35rem;font-weight:700;color:var(--primary);margin-bottom:4px}
+.sens-kpi .sl{font-size:.8rem;color:var(--on-surface-vl);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.sens-kpi .sd{font-size:.82rem;font-weight:600;margin-top:6px}
+.sd.pos{color:var(--success)}.sd.neg{color:var(--error)}
+.hm-wrap{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);overflow:hidden}
+.hm-wrap h3{font-family:'Noto Serif',serif;color:var(--primary);font-size:1rem;font-weight:600;margin-bottom:4px}
+.hm-wrap p{font-size:.85rem;color:var(--on-surface-vl);margin-bottom:14px}
+.btn-sens{background:linear-gradient(135deg,var(--primary),var(--primary-c));color:var(--primary-on);border:none;padding:14px 0;border-radius:var(--radius-s);font-size:.95rem;font-weight:700;cursor:pointer;width:100%;margin-top:16px;transition:var(--t);letter-spacing:.03em;font-family:'Noto Serif',serif}
+.btn-sens:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,50,45,.2)}
+.btn-sens-reset:hover{background:var(--surface-cl)!important;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:32px 40px;color:var(--on-surface-vl);font-size:.85rem;margin-top:48px;background:var(--surface-cl)}
+.footer span{color:var(--secondary);font-weight:600}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){.sens-layout{grid-template-columns:1fr}.sens-sidebar{position:static}.sens-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){
+  .hdr{padding:0 20px;height:60px}.hdr h1{font-size:1rem}
+  .hdr-center{gap:6px}.role-btn{padding:6px 10px;font-size:.75rem}
+  .tabs{padding:0 16px;overflow-x:auto}.tab{padding:12px 16px;font-size:.78rem;white-space:nowrap}
+  .main{padding:20px 16px}
+  .form-grid{grid-template-columns:1fr}.ch-grid{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr}.frow-2{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .sens-kpis{grid-template-columns:1fr}
+  .hdr-sub{display:none}
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface-ch);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--on-surface-vl)}
+
+/* ── CANVAS STABILITY ── */
+canvas{max-width:100%;display:block}
+
+/* ── PRINT ── */
+@media print{.hdr,.tabs,.calc-bar,.btn-dl,.btn-lang,.btn-sens,.sld-group,.hdr-center,.role-btn,.project-bar,.login-overlay{display:none!important}#appMain{display:block!important}.main{padding:0}.pnl{display:block!important;page-break-after:always}.sec,.ch-card,.tbl-wrap,.sch-wrap{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">RF</div>
+    <h2 id="authTitle">Real Estate Fund</h2>
+    <p id="authSubtitle">Sign in to your account</p>
+    <div class="login-field"><label>Username</label><input type="text" id="loginUser" placeholder="Enter username" autocomplete="username"></div>
+    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"></div>
+    <div class="signup-fields" id="signupFields">
+      <div class="login-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm password"></div>
+    </div>
+    <button class="login-btn" id="authBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Invalid username or password</div>
+    <div class="login-success" id="loginSuccess">Account created! You can now sign in.</div>
+    <div class="login-toggle" id="authToggle">Don't have an account? <a onclick="toggleAuthMode()">Sign Up</a></div>
+  </div>
+</div>
+<div id="appMain" style="display:none">
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo">RF</div>
+    <div>
+      <h1 id="appTitle">Real Estate Fund Financial Study</h1>
+      <div class="hdr-sub" id="appSub">Professional Fund Modeling Platform</div>
+    </div>
+  </div>
+  <div class="hdr-btns">
+    <span class="user-badge" id="userBadge"></span>
+    <button class="btn-lang" onclick="toggleLang()">العربية</button>
+    <button class="btn-dl" id="btnDL" onclick="dlExcel()">Excel</button>
+    <button class="btn-dl" id="btnPDF" onclick="dlPDF()">PDF</button>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+<div class="project-bar" id="projectBar"><label>Project:</label><select id="projSelect" onchange="loadProject()"></select><button class="proj-save" onclick="saveProject()">💾 Save</button><button class="proj-new" onclick="newProject()">+ New</button><button class="proj-del" onclick="deleteProject()">🗑 Delete</button></div>
+<nav class="tabs" id="tabNav"></nav>
+<main class="main">
+  <div class="pnl act" id="p-assumptions"></div>
+  <div class="pnl" id="p-schedule"></div>
+  <div class="pnl" id="p-dashboard"></div>
+  <div class="pnl" id="p-cashflow"></div>
+  <div class="pnl" id="p-debt"></div>
+  <div class="pnl" id="p-sensitivity"></div>
+</main>
+<div class="footer">Built for <span>Real Estate Fund Managers</span> in the Kingdom of Saudi Arabia &middot; All calculations are estimates for planning purposes only</div>
+</div><!-- end appMain -->
+
+<script>
+
+// =============================================
+// LOGIN & PROJECT MANAGEMENT (FIX 1)
+// =============================================
+const DEFAULT_USERS={'admin':'admin123','user':'user123','fund':'fund2026'};
+let currentUser=null;
+let authMode='login'; // 'login' or 'signup'
+
+function getUsers(){
+  try{const stored=JSON.parse(localStorage.getItem('rf_all_users'));if(stored&&typeof stored==='object') return stored;}catch(e){}
+  // First run: seed with defaults
+  localStorage.setItem('rf_all_users',JSON.stringify(DEFAULT_USERS));
+  return {...DEFAULT_USERS};
+}
+function saveUsers(users){localStorage.setItem('rf_all_users',JSON.stringify(users));}
+
+function toggleAuthMode(){
+  const err=document.getElementById('loginError');
+  const suc=document.getElementById('loginSuccess');
+  err.style.display='none';suc.style.display='none';
+  if(authMode==='login'){
+    authMode='signup';
+    document.getElementById('authTitle').textContent='Create Account';
+    document.getElementById('authSubtitle').textContent='Sign up for a new account';
+    document.getElementById('authBtn').textContent='Sign Up';
+    document.getElementById('authBtn').setAttribute('onclick','doSignup()');
+    document.getElementById('signupFields').classList.add('show');
+    document.getElementById('authToggle').innerHTML='Already have an account? <a onclick="toggleAuthMode()">Sign In</a>';
+  } else {
+    authMode='login';
+    document.getElementById('authTitle').textContent='Real Estate Fund';
+    document.getElementById('authSubtitle').textContent='Sign in to your account';
+    document.getElementById('authBtn').textContent='Sign In';
+    document.getElementById('authBtn').setAttribute('onclick','doLogin()');
+    document.getElementById('signupFields').classList.remove('show');
+    document.getElementById('authToggle').innerHTML='Don\'t have an account? <a onclick="toggleAuthMode()">Sign Up</a>';
+  }
+}
+
+function doSignup(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const c=document.getElementById('signupConfirm').value;
+  const err=document.getElementById('loginError');
+  const suc=document.getElementById('loginSuccess');
+  err.style.display='none';suc.style.display='none';
+
+  if(!u||u.length<3){err.textContent='Username must be at least 3 characters';err.style.display='block';return;}
+  if(!p||p.length<4){err.textContent='Password must be at least 4 characters';err.style.display='block';return;}
+  if(p!==c){err.textContent='Passwords do not match';err.style.display='block';return;}
+
+  const users=getUsers();
+  if(users[u]){err.textContent='Username already taken';err.style.display='block';return;}
+
+  users[u]=p;
+  saveUsers(users);
+  suc.textContent='Account created! You can now sign in.';
+  suc.style.display='block';
+  document.getElementById('signupConfirm').value='';
+  setTimeout(()=>toggleAuthMode(),1500);
+}
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const err=document.getElementById('loginError');
+  const suc=document.getElementById('loginSuccess');
+  err.style.display='none';suc.style.display='none';
+  const users=getUsers();
+  if(users[u]&&users[u]===p){currentUser=u;localStorage.setItem('rf_user',u);document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('appMain').style.display='';document.getElementById('userBadge').textContent='👤 '+u;loadProjectList();}
+  else{err.textContent='Invalid username or password';err.style.display='block';}
+}
+function doLogout(){currentUser=null;localStorage.removeItem('rf_user');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('appMain').style.display='none';document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginError').style.display='none';document.getElementById('loginSuccess').style.display='none';if(authMode==='signup') toggleAuthMode();}
+function checkSession(){const u=localStorage.getItem('rf_user');const users=getUsers();if(u&&users[u]){currentUser=u;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('appMain').style.display='';document.getElementById('userBadge').textContent='👤 '+u;loadProjectList();}}
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter'){if(authMode==='signup')doSignup();else doLogin();}});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter'){if(authMode==='signup')document.getElementById('loginPass').focus();else doLogin();}});
+function getStorageKey(){return 'rf_projects_'+currentUser;}
+function getProjects(){try{return JSON.parse(localStorage.getItem(getStorageKey()))||{};}catch(e){return {};}}
+function loadProjectList(){const sel=document.getElementById('projSelect');const projs=getProjects();sel.innerHTML='<option value="">-- New Unsaved --</option>'+Object.keys(projs).map(n=>'<option value="'+n+'">'+n+'</option>').join('');}
+function saveProject(){let name=document.getElementById('projSelect').value;if(!name){name=D.fund_name||'Untitled Project';const el=document.getElementById('fund_name');if(el&&el.value) name=el.value;}const projs=getProjects();projs[name]={D:JSON.parse(JSON.stringify(D)),conComponents:JSON.parse(JSON.stringify(conComponents)),salesComponents:JSON.parse(JSON.stringify(salesComponents)),schBaseCon:[...schBaseCon],schDevFee:[...schDevFee],schContingency:[...schContingency],schLicensing:[...schLicensing],schDesign:[...schDesign],schInsurance:[...schInsurance],schSupervision:[...schSupervision],schMarketing:[...schMarketing],salesSchedule:[...salesSchedule]};localStorage.setItem(getStorageKey(),JSON.stringify(projs));loadProjectList();document.getElementById('projSelect').value=name;alert('Project "'+name+'" saved!');}
+function loadProject(){const name=document.getElementById('projSelect').value;if(!name) return;const projs=getProjects();const p=projs[name];if(!p) return;Object.keys(p.D).forEach(k=>{D[k]=p.D[k];});conComponents=p.conComponents||conComponents;salesComponents=p.salesComponents||salesComponents;schBaseCon=p.schBaseCon||schBaseCon;schDevFee=p.schDevFee||schDevFee;schContingency=p.schContingency||schContingency;schLicensing=p.schLicensing||schLicensing;schDesign=p.schDesign||schDesign;schInsurance=p.schInsurance||schInsurance;schSupervision=p.schSupervision||schSupervision;schMarketing=p.schMarketing||schMarketing;salesSchedule=p.salesSchedule||salesSchedule;R=null;buildTabs();buildForm();}
+function newProject(){document.getElementById('projSelect').value='';Object.keys(defaultD).forEach(k=>{D[k]=defaultD[k];});conComponents=[{name:'comp',gfa:204624,cost:120}];salesComponents=[{name:'res',area:128913,price:2375}];R=null;buildTabs();buildForm();}
+function deleteProject(){const name=document.getElementById('projSelect').value;if(!name){alert('No project selected');return;}if(!confirm('Delete "'+name+'"?')) return;const projs=getProjects();delete projs[name];localStorage.setItem(getStorageKey(),JSON.stringify(projs));loadProjectList();}
+
+// =============================================
+// STATE
+// =============================================
+let lang='en', R=null, currentRole='fund_manager';
+let scenarios={base:null,upside:null,downside:null};
+
+const D={
+  fund_name:'صندوق تطوير عقاري', fund_period_months:24, start_date:'2026-01-01',
+  land_area:204624, land_price_sqm:900, brokerage_pct:2.5, rett_pct:2,
+  rett_refund:0, vat_refund_con:1, vat_refund_land:1,
+  build_area:204624, dev_cost_sqm:138, dev_fee_pct:12.7, contingency_pct:5, insurance_pct:5,
+  design_fee_mode:'fixed', design_fee:564762, design_fee_pct:2,
+  supervision_fee_mode:'fixed', supervision_fee:0, supervision_fee_pct:0,
+  licensing_fee:564762, con_period_months:24,
+  custody_annual:110000, custody_freq:'annual',
+  spv_setup:20000,
+  fund_setup:1267262,
+  auditor_annual:90000, auditor_freq:'quarterly',
+  sharia_annual:11000, sharia_freq:'quarterly',
+  engineering_annual:494166, engineering_freq:'quarterly',
+  board_annual:40000, board_freq:'semiannual',
+  fin_advisor:0,
+  mgmt_fee_mode:'total_asset', mgmt_fee_pct:1.25, mgmt_fee_fixed:0,
+  marketing_cost:4592526, marketing_date:'2026-06-30',
+  vat_rate:15, vat_refund_months:6, vat_advisor_pct:3,
+  hurdle_rate:15, perf_fee_pct:35, bank_mgmt_pct:1,
+  sale_price_sqm:2375, sell_area:128913, wafi_pct:1, sell_exp_pct:2.5,
+  ik_land_pct:60, ik_dev_pct:0, ik_mkt_pct:0, ik_con_pct:0,
+  equity:17470731,
+  saibor:6.8, margin:2, arr_fee_pct:1, min_cash:500000,
+};
+
+const defaultD=JSON.parse(JSON.stringify(D));
+
+let schBaseCon=[], schDevFee=[], schContingency=[], schLicensing=[], schDesign=[], schInsurance=[], schSupervision=[];
+let schMarketing=[];
+let salesSchedule=[];
+
+let conComponents = [{name:'المساحة المطورة وسعر التطوير بنية تحتية', gfa:204624, cost:120}];
+let salesComponents = [{name:'سكني', area:128913, price:2375}];
+
+// =============================================
+// i18n
+// =============================================
+const tabIcons=['⚙','📅','📊','💰','🏦','🔬'];
+const TX={
+  en:{title:'Real Estate Fund Financial Study',sub:'Professional Fund Modeling Platform',calc:'Calculate',dl:'Excel',langB:'العربية',
+    tabs:['Assumptions','Schedule','Dashboard','Cash Flow','Debt','Sensitivity'],
+    roles:['Fund Manager','Developer','Financer'],
+    roleKeys:['fund_manager','developer','financer'],
+    roleAr:['مدير الصندوق','المطور','الممول'],
+    s:['Fund General Info','Land Acquisition','Construction Cost','Fund Expenses','Project Sales','Sources of Capital'],
+    sch:['Construction Cost','Developer Fees','Contingency','Licensing Fees','Design','Insurance','Supervision','Marketing Costs'],
+    schConDist:'Construction Cost Distribution (%)',schSalesDist:'Project Sales Distribution (%)',
+    schSalesRow:'Sales Schedule',
+    conComp:'Construction Components',salesComp:'Sales Components',
+    conCols:['Component Name','GFA (sqm)','Cost per sqm (SAR)','Total Cost','Remove'],
+    saleCols:['Component Name','Sellable Area (sqm)','Price per sqm (SAR)','Total Revenue','Remove'],
+    addComp:'Add Component',totalGFA:'Total GFA',weightAvgCost:'Weighted Avg Cost/sqm',totalSellArea:'Total Sellable Area',weightAvgPrice:'Weighted Avg Price/sqm',
+    cf:{hdr:'Cash Flow Statement',
+      grossSales:'Gross Sales',wafi:'WAFI Fee',sellExp:'Selling Expenses',
+      vatRefCon:'VAT Refund (Construction)',vatRefExp:'VAT Refund (Expenses)',vatRefBrok:'VAT Refund (Brokerage)',
+      rettRef:'RETT Refund',vatAdvisor:'VAT Advisor',netRefunds:'Net Refunds',
+      custody:'Custody Expenses',spv:'SPV Setup',fundSetup:'Fund Setup',
+      auditor:'Auditor Expenses',sharia:'Sharia Committee',engineering:'Engineering Consultant',
+      board:'Board Compensation',finAdvisor:'Financial Advisor',mgmtFee:'Fund Management Fees',
+      marketing:'Marketing Costs',bankMgmt:'Bank Management Fees',arrFee:'Arrangement Fee',
+      perfFee:'Performance Fees',totalFundExp:'Total Fund Expenses',interest:'Debt Profit',
+      netOp:'Net Operating Cash Flow',land:'Land Acquisition',conCost:'Construction Cost',
+      conBase:'Base Construction',conDevFee:'Developer Fees',conContingency:'Contingency',conInsurance:'Insurance',conDesign:'Design Fee',conSupervision:'Supervision Fee',conLicensing:'Licensing Fee',
+      netInv:'Net Investing',netBorrow:'Net Borrowing',equity:'Investor Equity',
+      inKind:'In-Kind Participation',dividends:'Dividends',netFin:'Net Financing',
+      openCash:'Opening Cash',changeCash:'Change in Cash',closeCash:'Closing Cash'},
+    debt:{hdr:'Debt Schedule',totalDrawn:'Total Debt Drawn',totalInt:'Total Debt Profit',ltc:'LTC Ratio',
+      open:'Opening Balance',dd:'Drawdowns',repay:'Repayment',close:'Closing Balance',int:'Debt Profit',bankMgmt:'Bank Mgmt Fees'},
+    dash:{revCost:'Revenue & Cost',invRet:'Investor Returns',debtFin:'Debt & Finance',
+      totalRev:'Total Revenue',totalCost:'Total Cost',totalCostExVAT:'Total Cost (ex VAT)',vatAmount:'VAT Amount',grossProfit:'Gross Profit',profitMargin:'Profit Margin',
+      roiUH:'ROI (Unit Holders)',annROIUH:'Annual ROI (UH)',totalDiv:'Total Dividends',perfFee:'Performance Fee',
+      totalDebt:'Total Debt',annROI:'Annual ROI',ltcRatio:'LTC Ratio',dcr:'Debt Coverage',
+      cfTime:'Cash Flow Over Time',costBreak:'Cost Breakdown',closingCash:'Closing Cash Balance',debtSch:'Debt Schedule',
+      chLegCF:['Net Op','Net Inv','Net Fin'],
+      chLegPie:['Land','Construction','Debt Profit','Fund Exp'],
+      chLegDebt:['Balance','Drawdowns','Debt Profit'],
+      irr:'IRR (Annual)',eqMult:'Equity Multiple',navTimeline:'NAV Timeline',waterfall:'Waterfall Distribution',
+      costAnalysis:'Cost Breakdown',gfaEff:'GFA Efficiency',maxLandPrice:'Max Land Price',maxLandIRR:'Max Land Price (at Hurdle)',profitMargin2:'Profit Margin',capStruct:'Capital Structure',capCash:'Cash Equity',capInKind:'In-Kind',capOffPlan:'Off-Plan Sales',capDebt:'Debt Financing',
+      dscr:'DSCR Over Time',ltcRatio2:'LTC Ratio',ltvRatio:'LTV Tracking',compliance:'Covenant Compliance'},
+    scenarios:{title:'Scenario Comparison',saveBase:'Save as Base',saveUpside:'Save as Upside',saveDownside:'Save as Downside',
+      kpis:['IRR','Equity Multiple','Net Profit','ROI (UH)','Total Debt','Profit Margin','DSCR']},
+    sens:{drivers:'Sensitivity Drivers',salePrice:'Sale Price / sqm',sellArea:'Sellable Area (sqm)',conCost:'Construction Cost / sqm',
+      saibor:'SAIBOR %',fundPeriod:'Fund Period (months)',update:'Update Analysis',reset:'Reset to Default',
+      eqMult:'Equity Multiple',netProfit:'Net Profit',roiUH:'ROI (UH)',totalRev:'Total Revenue',
+      cfQuarter:'Cash Flow by Quarter',irrHeatmap:'IRR Sensitivity Heatmap',
+      hmDesc:'Sale Price × Sellable Area (±20%)',hmXLabel:'Sale Price / sqm',hmYLabel:'Sellable Area (sqm)'},
+    f:{fundName:'Fund Name',fundPeriod:'Fund Period (Months)',startDate:'Start Date',
+      landArea:'Land Area (sqm)',pricePerSqm:'Price per sqm (SAR)',brokerage:'Brokerage %',
+      rettAuto:'RETT % (Auto)',rettRefund:'RETT Refund?',vatRefLand:'VAT Refund on Brokerage?',
+      gfaAuto:'Gross Floor Area (sqm) (Auto)',costSqmAuto:'Cost per sqm (SAR) (Auto)',
+      devFee:'Developer Fee %',contingency:'Contingency %',insurance:'Insurance %',
+      designFee:'Design Fee (SAR)',supervisionFee:'Supervision Fee (SAR)',licensingFee:'Licensing Fee (SAR)',
+      conPeriod:'Construction Period (Months)',
+      custody:'Custody Expenses (Annual)',spvSetup:'SPV Setup (One-Time)',fundSetup:'Fund Setup (One-Time)',
+      auditor:'Auditor Expenses (Annual)',sharia:'Sharia Committee (Annual)',
+      engineering:'Engineering Consultant (Annual)',board:'Board Compensation (Annual)',
+      mgmtMode:'Management Fee Mode',mgmtPct:'Mgmt Fee % (Annual)',mgmtFixed:'Mgmt Fee Fixed (Annual)',
+      marketingCost:'Marketing Cost (SAR)',vatRate:'VAT %',vatRefCon:'VAT Refund on Construction?',
+      vatRefDelay:'VAT Refund Delay (Months)',vatAdvisor:'VAT Advisor %',
+      hurdle:'Hurdle Rate % (Annual)',perfFee:'Performance Fee %',
+      sellAreaAuto:'Sellable Area (sqm) (Auto)',salePriceAuto:'Sale Price per sqm (SAR) (Auto)',
+      wafi:'WAFI %',sellExp:'Selling Expenses %',
+      equity:'Investor Equity (SAR)',ikLand:'In-Kind Land %',ikDev:'In-Kind Developer %',
+      ikCon:'In-Kind Contractor %',ikMkt:'In-Kind Marketing %',
+      saibor:'SAIBOR %',margin:'Margin %',arrFee:'Arrangement Fee %',
+      bankMgmt:'Bank Mgmt Fee % (One-Time)',minCash:'Min Cash Reserve (SAR)',
+      yes:'Yes',no:'No',navMode:'% of NAV',totalAssetMode:'% of Total Assets',fixedMode:'Fixed Amount',pctOfCon:'% of Construction',
+      designFeeMode:'Design Fee Mode',designFeePct:'Design Fee % of Construction',
+      supervisionFeeMode:'Supervision Fee Mode',supervisionFeePct:'Supervision Fee % of Construction',
+      quarterly:'Quarterly',semiannual:'Semi-Annual',annual:'Annual'},
+  },
+  ar:{title:'الدراسة المالية للصندوق العقاري',sub:'منصة النمذجة المالية للصناديق',calc:'احسب',dl:'إكسل',langB:'English',
+    tabs:['الافتراضات','الجدول الزمني','لوحة المعلومات','التدفقات النقدية','هيكلة الدين','تحليل الحساسية'],
+    roles:['مدير الصندوق','المطور','الممول'],
+    roleKeys:['fund_manager','developer','financer'],
+    roleAr:['مدير الصندوق','المطور','الممول'],
+    s:['معلومات الصندوق','شراء الأرض','تكلفة البناء','مصاريف الصندوق','مبيعات المشروع','مصادر رأس المال'],
+    sch:['تكلفة البناء','أتعاب المطور','الاحتياطي','مصاريف الرخص','التصميم','تأمين','الإشراف','تكاليف التسويق'],
+    schConDist:'توزيع تكاليف البناء (%)',schSalesDist:'توزيع المبيعات (%)',
+    schSalesRow:'جدول المبيعات',
+    conComp:'مكونات البناء',salesComp:'مكونات المبيعات',
+    conCols:['اسم المكون','المساحة (م²)','التكلفة / م² (ريال)','التكلفة الإجمالية','حذف'],
+    saleCols:['اسم المكون','المساحة القابلة للبيع (م²)','السعر / م² (ريال)','الإيراد الإجمالي','حذف'],
+    addComp:'إضافة مكون',totalGFA:'إجمالي المساحة',weightAvgCost:'متوسط التكلفة / م²',totalSellArea:'إجمالي المساحة القابلة للبيع',weightAvgPrice:'متوسط السعر / م²',
+    cf:{hdr:'قائمة التدفقات النقدية',
+      grossSales:'إجمالي المبيعات',wafi:'رسوم وافي',sellExp:'مصاريف البيع',
+      vatRefCon:'استرداد ضريبة البناء',vatRefExp:'استرداد ضريبة المصاريف',vatRefBrok:'استرداد ضريبة السعي',
+      rettRef:'استرداد الرسوم العقارية',vatAdvisor:'مستشار الضريبة',netRefunds:'صافي الاسترداد',
+      custody:'رسوم الحفظ',spv:'تأسيس الشركة',fundSetup:'تأسيس الصندوق',
+      auditor:'أتعاب المراجع',sharia:'اللجنة الشرعية',engineering:'الاستشاري',
+      board:'مجلس الإدارة',finAdvisor:'المستشار المالي',mgmtFee:'رسوم الإدارة',
+      marketing:'تكاليف التسويق',bankMgmt:'رسوم إدارة البنك',arrFee:'رسوم الترتيب',
+      perfFee:'رسوم الأداء',totalFundExp:'إجمالي مصاريف الصندوق',interest:'أرباح التمويل',
+      netOp:'صافي التشغيل',land:'الأرض',conCost:'تكلفة البناء',
+      conBase:'البناء الأساسي',conDevFee:'أتعاب المطور',conContingency:'الاحتياطي',conInsurance:'التأمين',conDesign:'رسوم التصميم',conSupervision:'رسوم الإشراف',conLicensing:'رسوم الرخص',
+      netInv:'صافي الاستثمار',netBorrow:'صافي الاقتراض',equity:'اكتتاب المستثمرين',
+      inKind:'الحصص العينية',dividends:'توزيعات الأرباح',netFin:'صافي التمويل',
+      openCash:'النقد الافتتاحي',changeCash:'التغير في النقد',closeCash:'النقد الختامي'},
+    debt:{hdr:'جدول الدين',totalDrawn:'إجمالي الدين المسحوب',totalInt:'إجمالي أرباح التمويل',ltc:'نسبة الدين للتكلفة',
+      open:'الرصيد الافتتاحي',dd:'السحوبات',repay:'السداد',close:'الرصيد الختامي',int:'أرباح التمويل',bankMgmt:'رسوم إدارة البنك'},
+    dash:{revCost:'الإيرادات والتكاليف',invRet:'عوائد المستثمرين',debtFin:'الدين والتمويل',
+      totalRev:'إجمالي الإيرادات',totalCost:'إجمالي التكاليف',totalCostExVAT:'إجمالي التكاليف (بدون ضريبة)',vatAmount:'مبلغ الضريبة',grossProfit:'إجمالي الربح',profitMargin:'هامش الربح',
+      roiUH:'عائد حملة الوحدات',annROIUH:'العائد السنوي',totalDiv:'إجمالي التوزيعات',perfFee:'رسوم الأداء',
+      totalDebt:'إجمالي الدين',annROI:'العائد السنوي',ltcRatio:'نسبة الدين للتكلفة',dcr:'نسبة تغطية الدين',
+      cfTime:'التدفق النقدي','costBreak':'توزيع التكاليف',closingCash:'الرصيد النقدي',debtSch:'جدول الدين',
+      chLegCF:['التشغيل','الاستثمار','التمويل'],
+      chLegPie:['الأرض','البناء','أرباح التمويل','مصاريف الصندوق'],
+      chLegDebt:['الرصيد','السحوبات','أرباح التمويل'],
+      irr:'العائد الداخلي',eqMult:'مضاعف الحقوق',navTimeline:'جدول صافي الأصول',waterfall:'توزيع متدرج',
+      costAnalysis:'توزيع التكاليف',gfaEff:'كفاءة المساحة',maxLandPrice:'أقصى سعر أرض',maxLandIRR:'أقصى سعر أرض (عند العائد المستهدف)',profitMargin2:'هامش الربح',capStruct:'هيكل رأس المال',capCash:'نقد المستثمرين',capInKind:'حصص عينية',capOffPlan:'مبيعات على الخارطة',capDebt:'تمويل بنكي',
+      dscr:'نسبة التغطية',ltcRatio2:'نسبة الدين للتكلفة',ltvRatio:'نسبة الدين للقيمة',compliance:'الامتثال التعاقدي'},
+    scenarios:{title:'مقارنة السيناريوهات',saveBase:'احفظ كأساسي',saveUpside:'احفظ كإيجابي',saveDownside:'احفظ كسلبي',
+      kpis:['العائد الداخلي','مضاعف الحقوق','صافي الربح','عائد المستثمرين','إجمالي الدين','هامش الربح','نسبة التغطية']},
+    sens:{drivers:'متغيرات التحليل',salePrice:'سعر البيع / م²',sellArea:'المساحة القابلة للبيع (م²)',conCost:'تكلفة البناء / م²',
+      saibor:'سايبور %',fundPeriod:'مدة الصندوق (شهر)',update:'تحديث التحليل',reset:'إعادة تعيين',
+      eqMult:'مضاعف رأس المال',netProfit:'صافي الربح',roiUH:'عائد الاستثمار',totalRev:'إجمالي الإيرادات',
+      cfQuarter:'التدفق النقدي',irrHeatmap:'خريطة حرارية للعائد',
+      hmDesc:'سعر البيع × المساحة القابلة للبيع (±20%)',hmXLabel:'سعر البيع / م²',hmYLabel:'المساحة القابلة للبيع (م²)'},
+    f:{fundName:'اسم الصندوق',fundPeriod:'مدة الصندوق (شهر)',startDate:'تاريخ البداية',
+      landArea:'مساحة الأرض (م²)',pricePerSqm:'سعر المتر (ريال)',brokerage:'نسبة السعي %',
+      rettAuto:'رسوم نقل الملكية % (تلقائي)',rettRefund:'استرداد رسوم النقل؟',vatRefLand:'استرداد ضريبة السعي؟',
+      gfaAuto:'إجمالي المساحة المبنية (م²) (تلقائي)',costSqmAuto:'تكلفة المتر (ريال) (تلقائي)',
+      devFee:'أتعاب المطور %',contingency:'الاحتياطي %',insurance:'التأمين %',
+      designFee:'رسوم التصميم (ريال)',supervisionFee:'رسوم الإشراف (ريال)',licensingFee:'رسوم الرخص (ريال)',
+      conPeriod:'مدة البناء (شهر)',
+      custody:'رسوم الحفظ (سنوي)',spvSetup:'تأسيس الشركة (لمرة واحدة)',fundSetup:'تأسيس الصندوق (لمرة واحدة)',
+      auditor:'أتعاب المراجع (سنوي)',sharia:'اللجنة الشرعية (سنوي)',
+      engineering:'الاستشاري الهندسي (سنوي)',board:'مكافأة مجلس الإدارة (سنوي)',
+      mgmtMode:'نوع رسوم الإدارة',mgmtPct:'رسوم الإدارة % (سنوي)',mgmtFixed:'رسوم الإدارة الثابتة (سنوي)',
+      marketingCost:'تكلفة التسويق (ريال)',vatRate:'نسبة الضريبة %',vatRefCon:'استرداد ضريبة البناء؟',
+      vatRefDelay:'مدة استرداد الضريبة (شهر)',vatAdvisor:'مستشار الضريبة %',
+      hurdle:'معدل العائد المستهدف % (سنوي)',perfFee:'رسوم الأداء %',
+      sellAreaAuto:'المساحة القابلة للبيع (م²) (تلقائي)',salePriceAuto:'سعر البيع / م² (ريال) (تلقائي)',
+      wafi:'رسوم وافي %',sellExp:'مصاريف البيع %',
+      equity:'رأس مال المستثمرين (ريال)',ikLand:'حصة عينية أرض %',ikDev:'حصة عينية مطور %',
+      ikCon:'حصة عينية مقاول %',ikMkt:'حصة عينية تسويق %',
+      saibor:'سايبور %',margin:'الهامش %',arrFee:'رسوم الترتيب %',
+      bankMgmt:'رسوم إدارة البنك % (لمرة واحدة)',minCash:'الحد الأدنى للنقد (ريال)',
+      yes:'نعم',no:'لا',navMode:'% من صافي الأصول',totalAssetMode:'% من إجمالي الأصول',fixedMode:'مبلغ ثابت',pctOfCon:'% من تكلفة البناء',
+      designFeeMode:'نوع رسوم التصميم',designFeePct:'رسوم التصميم % من البناء',
+      supervisionFeeMode:'نوع رسوم الإشراف',supervisionFeePct:'رسوم الإشراف % من البناء',
+      quarterly:'ربع سنوي',semiannual:'نصف سنوي',annual:'سنوي'},
+  }
+};
+
+// =============================================
+// TAB NAVIGATION
+// =============================================
+const tabKeys=['assumptions','schedule','dashboard','cashflow','debt','sensitivity'];
+function buildTabs(){
+  const t=TX[lang],nav=document.getElementById('tabNav');
+  nav.innerHTML=tabKeys.map((k,i)=>`<button class="tab${i===0?' act':''}" onclick="showTab('${k}')"${i>1&&!R?' disabled':''}><span class="tab-icon">${tabIcons[i]}</span>${t.tabs[i]}</button>`).join('');
+}
+function setRole(role){
+  currentRole=role;
+  if(R) renderDashboard();
+}
+function showTab(k){
+  document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('act'));
+  document.getElementById('p-'+k).classList.add('act');
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('act',tabKeys[i]===k);});
+}
+
+// =============================================
+// ASSUMPTIONS FORM
+// =============================================
+function fld(id,label,val,type,opts){
+  if(type==='select'){
+    const options=opts.map(o=>`<option value="${o[0]}"${val===o[0]?' selected':''}>${o[1]}</option>`).join('');
+    return `<div class="frow frow-2"><label>${label}</label><select id="${id}" onchange="onInput('${id}')">${options}</select></div>`;
+  }
+  const t=type||'number';
+  const step=t==='number'?'any':'';
+  return `<div class="frow frow-2"><label>${label}</label><input type="${t}" id="${id}" value="${val}" step="${step}" onchange="onInput('${id}')"></div>`;
+}
+function fldFreq(id,label,val,freqId,freqVal){
+  const F=TX[lang].f;
+  const opts=['quarterly','semiannual','annual'].map(f=>`<option value="${f}"${freqVal===f?' selected':''}>${f==='quarterly'?F.quarterly:f==='semiannual'?F.semiannual:F.annual}</option>`).join('');
+  return `<div class="frow"><label>${label}</label><input type="number" id="${id}" value="${val}" step="any" onchange="onInput('${id}')"><select id="${freqId}" onchange="onInput('${freqId}')">${opts}</select></div>`;
+}
+
+function buildForm(){
+  const p=document.getElementById('p-assumptions');
+  const F=TX[lang].f;
+  p.innerHTML=`<div class="form-grid">
+  <div class="sec"><div class="sec-t">${TX[lang].s[0]}</div>
+    ${fld('fund_name',F.fundName,D.fund_name,'text')}
+    ${fld('fund_period_months',F.fundPeriod,D.fund_period_months)}
+    ${fld('start_date',F.startDate,D.start_date,'date')}
+  </div>
+  <div class="sec"><div class="sec-t">${TX[lang].s[1]}</div>
+    ${fld('land_area',F.landArea,D.land_area)}
+    ${fld('land_price_sqm',F.pricePerSqm,D.land_price_sqm)}
+    ${fld('brokerage_pct',F.brokerage,D.brokerage_pct)}
+    <div class="frow frow-2"><label>${F.rettAuto}</label><input type="number" id="rett_pct" value="${D.rett_pct}" readonly></div>
+    ${fld('rett_refund',F.rettRefund,D.rett_refund,'select',[[0,F.no],[1,F.yes]])}
+    ${fld('vat_refund_land',F.vatRefLand,D.vat_refund_land,'select',[[0,F.no],[1,F.yes]])}
+  </div>
+  <div class="sec"><div class="sec-t">${TX[lang].s[2]}</div>
+    <div class="frow frow-2"><label>${F.gfaAuto}</label><input type="number" id="build_area" value="${D.build_area}" readonly></div>
+    <div class="frow frow-2"><label>${F.costSqmAuto}</label><input type="number" id="dev_cost_sqm" value="${D.dev_cost_sqm}" readonly></div>
+    ${fld('dev_fee_pct',F.devFee,D.dev_fee_pct)}
+    ${fld('contingency_pct',F.contingency,D.contingency_pct)}
+    ${fld('insurance_pct',F.insurance,D.insurance_pct)}
+    ${fld('design_fee_mode',F.designFeeMode,D.design_fee_mode,'select',[['fixed',F.fixedMode],['pct',F.pctOfCon]])}
+    ${fld('design_fee',F.designFee,D.design_fee)}
+    ${fld('design_fee_pct',F.designFeePct,D.design_fee_pct)}
+    <div class="sep"></div>
+    ${fld('supervision_fee_mode',F.supervisionFeeMode,D.supervision_fee_mode,'select',[['fixed',F.fixedMode],['pct',F.pctOfCon]])}
+    ${fld('supervision_fee',F.supervisionFee,D.supervision_fee)}
+    ${fld('supervision_fee_pct',F.supervisionFeePct,D.supervision_fee_pct)}
+    ${fld('licensing_fee',F.licensingFee,D.licensing_fee)}
+    ${fld('con_period_months',F.conPeriod,D.con_period_months)}
+  </div>
+  <div class="sec"><div class="sec-t">${TX[lang].s[3]}</div>
+    ${fldFreq('custody_annual',F.custody,D.custody_annual,'custody_freq',D.custody_freq)}
+    ${fld('spv_setup',F.spvSetup,D.spv_setup)}
+    ${fld('fund_setup',F.fundSetup,D.fund_setup)}
+    ${fldFreq('auditor_annual',F.auditor,D.auditor_annual,'auditor_freq',D.auditor_freq)}
+    ${fldFreq('sharia_annual',F.sharia,D.sharia_annual,'sharia_freq',D.sharia_freq)}
+    ${fldFreq('engineering_annual',F.engineering,D.engineering_annual,'engineering_freq',D.engineering_freq)}
+    ${fldFreq('board_annual',F.board,D.board_annual,'board_freq',D.board_freq)}
+    <div class="sep"></div>
+    ${fld('mgmt_fee_mode',F.mgmtMode,D.mgmt_fee_mode,'select',[['nav',F.navMode],['total_asset',F.totalAssetMode],['fixed',F.fixedMode]])}
+    ${fld('mgmt_fee_pct',F.mgmtPct,D.mgmt_fee_pct)}
+    ${fld('mgmt_fee_fixed',F.mgmtFixed,D.mgmt_fee_fixed)}
+    <div class="sep"></div>
+    ${fld('marketing_cost',F.marketingCost,D.marketing_cost)}
+    ${fld('vat_rate',F.vatRate,D.vat_rate)}
+    ${fld('vat_refund_con',F.vatRefCon,D.vat_refund_con,'select',[[0,F.no],[1,F.yes]])}
+    ${fld('vat_refund_months',F.vatRefDelay,D.vat_refund_months)}
+    ${fld('vat_advisor_pct',F.vatAdvisor,D.vat_advisor_pct)}
+    ${fld('hurdle_rate',F.hurdle,D.hurdle_rate)}
+    ${fld('perf_fee_pct',F.perfFee,D.perf_fee_pct)}
+  </div>
+  <div class="sec"><div class="sec-t">${TX[lang].s[4]}</div>
+    <div class="frow frow-2"><label>${F.sellAreaAuto}</label><input type="number" id="sell_area" value="${D.sell_area}" readonly></div>
+    <div class="frow frow-2"><label>${F.salePriceAuto}</label><input type="number" id="sale_price_sqm" value="${D.sale_price_sqm}" readonly></div>
+    ${fld('wafi_pct',F.wafi,D.wafi_pct)}
+    ${fld('sell_exp_pct',F.sellExp,D.sell_exp_pct)}
+  </div>
+  <div class="sec"><div class="sec-t">${TX[lang].s[5]}</div>
+    ${fld('equity',F.equity,D.equity)}
+    ${fld('ik_land_pct',F.ikLand,D.ik_land_pct)}
+    ${fld('ik_dev_pct',F.ikDev,D.ik_dev_pct)}
+    ${fld('ik_con_pct',F.ikCon,D.ik_con_pct)}
+    ${fld('ik_mkt_pct',F.ikMkt,D.ik_mkt_pct)}
+    <div class="sep"></div>
+    ${fld('saibor',F.saibor,D.saibor)}
+    ${fld('margin',F.margin,D.margin)}
+    ${fld('arr_fee_pct',F.arrFee,D.arr_fee_pct)}
+    ${fld('bank_mgmt_pct',F.bankMgmt,D.bank_mgmt_pct)}
+    ${fld('min_cash',F.minCash,D.min_cash)}
+  </div>
+  </div>
+  <div class="calc-bar"><button class="btn-calc" onclick="calculate()">${TX[lang].calc}</button></div>`;
+  D.rett_pct = 5 * (1 - (D.ik_land_pct || 0) / 100);
+  const rettEl = document.getElementById('rett_pct');
+  if(rettEl) rettEl.value = D.rett_pct;
+  updateConComponents();
+  updateSalesComponents();
+  buildSchedule();
+}
+
+function onInput(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(el.type==='number') D[id]=parseFloat(el.value)||0;
+  else if(el.tagName==='SELECT') D[id]=el.value;
+  else D[id]=el.value;
+  if(id==='ik_land_pct'){
+    D.rett_pct = 5 * (1 - (D.ik_land_pct || 0) / 100);
+    const rettEl = document.getElementById('rett_pct');
+    if(rettEl) rettEl.value = D.rett_pct;
+  }
+  if(id==='fund_period_months') buildSchedule();
+}
+
+function gv(id){const el=document.getElementById(id);if(!el)return D[id];if(el.type==='number')return parseFloat(el.value)||0;if(el.tagName==='SELECT')return el.value;return el.value;}
+
+// =============================================
+// SCHEDULE TAB
+// =============================================
+const schItemKeys=['schBaseCon','schDevFee','schContingency','schLicensing','schDesign','schInsurance','schSupervision','schMarketing'];
+function getSchItems(){return schItemKeys.map((key,i)=>({key,label:TX[lang].sch[i]}));}
+function getSchArr(key){
+  const map={schBaseCon,schDevFee,schContingency,schLicensing,schDesign,schInsurance,schSupervision,schMarketing,salesSchedule};
+  return map[key];
+}
+function buildSchedule(){
+  const nq=Math.floor(gv('fund_period_months')/3)||8;
+  if(schDevFee.length!==nq){
+    if(nq===8){
+      schBaseCon=[0,5,10,15,20,20,20,10];
+      schDevFee=[0,5,10,15,20,20,20,10];
+      schContingency=[0,0,0,25,0,25,25,25];
+      schLicensing=[0,100,0,0,0,0,0,0];
+      schDesign=[0,100,0,0,0,0,0,0];
+      schInsurance=[0,0,0,25,0,25,25,25];
+      schSupervision=[3,7,13,19,20,18,12,8];
+      schMarketing=[0,100,0,0,0,0,0,0];
+      salesSchedule=[0,0,0,0,0,5,5,90];
+    } else {
+      const def=genSCurve(nq);
+      schBaseCon=[...def]; schDevFee=[...def]; schContingency=[...def]; schInsurance=[...def];
+      schLicensing=Array(nq).fill(0); schLicensing[Math.min(1,nq-1)]=100;
+      schDesign=Array(nq).fill(0); schDesign[Math.min(1,nq-1)]=100;
+      schSupervision=[...def];
+      schMarketing=Array(nq).fill(0); schMarketing[Math.min(1,nq-1)]=100;
+      salesSchedule=Array(nq).fill(0);
+      if(nq>=2){salesSchedule[nq-2]=10;salesSchedule[nq-1]=90;}
+      else salesSchedule[nq-1]=100;
+    }
+  }
+  const p=document.getElementById('p-schedule');
+  const qlabels=Array.from({length:nq},(_,i)=>'Q'+(i+1));
+  function schRow(name,arrKey){
+    const arr=getSchArr(arrKey);
+    const tot=arr.reduce((a,b)=>a+b,0);
+    return `<tr><td>${name}</td>${arr.map((v,i)=>`<td><input type="number" value="${v.toFixed(2)}" step="0.01" onchange="getSchArr('${arrKey}')[${i}]=parseFloat(this.value)||0;updSchTot('${arrKey}')"></td>`).join('')}<td class="tot" id="tot_${arrKey}">${tot.toFixed(2)}%</td></tr>`;
+  }
+
+  function buildConTable(){
+    const totalGFA=conComponents.reduce((a,c)=>a+c.gfa,0);
+    const totalCost=conComponents.reduce((a,c)=>a+c.gfa*c.cost,0);
+    const avgCost=totalGFA>0?totalCost/totalGFA:0;
+    const t=TX[lang];
+    let html=`<div class="sch-wrap"><h3>${t.conComp}</h3>
+      <table class="sch-tbl"><thead><tr>${t.conCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+    conComponents.forEach((c,i)=>{
+      const comp_total=c.gfa*c.cost;
+      html+=`<tr><td><input type="text" value="${c.name}" style="width:100%;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="conComponents[${i}].name=this.value"></td>
+        <td><input type="number" value="${c.gfa}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="conComponents[${i}].gfa=parseFloat(this.value)||0;updateConComponents()"></td>
+        <td><input type="number" value="${c.cost}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="conComponents[${i}].cost=parseFloat(this.value)||0;updateConComponents()"></td>
+        <td style="text-align:center;background:#f0f4f8;font-weight:600">${fN(comp_total)}</td>
+        <td style="text-align:center"><button onclick="removeConRow(${i})" style="background:#C0504D;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer">✕</button></td></tr>`;
+    });
+    html+=`</tbody></table><button onclick="addConRow()" style="margin-top:10px;background:var(--primary);color:#fff;border:none;padding:8px 16px;border-radius:var(--radius-s);cursor:pointer;font-weight:600">+ ${t.addComp}</button>`;
+    html+=`<div style="margin-top:10px;padding:10px;background:var(--surface-cl);border-radius:var(--radius-s);font-size:.95rem;font-weight:600">${t.totalGFA}: <span style="color:var(--primary)">${fN(totalGFA)}</span> ${lang==='ar'?'م²':'sqm'} | ${t.weightAvgCost}: <span style="color:var(--primary)">${fN(avgCost)}</span> ${lang==='ar'?'ريال':'SAR'}</div>`;
+    html+=`</div>`;
+    return html;
+  }
+
+  function buildSalesTable(){
+    const totalArea=salesComponents.reduce((a,s)=>a+s.area,0);
+    const totalRev=salesComponents.reduce((a,s)=>a+s.area*s.price,0);
+    const avgPrice=totalArea>0?totalRev/totalArea:0;
+    const t2=TX[lang];
+    let html=`<div class="sch-wrap"><h3>${t2.salesComp}</h3>
+      <table class="sch-tbl"><thead><tr>${t2.saleCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+    salesComponents.forEach((s,i)=>{
+      const sale_total=s.area*s.price;
+      html+=`<tr><td><input type="text" value="${s.name}" style="width:100%;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="salesComponents[${i}].name=this.value"></td>
+        <td><input type="number" value="${s.area}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="salesComponents[${i}].area=parseFloat(this.value)||0;updateSalesComponents()"></td>
+        <td><input type="number" value="${s.price}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="salesComponents[${i}].price=parseFloat(this.value)||0;updateSalesComponents()"></td>
+        <td style="text-align:center;background:#f0f4f8;font-weight:600">${fN(sale_total)}</td>
+        <td style="text-align:center"><button onclick="removeSaleRow(${i})" style="background:#C0504D;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer">✕</button></td></tr>`;
+    });
+    html+=`</tbody></table><button onclick="addSaleRow()" style="margin-top:10px;background:var(--primary);color:#fff;border:none;padding:8px 16px;border-radius:var(--radius-s);cursor:pointer;font-weight:600">+ ${t2.addComp}</button>`;
+    html+=`<div style="margin-top:10px;padding:10px;background:var(--surface-cl);border-radius:var(--radius-s);font-size:.95rem;font-weight:600">${t2.totalSellArea}: <span style="color:var(--primary)">${fN(totalArea)}</span> ${lang==='ar'?'م²':'sqm'} | ${t2.weightAvgPrice}: <span style="color:var(--primary)">${fN(avgPrice)}</span> ${lang==='ar'?'ريال':'SAR'}</div>`;
+    html+=`</div>`;
+    return html;
+  }
+
+  const tl=TX[lang], sitems=getSchItems();
+  p.innerHTML=buildConTable()+buildSalesTable()+`
+  <div class="sch-wrap"><h3>${tl.schConDist}</h3>
+  <table class="sch-tbl"><thead><tr><th>${lang==='ar'?'البند':'Item'}</th>${qlabels.map(q=>`<th>${q}</th>`).join('')}<th>${lang==='ar'?'المجموع':'Total'}</th></tr></thead>
+  <tbody>${sitems.map(it=>schRow(it.label,it.key)).join('')}</tbody></table></div>
+  <div class="sch-wrap"><h3>${tl.schSalesDist}</h3>
+  <table class="sch-tbl"><thead><tr><th>${lang==='ar'?'البند':'Item'}</th>${qlabels.map(q=>`<th>${q}</th>`).join('')}<th>${lang==='ar'?'المجموع':'Total'}</th></tr></thead>
+  <tbody>${schRow(tl.schSalesRow,'salesSchedule')}</tbody></table></div>`;
+}
+function updSchTot(arrKey){
+  const arr=getSchArr(arrKey);
+  document.getElementById('tot_'+arrKey).textContent=arr.reduce((a,b)=>a+b,0).toFixed(2)+'%';
+}
+
+function updateConComponents(){
+  const totalGFA=conComponents.reduce((a,c)=>a+c.gfa,0);
+  const totalCost=conComponents.reduce((a,c)=>a+c.gfa*c.cost,0);
+  const avgCost=totalGFA>0?totalCost/totalGFA:0;
+  D.build_area=totalGFA;
+  D.dev_cost_sqm=avgCost;
+  const baEl=document.getElementById('build_area');
+  const dcEl=document.getElementById('dev_cost_sqm');
+  if(baEl) baEl.value=totalGFA;
+  if(dcEl) dcEl.value=avgCost;
+  buildSchedule();
+}
+function addConRow(){
+  conComponents.push({name:'New Component',gfa:0,cost:0});
+  updateConComponents();
+}
+function removeConRow(i){
+  conComponents.splice(i,1);
+  updateConComponents();
+}
+
+function updateSalesComponents(){
+  const totalArea=salesComponents.reduce((a,s)=>a+s.area,0);
+  const totalRev=salesComponents.reduce((a,s)=>a+s.area*s.price,0);
+  const avgPrice=totalArea>0?totalRev/totalArea:0;
+  D.sell_area=totalArea;
+  D.sale_price_sqm=avgPrice;
+  const saEl=document.getElementById('sell_area');
+  const spEl=document.getElementById('sale_price_sqm');
+  if(saEl) saEl.value=totalArea;
+  if(spEl) spEl.value=avgPrice;
+  buildSchedule();
+}
+function addSaleRow(){
+  salesComponents.push({name:'New Component',area:0,price:0});
+  updateSalesComponents();
+}
+function removeSaleRow(i){
+  salesComponents.splice(i,1);
+  updateSalesComponents();
+}
+
+function genSCurve(nq){
+  const xR=[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1],yC=[0,.02,.06,.14,.26,.42,.58,.74,.86,.94,1];
+  function interp(x){if(x<=0)return 0;if(x>=1)return 1;for(let i=1;i<xR.length;i++)if(x<=xR[i]){const t=(x-xR[i-1])/(xR[i]-xR[i-1]);return yC[i-1]+t*(yC[i]-yC[i-1]);}return 1;}
+  const c=Array.from({length:nq},(_,i)=>interp((i+1)/nq));
+  const d=[c[0],...c.slice(1).map((v,i)=>v-c[i])];
+  return d.map(v=>+(v*100).toFixed(2));
+}
+
+// =============================================
+// CALCULATION ENGINE
+// =============================================
+function pct(v){return v/100;}
+
+function freqAmount(annual,freq,qi,nq){
+  const yearsInFund=nq/4;
+  if(freq==='quarterly') return annual/4;
+  if(freq==='semiannual') return (qi%2===1)?annual/2:0;
+  if(freq==='annual') return (qi%4===3)?annual:0;
+  return 0;
+}
+
+function calculate(){
+  const A={};
+  Object.keys(D).forEach(k=>{const el=document.getElementById(k);A[k]=el?(el.type==='number'?parseFloat(el.value)||0:el.tagName==='SELECT'?el.value:el.value):D[k];});
+
+  // FIX 3: Resolve design/supervision fees
+  const _baseCon_raw=A.build_area*A.dev_cost_sqm;
+  if(A.design_fee_mode==='pct') A.design_fee=_baseCon_raw*(A.design_fee_pct/100);
+  if(A.supervision_fee_mode==='pct') A.supervision_fee=_baseCon_raw*(A.supervision_fee_pct/100);
+
+  const nq=Math.floor(A.fund_period_months/3);
+  if(nq<2){alert('Minimum 2 quarters');return;}
+
+  if(schDevFee.length!==nq) buildSchedule();
+
+  const V=1+pct(A.vat_rate);
+
+  const baseLand=A.land_area*A.land_price_sqm;
+  const brokerageExVAT=baseLand*pct(A.brokerage_pct);
+  const brokerageVAT=brokerageExVAT*pct(A.vat_rate);
+  const brokerageIncVAT=brokerageExVAT+brokerageVAT;
+  const rettAmount=baseLand*pct(A.rett_pct);
+  const tLand=baseLand+brokerageIncVAT+rettAmount;
+
+  const baseCon=A.build_area*A.dev_cost_sqm;
+  const devFees=baseCon*pct(A.dev_fee_pct);
+  const contingency=baseCon*pct(A.contingency_pct);
+  const insurance=baseCon*pct(A.insurance_pct);
+  const baseConExVAT=baseCon+devFees+contingency+insurance;
+  const otherConExVAT=A.design_fee+A.supervision_fee+A.licensing_fee;
+  const tConExVAT=baseConExVAT+otherConExVAT;
+  const tConIncVAT=tConExVAT*V;
+
+  const tRev=A.sell_area*A.sale_price_sqm;
+  const rate=(pct(A.saibor)+pct(A.margin));
+
+  const dBaseCon=schBaseCon.map(v=>v/100);
+  const dDevFee=schDevFee.map(v=>v/100);
+  const dContingency=schContingency.map(v=>v/100);
+  const dLicensing=schLicensing.map(v=>v/100);
+  const dDesign=schDesign.map(v=>v/100);
+  const dInsurance=schInsurance.map(v=>v/100);
+  const dSupervision=schSupervision.map(v=>v/100);
+  const dMarketing=schMarketing.map(v=>v/100);
+  const saleDist=salesSchedule.map(v=>v/100);
+
+  const qBaseCon=dBaseCon.map(d=>baseCon*d*V);
+  const qDevFee=dDevFee.map(d=>devFees*d*V);
+  const qContingency=dContingency.map(d=>contingency*d*V);
+  const qLicensing=dLicensing.map(d=>A.licensing_fee*d*V);
+  const qDesignFee=dDesign.map(d=>A.design_fee*d*V);
+  const qInsurance=dInsurance.map(d=>insurance*d*V);
+  const qSupervision=dSupervision.map(d=>A.supervision_fee*d*V);
+  const qCon=Array.from({length:nq},(_,i)=>qBaseCon[i]+qDevFee[i]+qContingency[i]+qLicensing[i]+qDesignFee[i]+qInsurance[i]+qSupervision[i]);
+
+  const qGrossSales=saleDist.map(d=>tRev*d);
+  const qWafi=qGrossSales.map(v=>v*pct(A.wafi_pct)*V);
+  const qSellExp=qGrossSales.map(v=>v*pct(A.sell_exp_pct)*V);
+  const qSales=qGrossSales.map((v,i)=>v-qWafi[i]-qSellExp[i]);
+  const qMkt=dMarketing.map(d=>A.marketing_cost*d*V);
+  const qArrFee=Array(nq).fill(0);
+
+  const qCustody=Array(nq).fill(0), qSPV=Array(nq).fill(0), qFundSetup=Array(nq).fill(0);
+  const qAuditor=Array(nq).fill(0), qSharia=Array(nq).fill(0), qEngineering=Array(nq).fill(0);
+  const qBoard=Array(nq).fill(0), qFinAdvisor=Array(nq).fill(0);
+  const qMgmtFee=Array(nq).fill(0), qBankMgmt=Array(nq).fill(0), qVATAdvisor=Array(nq).fill(0);
+  const qPerfFee=Array(nq).fill(0);
+
+  for(let qi=0;qi<nq;qi++){
+    qCustody[qi]=freqAmount(A.custody_annual,A.custody_freq,qi,nq)*V;
+    qAuditor[qi]=freqAmount(A.auditor_annual,A.auditor_freq,qi,nq)*V;
+    qSharia[qi]=freqAmount(A.sharia_annual,A.sharia_freq,qi,nq)*V;
+    qEngineering[qi]=freqAmount(A.engineering_annual,A.engineering_freq,qi,nq)*V;
+    qBoard[qi]=freqAmount(A.board_annual,A.board_freq,qi,nq)*V;
+  }
+  qSPV[0]=A.spv_setup*V; qFundSetup[0]=A.fund_setup*V; qFinAdvisor[0]=A.fin_advisor*V;
+
+  const qIKLand=Array(nq).fill(0); qIKLand[0]=pct(A.ik_land_pct)*baseLand;
+  const qIKDev=dDevFee.map(d=>pct(A.ik_dev_pct)*devFees*d);
+  const qIKCon=dBaseCon.map(d=>pct(A.ik_con_pct)*baseCon*d);
+  const qIKMkt=dMarketing.map(d=>pct(A.ik_mkt_pct)*A.marketing_cost*d);
+  const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]);
+
+  const delayQ=Math.floor(A.vat_refund_months/3);
+  const lastQ=nq-1;
+  const qConVAT=qCon.map(c=>c-c/V);
+  const qVATRefundCon=Array(nq).fill(0);
+  if(Number(A.vat_refund_con)){
+    for(let i=delayQ;i<nq;i++) qVATRefundCon[i]=qConVAT[i-delayQ];
+    for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundCon[lastQ]+=qConVAT[i];}
+  }
+  const qRETTRefund=Array(nq).fill(0);
+  const qBrokVATRefund=Array(nq).fill(0);
+  if(Number(A.vat_refund_land)) qBrokVATRefund[Math.min(delayQ,lastQ)]=brokerageVAT;
+  if(Number(A.rett_refund)) qRETTRefund[Math.min(delayQ,lastQ)]=rettAmount;
+  const qExpVAT=Array(nq).fill(0);
+  const qVATRefundExp=Array(nq).fill(0);
+  const qVATNet=Array(nq).fill(0);
+
+  let drawdowns=Array(nq).fill(0);
+  const qLoanOpen=Array(nq).fill(0),qLoanClose=Array(nq).fill(0);
+  const qInterest=Array(nq).fill(0),qRepay=Array(nq).fill(0);
+  const qEquity=Array(nq).fill(0); qEquity[0]=A.equity;
+  const qLandCF=Array(nq).fill(0); qLandCF[0]=-tLand;
+
+  const qTotalAssets=Array(nq).fill(0), qNAV=Array(nq).fill(0);
+  const qDSCR=Array(nq).fill(0);
+
+  const qCashOpen=Array(nq).fill(0),qCashClose=Array(nq).fill(0);
+  const qDividends=Array(nq).fill(0);
+  const qTotalFundExp=Array(nq).fill(0);
+  const qNetOp=Array(nq).fill(0),qNetInv=Array(nq).fill(0),qNetFin=Array(nq).fill(0);
+
+  let cumCon=0;
+
+  for(let iter=0;iter<100;iter++){
+    cumCon=0;
+    const iterDebt=drawdowns.reduce((a,b)=>a+b,0);
+    qArrFee[0]=iterDebt*pct(A.arr_fee_pct);
+    qBankMgmt.fill(0); qBankMgmt[0]=iterDebt*pct(A.bank_mgmt_pct);
+    for(let qi=0;qi<nq;qi++){
+      qLoanOpen[qi]=qi===0?0:qLoanClose[qi-1];
+      const bal=qLoanOpen[qi]+drawdowns[qi];
+      qInterest[qi]=qLoanOpen[qi]*rate/4;
+      qRepay[qi]=(qi===nq-1)?bal:0;
+      qLoanClose[qi]=bal-qRepay[qi];
+    }
+
+    cumCon=0;
+    for(let qi=0;qi<nq;qi++){
+      cumCon+=qCon[qi];
+      const baseExp=qCustody[qi]+qSPV[qi]+qFundSetup[qi]+qAuditor[qi]+qSharia[qi]+qEngineering[qi]+qBoard[qi]+qFinAdvisor[qi]+qMkt[qi]+qBankMgmt[qi]+qVATAdvisor[qi]+qWafi[qi]+qSellExp[qi]+qArrFee[qi];
+      const cash=qi>0?qCashClose[qi-1]:0;
+      qTotalAssets[qi]=tLand+cumCon+cash;
+      qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
+      if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4;
+      else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4;
+      else qMgmtFee[qi]=A.mgmt_fee_fixed/4;
+      qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
+    }
+
+    for(let qi=0;qi<nq;qi++){
+      qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
+    }
+    qVATRefundExp.fill(0);
+    if(Number(A.vat_refund_con)){
+      for(let i=delayQ;i<nq;i++) qVATRefundExp[i]=qExpVAT[i-delayQ];
+      for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundExp[lastQ]+=qExpVAT[i];}
+    }
+    for(let qi=0;qi<nq;qi++){
+      const totalRef=qVATRefundCon[qi]+qVATRefundExp[qi]+qBrokVATRefund[qi]+qRETTRefund[qi];
+      qVATAdvisor[qi]=totalRef*pct(A.vat_advisor_pct);
+      qVATNet[qi]=totalRef-qVATAdvisor[qi];
+    }
+
+    for(let qi=0;qi<nq;qi++){
+      qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
+      qNetInv[qi]=qLandCF[qi]+(-qCon[qi]);
+      const netBorrow=drawdowns[qi]-qRepay[qi];
+      qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
+
+      qCashOpen[qi]=qi===0?0:qCashClose[qi-1];
+      qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+    }
+
+    const newDD=Array(nq).fill(0);
+    const tempCash=Array(nq).fill(0);
+    for(let qi=0;qi<nq;qi++){
+      const open=qi===0?0:tempCash[qi-1];
+      const netNoBorrow=qNetOp[qi]+qNetInv[qi]+qEquity[qi]+qIKTotal[qi]-(qi===nq-1?qRepay[qi]:0);
+      const raw=open+netNoBorrow;
+      if(raw<A.min_cash && qi<nq-1) newDD[qi]=A.min_cash-raw;
+      tempCash[qi]=raw+newDD[qi];
+    }
+
+    let delta=0;
+    for(let qi=0;qi<nq;qi++) delta+=Math.abs(newDD[qi]-drawdowns[qi]);
+    drawdowns=[...newDD];
+    if(delta<1) break;
+  }
+
+  cumCon=0;
+  for(let qi=0;qi<nq;qi++){
+    qLoanOpen[qi]=qi===0?0:qLoanClose[qi-1];
+    const bal=qLoanOpen[qi]+drawdowns[qi];
+    qInterest[qi]=qLoanOpen[qi]*rate/4;
+    qRepay[qi]=(qi===nq-1)?bal:0;
+    qLoanClose[qi]=bal-qRepay[qi];
+  }
+  const totalDebtDrawn=drawdowns.reduce((a,b)=>a+b,0);
+  qArrFee[0]=totalDebtDrawn*pct(A.arr_fee_pct);
+  qBankMgmt[0]=totalDebtDrawn*pct(A.bank_mgmt_pct);
+
+  cumCon=0;
+  for(let qi=0;qi<nq;qi++){
+    cumCon+=qCon[qi];
+    const baseExp=qCustody[qi]+qSPV[qi]+qFundSetup[qi]+qAuditor[qi]+qSharia[qi]+qEngineering[qi]+qBoard[qi]+qFinAdvisor[qi]+qMkt[qi]+qBankMgmt[qi]+qVATAdvisor[qi]+qWafi[qi]+qSellExp[qi]+qArrFee[qi];
+    const cash=qi>0?qCashClose[qi-1]:0;
+    qTotalAssets[qi]=tLand+cumCon+cash;
+    qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
+    if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4;
+    else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4;
+    else qMgmtFee[qi]=A.mgmt_fee_fixed/4;
+    qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
+  }
+
+  for(let qi=0;qi<nq;qi++){
+    const allExp=qTotalFundExp[qi]+qInterest[qi];
+    qExpVAT[qi]=allExp-allExp/V;
+  }
+  qVATRefundExp.fill(0);
+  if(Number(A.vat_refund_con)){
+    for(let i=delayQ;i<nq;i++) qVATRefundExp[i]=qExpVAT[i-delayQ];
+    for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundExp[lastQ]+=qExpVAT[i];}
+  }
+  for(let qi=0;qi<nq;qi++){
+    const totalRef=qVATRefundCon[qi]+qVATRefundExp[qi]+qBrokVATRefund[qi]+qRETTRefund[qi];
+    qVATAdvisor[qi]=totalRef*pct(A.vat_advisor_pct);
+    qVATNet[qi]=totalRef-qVATAdvisor[qi];
+  }
+
+  for(let qi=0;qi<nq;qi++){
+    qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
+    qNetInv[qi]=qLandCF[qi]+(-qCon[qi]);
+    const netBorrow=drawdowns[qi]-qRepay[qi];
+
+    qCashOpen[qi]=qi===0?0:qCashClose[qi-1];
+
+    if(qi===nq-1){
+      const cashBeforePerf=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+netBorrow+qEquity[qi]+qIKTotal[qi];
+      const totalEquity=A.equity+qIKTotal.reduce((a,b)=>a+b,0);
+      const totalReturn=cashBeforePerf;
+      const hurdleAmount=totalEquity*pct(A.hurdle_rate)*(A.fund_period_months/12);
+      const profit=totalReturn-totalEquity;
+      if(profit>hurdleAmount){
+        const excess=profit-hurdleAmount;
+        qPerfFee[qi]=excess*pct(A.perf_fee_pct);
+      }
+      const cashAfterPerf=cashBeforePerf-qPerfFee[qi];
+      qDividends[qi]=Math.max(0,cashAfterPerf);
+      qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi]-qDividends[qi];
+      qTotalFundExp[qi]+=qPerfFee[qi];
+      qNetOp[qi]-=qPerfFee[qi];
+      qCashClose[qi]=0;
+    } else {
+      qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
+      qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+    }
+  }
+
+  if(qPerfFee[lastQ]>0){
+    qExpVAT[lastQ]=qTotalFundExp[lastQ]-qTotalFundExp[lastQ]/V;
+    qVATRefundExp.fill(0);
+    if(Number(A.vat_refund_con)){
+      for(let i=delayQ;i<nq;i++) qVATRefundExp[i]=qExpVAT[i-delayQ];
+      for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundExp[lastQ]+=qExpVAT[i];}
+    }
+    for(let qi=0;qi<nq;qi++){
+      const totalRef=qVATRefundCon[qi]+qVATRefundExp[qi]+qBrokVATRefund[qi]+qRETTRefund[qi];
+      qVATAdvisor[qi]=totalRef*pct(A.vat_advisor_pct);
+      qVATNet[qi]=totalRef-qVATAdvisor[qi];
+    }
+  }
+
+  // Calculate DSCR per quarter
+  for(let qi=0;qi<nq;qi++){
+    const debtService=qInterest[qi]+(qi===nq-1?qRepay[qi]:0);
+    qDSCR[qi]=debtService>0?qNetOp[qi]/debtService:0;
+  }
+
+  const tCon=tConIncVAT;
+  const totalFundExp=qTotalFundExp.reduce((a,b)=>a+b,0);
+  const totalIntAmt=qInterest.reduce((a,b)=>a+b,0);
+  // FIX 3+4: Consistent cost calculations
+  // Total cost inc VAT (for pie chart / cost breakdown)
+  const totalCostIncVAT=tLand+tCon+totalFundExp+totalIntAmt;
+  // Total cost ex VAT (for profit margin — revenue is ex-VAT)
+  const totalCostExVAT=tLand+tConExVAT+totalFundExp/V+totalIntAmt;
+  const vatInCost=totalCostIncVAT-totalCostExVAT;
+  // Use ex-VAT for profit calculation since revenue is ex-VAT
+  const totalCost=totalCostExVAT;
+  const grossProfit=tRev-totalCost;
+  const profitMargin=totalCost?grossProfit/totalCost:0;
+  const annualROI=A.fund_period_months?profitMargin/(A.fund_period_months/12):0;
+  const totalDebt=drawdowns.reduce((a,b)=>a+b,0);
+  const totalInt=qInterest.reduce((a,b)=>a+b,0);
+  const ltc=totalCost?totalDebt/totalCost:0;
+  const totalDiv=qDividends.reduce((a,b)=>a+b,0);
+  const totalIK=qIKTotal.reduce((a,b)=>a+b,0);
+  const totalUHInvestment=A.equity+totalIK;
+  const roiUH=totalUHInvestment?(totalDiv-totalUHInvestment)/totalUHInvestment:0;
+  const annROIUH=A.fund_period_months?roiUH/(A.fund_period_months/12):0;
+
+  // Capital structure — how total cost (fund size) is financed
+  // Total Cost = Land + Construction + Fund Expenses + Interest
+  // Sources: Cash Equity + In-Kind + Off-Plan Sales + Debt = Total Cost
+  const capCash=A.equity;
+  const capInKind=qIKTotal.reduce((a,b)=>a+b,0);
+  const capDebt=totalDebt;
+  // Off-Plan = residual (Total Cost minus other sources) — clamped to 0
+  const capOffPlan=Math.max(0, totalCost - capCash - capInKind - capDebt);
+  const capTotal=capCash+capInKind+capOffPlan+capDebt;
+  const labels=Array.from({length:nq},(_,i)=>'Q'+(i+1));
+  R={nq,labels,A,tLand,tCon,tConExVAT,baseConExVAT,otherConExVAT,tRev,totalCost,totalCostIncVAT,totalCostExVAT,vatInCost,grossProfit,profitMargin,annualROI,totalDebt,totalInt,ltc,totalDiv,roiUH,annROIUH,
+    qGrossSales,qSales,qWafi,qSellExp,qCon,qBaseCon,qDevFee,qContingency,qLicensing,qDesignFee,qInsurance,qSupervision,qMkt,qVATNet,qVATAdvisor,qArrFee,
+    qCustody,qSPV,qFundSetup,qAuditor,qSharia,qEngineering,qBoard,qFinAdvisor,qMgmtFee,qBankMgmt,qPerfFee,qTotalFundExp,
+    qInterest,qNetOp,qLandCF,qNetInv,qDSCR,
+    drawdowns,qRepay,qEquity,qIKLand,qIKDev,qIKCon,qIKMkt,qIKTotal,qDividends,qNetFin,
+    qCashOpen,qCashClose,qLoanOpen,qLoanClose,qNAV,qTotalAssets,
+    qVATRefundCon,qVATRefundExp,qBrokVATRefund,qRETTRefund,baseLand,brokerageIncVAT,rettAmount,conComponents,salesComponents,capCash,capInKind,capOffPlan,capDebt,capTotal};
+
+  document.querySelectorAll('.tab').forEach(t=>t.disabled=false);
+  document.getElementById('btnDL').classList.add('show');
+  document.getElementById('btnPDF').classList.add('show');
+
+  renderDashboard();
+  renderCashFlow();
+  renderDebt();
+  renderSensitivity();
+  showTab('dashboard');
+}
+
+// =============================================
+// FORMATTING
+// =============================================
+function fN(n){if(!n||Math.abs(n)<0.5)return'-';const a=Math.abs(Math.round(n));const s=a.toLocaleString('en-US');return n<0?'('+s+')':s;}
+function fP(n){return((n||0)*100).toFixed(1)+'%';}
+function fM(n){if(Math.abs(n)>=1e6)return(n/1e6).toFixed(1)+'M';if(Math.abs(n)>=1e3)return(n/1e3).toFixed(0)+'K';return Math.round(n).toString();}
+
+// =============================================
+// DASHBOARD - ROLE-BASED
+// =============================================
+function renderDashboard(){
+  const V=1+pct(R.A.vat_rate);
+  const totalDebtService=R.totalInt+R.drawdowns.reduce((a,b)=>a+b,0);
+  const dcr=totalDebtService>0?R.tRev/totalDebtService:0;
+  const perfFee=R.qPerfFee.reduce((a,b)=>a+b,0);
+  const DH=TX[lang].dash, cur=lang==='ar'?'ريال':'SAR';
+  const p=document.getElementById('p-dashboard');
+  let html='';
+
+  // FIX 8: Role tabs under dashboard
+  const _roleLabels=lang==='ar'?TX[lang].roleAr:TX[lang].roles;
+  html+=`<div class="role-tabs">${TX[lang].roleKeys.map((rk,i)=>`<button class="role-btn${currentRole===rk?' active':''}" onclick="setRole('${rk}')">${_roleLabels[i]}</button>`).join('')}</div>`;
+
+  if(currentRole==='fund_manager'){
+    // Fund Manager: IRR, Equity Multiple, NAV Timeline, Waterfall, Investor CF, KPIs
+    const base=calcWith({});
+    const irr=base?base.irr:0;
+    const eqMult=base?base.eqMult:0;
+    const maxLP=calcMaxLandPrice();
+    const kG=[
+      {title:DH.revCost,items:[
+        [DH.totalRev,fN(R.tRev)+' '+cur],[DH.totalCostExVAT,fN(R.totalCostExVAT)+' '+cur],[DH.vatAmount,fN(R.vatInCost)+' '+cur],[DH.grossProfit,fN(R.grossProfit)+' '+cur],[DH.profitMargin,fP(R.profitMargin)]]},
+      {title:DH.invRet,items:[
+        [DH.irr,fP(irr)],[DH.eqMult,eqMult.toFixed(2)+'x'],[DH.totalDiv,fN(R.totalDiv)+' '+cur],[DH.perfFee,fN(perfFee)+' '+cur]]},
+      {title:DH.debtFin,items:[
+        [DH.totalDebt,fN(R.totalDebt)+' '+cur],[DH.annROI,fP(R.annualROI)],[DH.ltcRatio,fP(R.ltc)],[DH.dcr,fP(dcr)]]},
+      {title:DH.capStruct+' ('+fN(R.capTotal)+' '+cur+')',items:[
+        [DH.capCash,fN(R.capCash)+' '+cur+' ('+fP(R.capTotal?R.capCash/R.capTotal:0)+')'],
+        [DH.capInKind,fN(R.capInKind)+' '+cur+' ('+fP(R.capTotal?R.capInKind/R.capTotal:0)+')'],
+        [DH.capOffPlan,fN(R.capOffPlan)+' '+cur+' ('+fP(R.capTotal?R.capOffPlan/R.capTotal:0)+')'],
+        [DH.capDebt,fN(R.capDebt)+' '+cur+' ('+fP(R.capTotal?R.capDebt/R.capTotal:0)+')']]},
+    ];
+    let kH='';
+    kG.forEach(g=>{
+      kH+=`<div style="margin-bottom:28px"><div style="font-family:'Noto Serif',serif;font-size:.88rem;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">${g.title}</div>
+      <div class="kpi-grid" style="margin-bottom:0">${g.items.map(([l,v])=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div></div>`).join('')}</div></div>`;
+    });
+    // Max Land Price KPI badge
+    kH+=`<div style="margin-bottom:28px;display:flex;align-items:center;gap:16px">
+      <div class="kpi" style="flex:0 0 auto;padding:16px 28px;border-left:4px solid var(--secondary)">
+        <div class="kpi-v">${fN(maxLP)} ${cur}/${lang==='ar'?'م²':'sqm'}</div>
+        <div class="kpi-l">${DH.maxLandIRR}</div>
+      </div>
+      <div style="font-size:.85rem;color:var(--on-surface-vl);max-width:360px;line-height:1.5">${lang==='ar'?'أقصى سعر متر مربع للأرض يحقق العائد الداخلي المستهدف ('+fP(pct(R.A.hurdle_rate))+')':'Maximum land price per sqm that achieves the hurdle IRR of '+fP(pct(R.A.hurdle_rate))}</div>
+    </div>`;
+    html+=kH+`<div class="ch-grid">
+      <div class="ch-card"><h3>${DH.cfTime}</h3><canvas id="c1"></canvas></div>
+      <div class="ch-card"><h3>${DH.costBreak}</h3><canvas id="c2"></canvas></div>
+      <div class="ch-card"><h3>${DH.capStruct}</h3><canvas id="c5"></canvas></div>
+      <div class="ch-card"><h3>${DH.closingCash}</h3><canvas id="c3"></canvas></div>
+      <div class="ch-card"><h3>${DH.debtSch}</h3><canvas id="c4"></canvas></div>
+    </div>`;
+  } else if(currentRole==='developer'){
+    // Developer: Cost breakdown, Profit margin, GFA efficiency, Max land price backsolve
+    const totalConCost=R.qCon.reduce((a,b)=>a+b,0);
+    const gfaEff=R.A.build_area>0?totalConCost/R.A.build_area:0;
+    const maxLPBreakeven=Math.max(0,(R.tRev-totalConCost-R.qTotalFundExp.reduce((a,b)=>a+b,0)-R.qInterest.reduce((a,b)=>a+b,0))/(R.A.land_area||1));
+    const maxLPIRR=calcMaxLandPrice();
+    const kG=[
+      {title:DH.costAnalysis,items:[
+        [DH.totalCost,fN(R.totalCost)+' '+cur],[DH.gfaEff,fN(gfaEff)+' '+cur],[lang==='ar'?'التكلفة/م²':'Cost/sqm',fN(R.A.dev_cost_sqm)+' '+cur],[DH.maxLandPrice,fN(maxLPBreakeven)+' '+cur+'/'+(lang==='ar'?'م²':'sqm')]]},
+      {title:DH.capStruct||DH.costAnalysis,items:[
+        [DH.profitMargin2,fP(R.profitMargin)],[DH.grossProfit,fN(R.grossProfit)+' '+cur],[DH.maxLandIRR||DH.maxLandPrice,fN(maxLPIRR)+' '+cur+'/'+(lang==='ar'?'م²':'sqm')],[DH.totalRev,fN(R.tRev)+' '+cur]]},
+    ];
+    let kH='';
+    kG.forEach(g=>{
+      kH+=`<div style="margin-bottom:28px"><div style="font-family:'Noto Serif',serif;font-size:.88rem;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">${g.title}</div>
+      <div class="kpi-grid" style="margin-bottom:0">${g.items.map(([l,v])=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div></div>`).join('')}</div></div>`;
+    });
+    html+=kH+`<div class="ch-grid">
+      <div class="ch-card"><h3>${DH.cfTime}</h3><canvas id="c1"></canvas></div>
+      <div class="ch-card"><h3>${DH.costBreak}</h3><canvas id="c2"></canvas></div>
+    </div>`;
+  } else if(currentRole==='financer'){
+    // Financer: DSCR, LTC, LTV, Covenant compliance, Stress testing
+    const avgDSCR=R.qDSCR.reduce((a,b)=>a+b,0)/R.nq;
+    const ltvRatio=R.qTotalAssets[R.nq-1]>0?R.totalDebt/R.qTotalAssets[R.nq-1]:0;
+    const complianceColor=(dscr)=>dscr>=1.2?'#1a6b3c':dscr>=1.0?'#775a19':'#ba1a1a';
+    const kG=[
+      {title:DH.debtFin,items:[
+        [DH.dscr,avgDSCR.toFixed(2)+'x'],[DH.ltcRatio,fP(R.ltc)],[DH.ltvRatio,fP(ltvRatio)],[DH.totalDebt,fN(R.totalDebt)+' '+cur]]},
+    ];
+    let kH='';
+    kG.forEach(g=>{
+      kH+=`<div style="margin-bottom:28px"><div style="font-family:'Noto Serif',serif;font-size:.88rem;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">${g.title}</div>
+      <div class="kpi-grid" style="margin-bottom:0">${g.items.map(([l,v])=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div></div>`).join('')}</div></div>`;
+    });
+    html+=kH+`<div class="ch-grid">
+      <div class="ch-card"><h3>${DH.dscr}</h3><canvas id="c1"></canvas></div>
+      <div class="ch-card"><h3>${DH.ltcRatio}</h3><canvas id="c2"></canvas></div>
+    </div>`;
+  }
+
+  // Add scenario comparison if scenarios saved
+  if(scenarios.base || scenarios.upside || scenarios.downside){
+    html+=renderScenarioComparison();
+  }
+
+  p.innerHTML=html;
+
+  setTimeout(()=>{
+    if(currentRole==='fund_manager'){
+      drawBarChart('c1',R.labels,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
+      drawPie('c2',[R.tLand,R.tConExVAT,R.totalInt,R.qTotalFundExp.reduce((a,b)=>a+b,0)/V],
+        [lang==='ar'?'الأرض':'Land',lang==='ar'?'البناء':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],
+        ['#00322d','#004b44','#775a19','#767669']);
+      drawPie('c5',[R.capCash,R.capInKind,R.capOffPlan,R.capDebt],[DH.capCash,DH.capInKind,DH.capOffPlan,DH.capDebt],['#00322d','#775a19','#1a6b3c','#004b44']);
+      drawLine('c3',R.labels,R.qCashClose,'#775a19');
+      drawBarChart('c4',R.labels,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'},{d:R.qInterest,c:'#775a19'}],DH.chLegDebt);
+    } else if(currentRole==='developer'){
+      drawBarChart('c1',R.labels,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
+      drawPie('c2',[R.tLand,R.tConExVAT,R.totalInt,R.qTotalFundExp.reduce((a,b)=>a+b,0)/V],
+        [lang==='ar'?'الأرض':'Land',lang==='ar'?'البناء':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],['#00322d','#004b44','#775a19','#767669']);
+    } else if(currentRole==='financer'){
+      drawBarChart('c1',R.labels,[{d:R.qDSCR,c:'#00322d'}],[DH.dscr]);
+      drawBarChart('c2',R.labels,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'}],[DH.chLegDebt[0],DH.chLegDebt[1]]);
+    }
+  },50);
+}
+
+function renderScenarioComparison(){
+  const SC=TX[lang].scenarios;
+  const rows=[SC.kpis[0],SC.kpis[1],SC.kpis[2],SC.kpis[3],SC.kpis[4],SC.kpis[5],SC.kpis[6]];
+  let html=`<div class="scenario-wrap"><h3>${SC.title}</h3><div class="scenario-comp"><table class="scenario-tbl"><thead><tr><th>KPI</th>`;
+
+  if(scenarios.base){
+    html+=`<th>Base</th>`;
+    html+=`</tr></thead><tbody>`;
+    rows.forEach((r,i)=>{
+      const base=scenarios.base;
+      let val='-';
+      if(i===0) val=(base.irr*100).toFixed(1)+'%';
+      else if(i===1) val=base.eqMult.toFixed(2)+'x';
+      else if(i===2) val=fN(base.netProfit);
+      else if(i===3) val=fP(base.roiUH);
+      else if(i===4) val=fN(base.totalDebt);
+      else if(i===5) val=fP(base.profitMargin);
+      else if(i===6) val=(base.avgDSCR||1).toFixed(2)+'x';
+      html+=`<tr><td>${r}</td><td>${val}</td></tr>`;
+    });
+    html+=`</tbody></table></div></div>`;
+  }
+  return html;
+}
+
+// =============================================
+// CASH FLOW TABLE
+// =============================================
+function renderCashFlow(){
+  const r=R, lb=r.labels, nq=r.nq;
+  function tr(label,data,cls){
+    const tot=data.reduce((a,b)=>a+b,0);
+    const neg=v=>v<0?'neg':'';
+    return `<tr class="${cls||''}"><td class="rl">${label}</td>${data.map(v=>`<td class="${neg(v)}">${fN(v)}</td>`).join('')}<td class="${neg(tot)}">${fN(tot)}</td></tr>`;
+  }
+  function sep(){return `<tr class="sep"><td colspan="${nq+2}"></td></tr>`;}
+  function sub(label,data){return tr(label,data,'sub');}
+
+  const L=TX[lang].cf;
+  const sliderLabel=lang==='ar'?'انتقل إلى الربع':'Scroll to Quarter';
+  let h=`<div class="sld-group" style="margin-bottom:20px;max-width:500px">
+    <label><span>${sliderLabel}</span> <b id="cfScrollVal">Q1</b></label>
+    <input type="range" id="cfScrollSlider" min="1" max="${nq}" value="1" step="1">
+  </div>`;
+  h+=`<div class="tbl-wrap" id="cfTableWrap"><table class="dt"><thead><tr><th class="rl">${L.hdr}</th>${lb.map(q=>`<th>${q}</th>`).join('')}<th>${lang==='ar'?'المجموع':'Total'}</th></tr></thead><tbody>`;
+
+  h+=tr(L.grossSales,r.qGrossSales);
+  h+=tr(L.wafi,r.qWafi.map(v=>-v));
+  h+=tr(L.sellExp,r.qSellExp.map(v=>-v));
+  h+=tr(L.vatRefCon,r.qVATRefundCon);
+  h+=tr(L.vatRefExp,r.qVATRefundExp);
+  h+=tr(L.vatRefBrok,r.qBrokVATRefund);
+  h+=tr(L.rettRef,r.qRETTRefund);
+  h+=tr(L.vatAdvisor,r.qVATAdvisor.map(v=>-v));
+  h+=sub(L.netRefunds,r.qVATNet);
+  h+=sep();
+  h+=tr(L.custody,r.qCustody.map(v=>-v));
+  h+=tr(L.spv,r.qSPV.map(v=>-v));
+  h+=tr(L.fundSetup,r.qFundSetup.map(v=>-v));
+  h+=tr(L.auditor,r.qAuditor.map(v=>-v));
+  h+=tr(L.sharia,r.qSharia.map(v=>-v));
+  h+=tr(L.engineering,r.qEngineering.map(v=>-v));
+  h+=tr(L.board,r.qBoard.map(v=>-v));
+  h+=tr(L.finAdvisor,r.qFinAdvisor.map(v=>-v));
+  h+=tr(L.mgmtFee,r.qMgmtFee.map(v=>-v));
+  h+=tr(L.marketing,r.qMkt.map(v=>-v));
+  h+=tr(L.bankMgmt,r.qBankMgmt.map(v=>-v));
+  h+=tr(L.arrFee,r.qArrFee.map(v=>-v));
+  h+=tr(L.perfFee,r.qPerfFee.map(v=>-v));
+  h+=sub(L.totalFundExp,r.qTotalFundExp.map(v=>-v));
+  h+=tr(L.interest,r.qInterest.map(v=>-v));
+  h+=sub(L.netOp,r.qNetOp);
+
+  h+=sep();
+  h+=tr(L.land,r.qLandCF);
+  h+=tr(L.conBase,r.qBaseCon.map(v=>-v));
+  h+=tr(L.conDevFee,r.qDevFee.map(v=>-v));
+  h+=tr(L.conContingency,r.qContingency.map(v=>-v));
+  h+=tr(L.conInsurance,r.qInsurance.map(v=>-v));
+  h+=tr(L.conDesign,r.qDesignFee.map(v=>-v));
+  h+=tr(L.conSupervision,r.qSupervision.map(v=>-v));
+  h+=tr(L.conLicensing,r.qLicensing.map(v=>-v));
+  h+=sub(L.conCost,r.qCon.map(v=>-v));
+  h+=sub(L.netInv,r.qNetInv);
+
+  h+=sep();
+  const qNetBorrow=r.drawdowns.map((d,i)=>d-r.qRepay[i]);
+  h+=tr(L.netBorrow,qNetBorrow);
+  h+=tr(L.equity,r.qEquity);
+  h+=tr(L.inKind,r.qIKTotal);
+  h+=tr(L.dividends,r.qDividends.map(v=>-v));
+  h+=sub(L.netFin,r.qNetFin);
+
+  h+=sep();
+  h+=tr(L.openCash,r.qCashOpen,'bld');
+  const qChange=Array.from({length:nq},(_,i)=>r.qCashClose[i]-r.qCashOpen[i]);
+  h+=tr(L.changeCash,qChange);
+  h+=tr(L.closeCash,r.qCashClose,'bld');
+
+  h+=`</tbody></table></div>`;
+  document.getElementById('p-cashflow').innerHTML=h;
+  // Wire up the scroll slider
+  const cfSlider=document.getElementById('cfScrollSlider');
+  const cfVal=document.getElementById('cfScrollVal');
+  const cfWrap=document.getElementById('cfTableWrap');
+  if(cfSlider&&cfWrap){
+    cfSlider.oninput=function(){
+      const q=parseInt(this.value);
+      if(cfVal) cfVal.textContent='Q'+q;
+      const cols=cfWrap.querySelectorAll('th');
+      if(cols.length>q){
+        cols[q].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+      }
+    };
+  }
+}
+
+// =============================================
+// DEBT TABLE
+// =============================================
+function renderDebt(){
+  const r=R,lb=r.labels,nq=r.nq;
+  function tr(label,data,cls){return `<tr class="${cls||''}"><td class="rl">${label}</td>${data.map(v=>`<td>${fN(v)}</td>`).join('')}</tr>`;}
+
+  const DL=TX[lang].debt;
+  let h=`<div class="debt-sum">
+    <div class="ds-item"><div class="ds-lbl">${DL.totalDrawn}</div><div class="ds-val">${fN(r.totalDebt)} ${lang==='ar'?'ريال':'SAR'}</div></div>
+    <div class="ds-item"><div class="ds-lbl">${DL.totalInt}</div><div class="ds-val">${fN(r.totalInt)} ${lang==='ar'?'ريال':'SAR'}</div></div>
+    <div class="ds-item"><div class="ds-lbl">${DL.ltc}</div><div class="ds-val">${fP(r.ltc)}</div></div>
+  </div>`;
+  h+=`<div class="tbl-wrap"><table class="dt"><thead><tr><th class="rl">${DL.hdr}</th>${lb.map(q=>`<th>${q}</th>`).join('')}</tr></thead><tbody>`;
+  h+=tr(DL.open,r.qLoanOpen);
+  h+=tr(DL.dd,r.drawdowns);
+  h+=tr(DL.repay,r.qRepay.map(v=>-v));
+  h+=tr(DL.close,r.qLoanClose,'bld');
+  h+=tr(DL.int,r.qInterest);
+  h+=tr(DL.bankMgmt,r.qBankMgmt);
+  h+=`</tbody></table></div>`;
+  document.getElementById('p-debt').innerHTML=h;
+}
+
+// =============================================
+// CANVAS CHARTS
+// =============================================
+function roundRect(ctx,x,y,w,h,r){
+  if(h===0)return;r=Math.min(r,Math.abs(h)/2,w/2);
+  ctx.beginPath();
+  if(h>0){ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);}
+  else{ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y+h+r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h+r,r);ctx.lineTo(x,y);}
+  ctx.closePath();ctx.fill();
+}
+function drawBarChart(id,labels,datasets,legend){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
+  const W=cv.parentElement.clientWidth-40,H=260;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const isRTL=lang==='ar';
+  const pad={t:20,r:16,b:48,l:64},cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  let all=[];datasets.forEach(ds=>ds.d.forEach(v=>all.push(v)));
+  const mx=Math.max(...all,1),mn=Math.min(...all,0),range=mx-mn||1;
+  const toY=v=>pad.t+cH-(v-mn)/range*cH;
+  const n=labels.length,nD=datasets.length,bW=cW/n*.6/nD;
+  ctx.strokeStyle='#eceae4';ctx.lineWidth=.5;
+  for(let i=0;i<=4;i++){const y=pad.t+cH*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#767669';ctx.font='500 9px Manrope,sans-serif';ctx.textAlign='right';ctx.fillText(fM(mx-(mx-mn)*i/4),pad.l-8,y+3);}
+  if(mn<0){ctx.strokeStyle='#767669';ctx.lineWidth=.8;const y0=toY(0);ctx.beginPath();ctx.moveTo(pad.l,y0);ctx.lineTo(W-pad.r,y0);ctx.stroke();}
+  datasets.forEach((ds,di)=>{ctx.fillStyle=ds.c;ds.d.forEach((v,i)=>{
+    const ci=isRTL?n-1-i:i;
+    const x=pad.l+cW*ci/n+cW/n*.2+di*bW;const y0=toY(0),y=toY(v);const h=y0-y;roundRect(ctx,x,Math.min(y,y0),bW-2,Math.abs(h)||1,3);});});
+  ctx.fillStyle='#49483f';ctx.font='500 10px Manrope,sans-serif';ctx.textAlign='center';
+  labels.forEach((l,i)=>{const ci=isRTL?n-1-i:i;ctx.fillText(l,pad.l+cW*(ci+.5)/n,H-pad.b+16);});
+  if(legend){
+    const isRTL=lang==='ar';
+    if(isRTL){
+      let lx=W-pad.r;ctx.font='500 10px Manrope,sans-serif';
+      legend.forEach((l,i)=>{
+        const tw=ctx.measureText(l).width;
+        lx-=12;ctx.fillStyle=datasets[i].c;roundRect(ctx,lx,H-14,10,10,2);
+        lx-=tw+4;ctx.fillStyle='#49483f';ctx.textAlign='left';ctx.fillText(l,lx,H-5);
+        lx-=16;
+      });
+    } else {
+      let lx=pad.l;ctx.font='500 10px Manrope,sans-serif';
+      legend.forEach((l,i)=>{ctx.fillStyle=datasets[i].c;roundRect(ctx,lx,H-14,10,10,2);ctx.fillStyle='#49483f';ctx.textAlign='left';ctx.fillText(l,lx+14,H-5);lx+=ctx.measureText(l).width+30;});
+    }
+  }
+}
+function drawLine(id,labels,data,color){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
+  const W=cv.parentElement.clientWidth-40,H=260;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const pad={t:16,r:16,b:40,l:64},cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  const mx=Math.max(...data),mn=Math.min(...data,0),range=mx-mn||1;
+  const toY=v=>pad.t+cH-(v-mn)/range*cH;
+  ctx.strokeStyle='#eceae4';ctx.lineWidth=.5;
+  for(let i=0;i<=4;i++){const y=pad.t+cH*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#767669';ctx.font='500 9px Manrope,sans-serif';ctx.textAlign='right';ctx.fillText(fM(mx-(mx-mn)*i/4),pad.l-8,y+3);}
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+  grad.addColorStop(0,color+'30');grad.addColorStop(1,color+'05');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(pad.l+cW*(.5)/data.length,toY(0));
+  data.forEach((v,i)=>{ctx.lineTo(pad.l+cW*(i+.5)/data.length,toY(v));});
+  ctx.lineTo(pad.l+cW*(data.length-.5)/data.length,toY(0));ctx.closePath();ctx.fill();
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.beginPath();
+  data.forEach((v,i)=>{const x=pad.l+cW*(i+.5)/data.length;i===0?ctx.moveTo(x,toY(v)):ctx.lineTo(x,toY(v));});ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle=color;ctx.lineWidth=2;
+  data.forEach((v,i)=>{const x=pad.l+cW*(i+.5)/data.length;ctx.beginPath();ctx.arc(x,toY(v),4,0,Math.PI*2);ctx.fill();ctx.stroke();});
+  ctx.fillStyle='#49483f';ctx.font='500 10px Manrope,sans-serif';ctx.textAlign='center';
+  labels.forEach((l,i)=>ctx.fillText(l,pad.l+cW*(i+.5)/labels.length,H-pad.b+16));
+}
+function drawPie(id,vals,labs,cols){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
+  const W=cv.parentElement.clientWidth-40,H=260;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const cx=W/2-60,cy=H/2,outerR=88,innerR=50,tot=vals.reduce((a,b)=>a+b,0);
+  let ang=-Math.PI/2;
+  vals.forEach((v,i)=>{
+    const sl=v/tot*Math.PI*2;ctx.fillStyle=cols[i];
+    ctx.beginPath();ctx.arc(cx,cy,outerR,ang,ang+sl);ctx.arc(cx,cy,innerR,ang+sl,ang,true);ctx.closePath();ctx.fill();
+    const mid=ang+sl/2;const lx=cx+Math.cos(mid)*(outerR+14),ly=cy+Math.sin(mid)*(outerR+14);
+    ctx.fillStyle='#1b1c19';ctx.font='600 10px Manrope,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(Math.round(v/tot*100)+'%',lx,ly);
+    ang+=sl;
+  });
+  ctx.fillStyle='#00322d';ctx.font="700 15px 'Noto Serif',serif";ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(fM(tot),cx,cy-6);ctx.fillStyle='#767669';ctx.font='500 9px Manrope,sans-serif';ctx.fillText(lang==='ar'?'إجمالي ريال':'SAR Total',cx,cy+10);
+  ctx.textBaseline='alphabetic';ctx.font='500 10px Manrope,sans-serif';
+  const isRTL=lang==='ar';
+  labs.forEach((l,i)=>{
+    const ly=24+i*22;
+    ctx.fillStyle=cols[i];
+    if(isRTL){
+      roundRect(ctx,W-20,ly,12,12,3);
+      ctx.fillStyle='#1b1c19';ctx.textAlign='right';ctx.fillText(l,W-36,ly+10);
+    } else {
+      roundRect(ctx,W-140,ly,12,12,3);
+      ctx.fillStyle='#1b1c19';ctx.textAlign='left';ctx.fillText(l,W-124,ly+10);
+    }
+  });
+}
+
+
+// =============================================
+// PDF EXPORT (FIX 6)
+// =============================================
+function dlPDF(){
+  if(!R) return;
+  const panels=document.querySelectorAll('.pnl');
+  panels.forEach(p=>p.style.display='block');
+  window.print();
+  setTimeout(()=>{panels.forEach(p=>p.style.display='');const at=document.querySelector('.tab.act');if(at) at.click();},500);
+}
+
+// =============================================
+// EXCEL EXPORT - ENHANCED OOXML
+// =============================================
+function dlExcel(){
+  if(!R) return;
+  const A=R.A||D, nq=R.nq, lb=R.labels;
+  const enc=new TextEncoder();
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function cl(i){return String.fromCharCode(66+i);} // 0->B, 1->C, ...
+  const lc=cl(nq-1); // last data column letter
+  const tc=cl(nq);   // total column letter
+
+  // ── Cell builders ──
+  // s = style index
+  function vc(v,s){return '<c s="'+s+'"><v>'+(Math.round(v*100)/100)+'</v></c>';}
+  function fc(f,s){return '<c s="'+(s||4)+'"><f>'+esc(f)+'</f></c>';}
+  function tx(v,s){return '<c s="'+(s||0)+'" t="inlineStr"><is><t>'+esc(String(v))+'</t></is></c>';}
+  function hd(v){return '<c s="1" t="inlineStr"><is><t>'+esc(String(v))+'</t></is></c>';}
+  function sumF(c1,r,c2){return 'SUM('+c1+r+':'+c2+r+')';}
+
+  // ── Styles XML with IB color coding ──
+  // Fonts: 0=black, 1=bold-black, 2=red, 3=blue(0000FF), 4=green(008000), 5=bold-blue
+  // CellXf indices:
+  //  0=default  1=boldHeader  2=blue#,##0  3=blue%  4=black#,##0
+  //  5=red#,##0  6=green#,##0  7=blueText  8=bold#,##0  9=black%
+  //  10=green%  11=blueDate  12=boldGreen#,##0
+  const styles='<?xml version="1.0"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<numFmts count="3"><numFmt numFmtId="164" formatCode="#,##0"/><numFmt numFmtId="165" formatCode="0.00%"/><numFmt numFmtId="166" formatCode="yyyy-mm-dd"/></numFmts>'
+    +'<fonts count="6">'
+    +'<font><sz val="11"/><color theme="1"/><name val="Calibri"/></font>'
+    +'<font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/></font>'
+    +'<font><sz val="11"/><color rgb="FFba1a1a"/><name val="Calibri"/></font>'
+    +'<font><sz val="11"/><color rgb="FF0000FF"/><name val="Calibri"/></font>'
+    +'<font><sz val="11"/><color rgb="FF008000"/><name val="Calibri"/></font>'
+    +'<font><b/><sz val="11"/><color rgb="FF0000FF"/><name val="Calibri"/></font>'
+    +'</fonts>'
+    +'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor theme="2"/></patternFill></fill></fills>'
+    +'<borders count="2"><border><left/><right/><top/><bottom/></border><border><left/><right/><top/><bottom style="thin"/></border></borders>'
+    +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    +'<cellXfs count="13">'
+    +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+    +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'
+    +'<xf numFmtId="164" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    +'<xf numFmtId="165" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    +'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+    +'<xf numFmtId="164" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    +'<xf numFmtId="164" fontId="4" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    +'<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+    +'<xf numFmtId="164" fontId="1" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1"/>'
+    +'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+    +'<xf numFmtId="165" fontId="4" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    +'<xf numFmtId="166" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    +'<xf numFmtId="164" fontId="4" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1"/>'
+    +'</cellXfs></styleSheet>';
+
+  // ── Precompute values needed for Schedules ──
+  const pct=v=>v/100;
+  const V=1+pct(A.vat_rate);
+  const baseLand=A.land_area*A.land_price_sqm;
+  const brkExVAT=baseLand*pct(A.brokerage_pct);
+  const tLand=baseLand+brkExVAT*V+baseLand*pct(A.rett_pct);
+  let cumC=0;
+  const cumDevCost=R.qCon.map(c=>{cumC+=c;return tLand+cumC;});
+
+  // XIRR dates
+  const sd=new Date(A.start_date||'2026-01-01');
+  function dateSerial(dt){const ep=new Date(1899,11,30);return Math.round((dt-ep)/86400000);}
+  const qDates=[];
+  for(let i=0;i<nq;i++){const d=new Date(sd);d.setMonth(d.getMonth()+i*3);qDates.push(d);}
+  const fundEnd=new Date(sd);fundEnd.setMonth(fundEnd.getMonth()+A.fund_period_months);
+  qDates[nq-1]=fundEnd;
+  const dateSN=qDates.map(d=>dateSerial(d));
+
+  // Investor CFs
+  const invCF=Array(nq).fill(0);
+  invCF[0]=-A.equity-R.qIKTotal[0];
+  for(let i=1;i<nq;i++) invCF[i]=-R.qIKTotal[i];
+  invCF[nq-1]+=R.qDividends.reduce((a,b)=>a+b,0);
+
+  const sheets=[];
+
+  // ═══════════════════════════════════════════════
+  // SHEET 1: ASSUMPTIONS
+  // All inputs as blue-text values at fixed row addresses
+  // Derived values as black formulas
+  // ═══════════════════════════════════════════════
+  let rows=[];
+  rows.push('<row>'+hd('Parameter')+hd('Value')+hd('Unit')+'</row>'); // row 1
+  // Row 2-4: Fund Info
+  rows.push('<row>'+tx('Fund Name',0)+tx(A.fund_name||D.fund_name,7)+'</row>');
+  rows.push('<row>'+tx('Fund Period (Months)',0)+vc(A.fund_period_months,2)+tx('months',0)+'</row>');
+  rows.push('<row>'+tx('Start Date',0)+tx(A.start_date||'2026-01-01',7)+'</row>');
+  rows.push('<row/>'); // 5
+  rows.push('<row>'+hd('Land Acquisition')+hd('')+'</row>'); // 6
+  rows.push('<row>'+tx('Land Area',0)+vc(A.land_area,2)+tx('sqm',0)+'</row>'); // 7
+  rows.push('<row>'+tx('Price per sqm',0)+vc(A.land_price_sqm,2)+tx('SAR',0)+'</row>'); // 8
+  rows.push('<row>'+tx('Brokerage %',0)+vc(A.brokerage_pct/100,3)+'</row>'); // 9
+  rows.push('<row>'+tx('RETT %',0)+vc(A.rett_pct/100,3)+'</row>'); // 10
+  rows.push('<row/>'); // 11
+  rows.push('<row>'+hd('Construction')+hd('')+'</row>'); // 12
+  rows.push('<row>'+tx('Gross Floor Area',0)+vc(A.build_area,2)+tx('sqm',0)+'</row>'); // 13
+  rows.push('<row>'+tx('Cost per sqm',0)+vc(A.dev_cost_sqm,2)+tx('SAR',0)+'</row>'); // 14
+  rows.push('<row>'+tx('Developer Fee %',0)+vc(A.dev_fee_pct/100,3)+'</row>'); // 15
+  rows.push('<row>'+tx('Contingency %',0)+vc(A.contingency_pct/100,3)+'</row>'); // 16
+  rows.push('<row>'+tx('Insurance %',0)+vc(A.insurance_pct/100,3)+'</row>'); // 17
+  rows.push('<row>'+tx('Design Fee',0)+vc(A.design_fee,2)+tx('SAR',0)+'</row>'); // 18
+  rows.push('<row>'+tx('Supervision Fee',0)+vc(A.supervision_fee,2)+tx('SAR',0)+'</row>'); // 19
+  rows.push('<row>'+tx('Licensing Fee',0)+vc(A.licensing_fee,2)+tx('SAR',0)+'</row>'); // 20
+  rows.push('<row>'+tx('Construction Period',0)+vc(A.con_period_months,2)+tx('months',0)+'</row>'); // 21
+  rows.push('<row/>'); // 22
+  rows.push('<row>'+hd('Fund Expenses')+hd('')+'</row>'); // 23
+  rows.push('<row>'+tx('Custody (Annual)',0)+vc(A.custody_annual,2)+tx('SAR',0)+'</row>'); // 24
+  rows.push('<row>'+tx('SPV Setup',0)+vc(A.spv_setup,2)+tx('SAR',0)+'</row>'); // 25
+  rows.push('<row>'+tx('Fund Setup',0)+vc(A.fund_setup,2)+tx('SAR',0)+'</row>'); // 26
+  rows.push('<row>'+tx('Auditor (Annual)',0)+vc(A.auditor_annual,2)+tx('SAR',0)+'</row>'); // 27
+  rows.push('<row>'+tx('Sharia (Annual)',0)+vc(A.sharia_annual,2)+tx('SAR',0)+'</row>'); // 28
+  rows.push('<row>'+tx('Engineering (Annual)',0)+vc(A.engineering_annual,2)+tx('SAR',0)+'</row>'); // 29
+  rows.push('<row>'+tx('Board (Annual)',0)+vc(A.board_annual,2)+tx('SAR',0)+'</row>'); // 30
+  rows.push('<row>'+tx('Financial Advisor',0)+vc(A.fin_advisor||0,2)+tx('SAR',0)+'</row>'); // 31
+  rows.push('<row>'+tx('Mgmt Fee Mode',0)+tx(A.mgmt_fee_mode||'total_asset',7)+'</row>'); // 32
+  rows.push('<row>'+tx('Mgmt Fee %',0)+vc(A.mgmt_fee_pct/100,3)+'</row>'); // 33
+  rows.push('<row>'+tx('Mgmt Fee Fixed',0)+vc(A.mgmt_fee_fixed||0,2)+tx('SAR',0)+'</row>'); // 34
+  rows.push('<row>'+tx('Marketing Cost',0)+vc(A.marketing_cost,2)+tx('SAR',0)+'</row>'); // 35
+  rows.push('<row>'+tx('VAT %',0)+vc(A.vat_rate/100,3)+'</row>'); // 36
+  rows.push('<row>'+tx('VAT Refund Delay',0)+vc(A.vat_refund_months,2)+tx('months',0)+'</row>'); // 37
+  rows.push('<row>'+tx('VAT Advisor %',0)+vc(A.vat_advisor_pct/100,3)+'</row>'); // 38
+  rows.push('<row>'+tx('Hurdle Rate %',0)+vc(A.hurdle_rate/100,3)+'</row>'); // 39
+  rows.push('<row>'+tx('Performance Fee %',0)+vc(A.perf_fee_pct/100,3)+'</row>'); // 40
+  rows.push('<row/>'); // 41
+  rows.push('<row>'+hd('Sales')+hd('')+'</row>'); // 42
+  rows.push('<row>'+tx('Sellable Area',0)+vc(A.sell_area,2)+tx('sqm',0)+'</row>'); // 43
+  rows.push('<row>'+tx('Sale Price per sqm',0)+vc(A.sale_price_sqm,2)+tx('SAR',0)+'</row>'); // 44
+  rows.push('<row>'+tx('WAFI %',0)+vc(A.wafi_pct/100,3)+'</row>'); // 45
+  rows.push('<row>'+tx('Selling Expenses %',0)+vc(A.sell_exp_pct/100,3)+'</row>'); // 46
+  rows.push('<row/>'); // 47
+  rows.push('<row>'+hd('Capital Structure')+hd('')+'</row>'); // 48
+  rows.push('<row>'+tx('Investor Equity',0)+vc(A.equity,2)+tx('SAR',0)+'</row>'); // 49
+  rows.push('<row>'+tx('In-Kind Land %',0)+vc(A.ik_land_pct/100,3)+'</row>'); // 50
+  rows.push('<row>'+tx('In-Kind Developer %',0)+vc(A.ik_dev_pct/100,3)+'</row>'); // 51
+  rows.push('<row>'+tx('In-Kind Contractor %',0)+vc(A.ik_con_pct/100,3)+'</row>'); // 52
+  rows.push('<row>'+tx('In-Kind Marketing %',0)+vc((A.ik_mkt_pct||0)/100,3)+'</row>'); // 53
+  rows.push('<row>'+tx('SAIBOR %',0)+vc(A.saibor/100,3)+'</row>'); // 54
+  rows.push('<row>'+tx('Margin %',0)+vc(A.margin/100,3)+'</row>'); // 55
+  rows.push('<row>'+tx('Arrangement Fee %',0)+vc(A.arr_fee_pct/100,3)+'</row>'); // 56
+  rows.push('<row>'+tx('Bank Mgmt Fee %',0)+vc(A.bank_mgmt_pct/100,3)+'</row>'); // 57
+  rows.push('<row>'+tx('Min Cash Reserve',0)+vc(A.min_cash,2)+tx('SAR',0)+'</row>'); // 58
+  rows.push('<row/>'); // 59
+
+  // Derived values (formulas, black text)
+  rows.push('<row>'+hd('Derived Values')+hd('')+'</row>'); // 60
+  rows.push('<row>'+tx('Base Land Cost',0)+fc('B7*B8',4)+'</row>'); // 61
+  rows.push('<row>'+tx('Brokerage ex VAT',0)+fc('B61*B9',4)+'</row>'); // 62
+  rows.push('<row>'+tx('Brokerage VAT',0)+fc('B62*B36',4)+'</row>'); // 63
+  rows.push('<row>'+tx('RETT Amount',0)+fc('B61*B10',4)+'</row>'); // 64
+  rows.push('<row>'+tx('Total Land Cost',0)+fc('B61+B62+B63+B64',8)+'</row>'); // 65
+  rows.push('<row>'+tx('Base Construction',0)+fc('B13*B14',4)+'</row>'); // 66
+  rows.push('<row>'+tx('Developer Fees',0)+fc('B66*B15',4)+'</row>'); // 67
+  rows.push('<row>'+tx('Contingency',0)+fc('B66*B16',4)+'</row>'); // 68
+  rows.push('<row>'+tx('Insurance',0)+fc('B66*B17',4)+'</row>'); // 69
+  rows.push('<row>'+tx('Total Con ex VAT',0)+fc('B66+B67+B68+B69+B18+B19+B20',4)+'</row>'); // 70
+  rows.push('<row>'+tx('VAT Multiplier',0)+fc('1+B36',4)+'</row>'); // 71
+  rows.push('<row>'+tx('Total Con inc VAT',0)+fc('B70*B71',8)+'</row>'); // 72
+  rows.push('<row>'+tx('Total Revenue',0)+fc('B43*B44',8)+'</row>'); // 73
+  rows.push('<row>'+tx('Interest Rate (Annual)',0)+fc('B54+B55',9)+'</row>'); // 74
+  sheets.push({name:'Assumptions',rows});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 2: SCHEDULES
+  // Quarterly computed values (blue text) that serve as
+  // intermediate inputs to CashFlow/Debt formulas
+  // ═══════════════════════════════════════════════
+  rows=[];
+  // Row 1: Headers
+  let hdrCells=hd('Schedule Item');
+  for(let i=0;i<nq;i++) hdrCells+=hd('Q'+(i+1));
+  hdrCells+=hd('Total');
+  rows.push('<row>'+hdrCells+'</row>');
+
+  // Helper: row of blue values with SUM total
+  function schRow(label, arr){
+    let cells=tx(label,0);
+    for(let i=0;i<nq;i++) cells+=vc(arr[i],2);
+    const r=rows.length+1; // 1-indexed row we're about to push
+    cells+=fc(sumF('B',r,lc),4);
+    return '<row>'+cells+'</row>';
+  }
+
+  rows.push(schRow('Gross Sales', R.qGrossSales));       // 2
+  rows.push(schRow('Construction Cost', R.qCon));          // 3
+  rows.push(schRow('Custody', R.qCustody));                // 4
+  rows.push(schRow('SPV Setup', R.qSPV));                  // 5
+  rows.push(schRow('Fund Setup', R.qFundSetup));            // 6
+  rows.push(schRow('Auditor', R.qAuditor));                 // 7
+  rows.push(schRow('Sharia', R.qSharia));                   // 8
+  rows.push(schRow('Engineering', R.qEngineering));          // 9
+  rows.push(schRow('Board', R.qBoard));                      // 10
+  rows.push(schRow('Financial Advisor', R.qFinAdvisor));     // 11
+  rows.push(schRow('Marketing', R.qMkt));                    // 12
+  rows.push(schRow('VAT Net Refund', R.qVATNet));            // 13
+  rows.push(schRow('In-Kind Total', R.qIKTotal));            // 14
+  rows.push(schRow('Equity', R.qEquity));                    // 15
+  rows.push(schRow('Cumulative Dev Cost', cumDevCost));      // 16
+
+  // Row 17: XIRR Dates (date serial numbers)
+  {let cells=tx('XIRR Dates',0);
+   for(let i=0;i<nq;i++) cells+=vc(dateSN[i],11);
+   cells+='<c s="0"/>';
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 18: Investor Cash Flows
+  {let cells=tx('Investor CFs',0);
+   for(let i=0;i<nq;i++) cells+=vc(invCF[i],2);
+   cells+=fc(sumF('B',18,lc),4);
+   rows.push('<row>'+cells+'</row>');}
+
+  sheets.push({name:'Schedules',rows});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 3: CASH FLOW (All Formulas!)
+  // ═══════════════════════════════════════════════
+  rows=[];
+  // Row 1: Headers
+  hdrCells=hd('Cash Flow Item');
+  for(let i=0;i<nq;i++) hdrCells+=hd('Q'+(i+1));
+  hdrCells+=hd('Total');
+  rows.push('<row>'+hdrCells+'</row>');
+
+  // Helper: build a formula row
+  // fmGen: function(colLetter, qIdx) -> formula string
+  // style: cell style for formula cells
+  // totalStyle: style for total column (default 8=bold)
+  function cfRow(label, fmGen, style, totalStyle){
+    const r=rows.length+1;
+    let cells=tx(label,0);
+    for(let i=0;i<nq;i++){
+      const c=cl(i);
+      cells+=fc(fmGen(c,i),style||4);
+    }
+    cells+=fc(sumF('B',r,lc),totalStyle||8);
+    return '<row>'+cells+'</row>';
+  }
+
+  // Row 2: Gross Sales = Schedules quarterly value
+  rows.push(cfRow('Gross Sales', c=>'Schedules!'+c+'2', 6, 8));
+
+  // Row 3: WAFI Fee = -GrossSales * wafi% * (1+VAT)
+  rows.push(cfRow('WAFI Fee', c=>'-'+c+'2*Assumptions!$B$45*(1+Assumptions!$B$36)', 4, 8));
+
+  // Row 4: Selling Expenses = -GrossSales * sellexp% * (1+VAT)
+  rows.push(cfRow('Selling Expenses', c=>'-'+c+'2*Assumptions!$B$46*(1+Assumptions!$B$36)', 4, 8));
+
+  // Row 5: VAT Refund (Net) from Schedules
+  rows.push(cfRow('VAT Refund (Net)', c=>'Schedules!'+c+'13', 6, 8));
+
+  // Row 6-12: Fund expenses from Schedules (negated)
+  rows.push(cfRow('Custody Expenses', c=>'-Schedules!'+c+'4', 6, 8));  // 6
+  rows.push(cfRow('SPV Setup', c=>'-Schedules!'+c+'5', 6, 8));          // 7
+  rows.push(cfRow('Fund Setup', c=>'-Schedules!'+c+'6', 6, 8));          // 8
+  rows.push(cfRow('Auditor Expenses', c=>'-Schedules!'+c+'7', 6, 8));    // 9
+  rows.push(cfRow('Sharia Committee', c=>'-Schedules!'+c+'8', 6, 8));    // 10
+  rows.push(cfRow('Engineering Consultant', c=>'-Schedules!'+c+'9', 6, 8)); // 11
+  rows.push(cfRow('Board Compensation', c=>'-Schedules!'+c+'10', 6, 8));   // 12
+
+  // Row 13: Financial Advisor from Schedules (negated)
+  rows.push(cfRow('Financial Advisor', c=>'-Schedules!'+c+'11', 6, 8));
+
+  // Row 14: Management Fees = -(CumDevCost + OpeningCash) * mgmt_pct / 4
+  // Uses IF for mode: total_asset, nav, or fixed
+  rows.push(cfRow('Management Fees', c=>{
+    return 'IF(Assumptions!$B$32="total_asset",-(Schedules!'+c+'16+'+c+'34)*Assumptions!$B$33/4,'
+      +'IF(Assumptions!$B$32="nav",-(Schedules!'+c+'16+'+c+'34-Debt!'+c+'5)*Assumptions!$B$33/4,'
+      +'-Assumptions!$B$34/4))';
+  }, 4, 8));
+
+  // Row 15: Marketing from Schedules (negated)
+  rows.push(cfRow('Marketing Costs', c=>'-Schedules!'+c+'12', 6, 8));
+
+  // Row 16: Bank Mgmt Fees from Debt tab (negated, green cross-sheet)
+  rows.push(cfRow('Bank Management Fees', c=>'-Debt!'+c+'7', 6, 8));
+
+  // Row 17: Arrangement Fee from Debt tab (negated)
+  rows.push(cfRow('Arrangement Fee', c=>'-Debt!'+c+'8', 6, 8));
+
+  // Row 18: Subtotal Fund Expenses (excl perf) = SUM(row3:row17)
+  rows.push(cfRow('Subtotal Fund Expenses', c=>'SUM('+c+'3:'+c+'17)', 4, 8));
+
+  // Row 19: Performance Fee (only in last quarter, from Summary helper)
+  {const r=rows.length+1;
+   let cells=tx('Performance Fees',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     if(i===nq-1) cells+=fc('-Summary!$B$27',6);
+     else cells+=vc(0,4);
+   }
+   cells+=fc(sumF('B',r,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 20: Total Fund Expenses = row18 + row19
+  rows.push(cfRow('Total Fund Expenses', c=>c+'18+'+c+'19', 8, 8));
+
+  // Row 21: Interest from Debt tab (negated, green)
+  rows.push(cfRow('Debt Profit', c=>'-Debt!'+c+'6', 6, 8));
+
+  // Row 22: Net Operating CF = row2 + row5 + row20 + row21
+  rows.push(cfRow('Net Operating Cash Flow', c=>c+'2+'+c+'5+'+c+'20+'+c+'21', 8, 8));
+
+  // Row 23: blank
+  rows.push('<row/>');
+
+  // Row 24: Land Acquisition (negative in Q1 only)
+  {const r=rows.length+1;
+   let cells=tx('Land Acquisition',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     if(i===0) cells+=fc('-Assumptions!$B$65',6);
+     else cells+=vc(0,4);
+   }
+   cells+=fc(sumF('B',r,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 25: Construction Cost (negated from Schedules)
+  rows.push(cfRow('Construction Cost', c=>'-Schedules!'+c+'3', 6, 8));
+
+  // Row 26: Net Investing = row24 + row25
+  rows.push(cfRow('Net Investing', c=>c+'24+'+c+'25', 8, 8));
+
+  // Row 27: blank
+  rows.push('<row/>');
+
+  // Row 28: Net Borrowing = Drawdowns - Repayment from Debt
+  rows.push(cfRow('Net Borrowing', c=>'Debt!'+c+'3-Debt!'+c+'4', 6, 8));
+
+  // Row 29: Investor Equity from Schedules
+  rows.push(cfRow('Investor Equity', c=>'Schedules!'+c+'15', 6, 8));
+
+  // Row 30: In-Kind from Schedules
+  rows.push(cfRow('In-Kind Participation', c=>'Schedules!'+c+'14', 6, 8));
+
+  // Row 31: Dividends (only last quarter)
+  // = -(OpeningCash + NetOp + NetInv + NetBorrow + Equity + InKind)
+  {const r=rows.length+1;
+   let cells=tx('Dividends',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     if(i===nq-1){
+       cells+=fc('-('+c+'34+'+c+'22+'+c+'26+'+c+'28+'+c+'29+'+c+'30)',4);
+     } else {
+       cells+=vc(0,4);
+     }
+   }
+   cells+=fc(sumF('B',r,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 32: Net Financing = SUM(row28:row31)
+  rows.push(cfRow('Net Financing', c=>'SUM('+c+'28:'+c+'31)', 8, 8));
+
+  // Row 33: blank
+  rows.push('<row/>');
+
+  // Row 34: Opening Cash (0 in Q1, previous closing otherwise)
+  {const r=rows.length+1;
+   let cells=tx('Opening Cash',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     if(i===0) cells+=vc(0,4);
+     else cells+=fc(cl(i-1)+'36',4);
+   }
+   cells+='<c s="0"/>';
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 35: Change in Cash = row22 + row26 + row32
+  rows.push(cfRow('Change in Cash', c=>c+'22+'+c+'26+'+c+'32', 4, 8));
+
+  // Row 36: Closing Cash = row34 + row35
+  rows.push(cfRow('Closing Cash', c=>c+'34+'+c+'35', 8, 8));
+
+  sheets.push({name:'CashFlow',rows});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 4: DEBT (Formulas with circular references!)
+  // ═══════════════════════════════════════════════
+  rows=[];
+  hdrCells=hd('Debt Schedule');
+  for(let i=0;i<nq;i++) hdrCells+=hd('Q'+(i+1));
+  hdrCells+=hd('Total');
+  rows.push('<row>'+hdrCells+'</row>');
+
+  // Row 2: Opening Balance (0 in Q1, prev closing otherwise)
+  {let cells=tx('Opening Balance',0);
+   for(let i=0;i<nq;i++){
+     if(i===0) cells+=vc(0,4);
+     else cells+=fc(cl(i-1)+'5',4);
+   }
+   cells+='<c s="0"/>';
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 3: Drawdowns = MAX(0, MinCash - (OpenCash + NetOp + NetInv + Equity + InKind))
+  // For last quarter: 0 (no borrowing in final quarter)
+  {let cells=tx('Drawdowns',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     if(i===nq-1){
+       cells+=vc(0,4); // no drawdown in last Q
+     } else {
+       cells+=fc('MAX(0,Assumptions!$B$58-(CashFlow!'+c+'34+CashFlow!'+c+'22+CashFlow!'+c+'26+CashFlow!'+c+'29+CashFlow!'+c+'30))',4);
+     }
+   }
+   cells+=fc(sumF('B',3,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 4: Repayment (0 except last Q = Opening + Drawdown)
+  {let cells=tx('Repayment',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     if(i===nq-1) cells+=fc(c+'2+'+c+'3',4);
+     else cells+=vc(0,4);
+   }
+   cells+=fc(sumF('B',4,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 5: Closing Balance = Opening + Drawdown - Repayment
+  {let cells=tx('Closing Balance',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     cells+=fc(c+'2+'+c+'3-'+c+'4',8);
+   }
+   cells+='<c s="0"/>';
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 6: Interest = Opening * (SAIBOR+Margin) / 4
+  {let cells=tx('Debt Profit',0);
+   for(let i=0;i<nq;i++){
+     const c=cl(i);
+     cells+=fc(c+'2*Assumptions!$B$74/4',4);
+   }
+   cells+=fc(sumF('B',6,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 7: Bank Mgmt Fees = TotalDrawdowns * bank_mgmt_pct (only Q1, CIRCULAR)
+  {let cells=tx('Bank Mgmt Fees',0);
+   for(let i=0;i<nq;i++){
+     if(i===0) cells+=fc('SUM($B$3:$'+lc+'$3)*Assumptions!$B$57',4);
+     else cells+=vc(0,4);
+   }
+   cells+=fc(sumF('B',7,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  // Row 8: Arrangement Fee = TotalDrawdowns * arr_fee_pct (only Q1, CIRCULAR)
+  {let cells=tx('Arrangement Fee',0);
+   for(let i=0;i<nq;i++){
+     if(i===0) cells+=fc('SUM($B$3:$'+lc+'$3)*Assumptions!$B$56',4);
+     else cells+=vc(0,4);
+   }
+   cells+=fc(sumF('B',8,lc),8);
+   rows.push('<row>'+cells+'</row>');}
+
+  sheets.push({name:'Debt',rows});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 5: SUMMARY (KPIs + XIRR + helper calcs)
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+hd('Key Performance Indicators')+hd('Value')+'</row>'); // 1
+  rows.push('<row/>'); // 2
+
+  // Revenue & Cost section
+  rows.push('<row>'+hd('Revenue & Cost')+hd('')+'</row>'); // 3
+  rows.push('<row>'+tx('Total Revenue (SAR)',0)+fc('Assumptions!B73',6)+'</row>'); // 4
+  // Total Cost = Land + ConIncVAT - SUM(TotalFundExp) - SUM(Interest)
+  // Note: CashFlow rows 20 and 21 are negative, so we negate the sums
+  rows.push('<row>'+tx('Total Cost (SAR)',0)+fc('Assumptions!B65+Assumptions!B72-SUM(CashFlow!B20:'+lc+'20)-SUM(CashFlow!B21:'+lc+'21)',6)+'</row>'); // 5
+  rows.push('<row>'+tx('Gross Profit (SAR)',0)+fc('B4-B5',4)+'</row>'); // 6
+  rows.push('<row>'+tx('Profit Margin',0)+fc('IF(B5=0,0,B6/B5)',9)+'</row>'); // 7
+  rows.push('<row/>'); // 8
+
+  // Investor Returns
+  rows.push('<row>'+hd('Investor Returns')+hd('')+'</row>'); // 9
+  rows.push('<row>'+tx('IRR (Annual)',0)+fc('XIRR(Schedules!B18:'+lc+'18,Schedules!B17:'+lc+'17)',9)+'</row>'); // 10
+  rows.push('<row>'+tx('Equity Multiple',0)+fc('IF(B23=0,0,-SUM(CashFlow!B31:'+lc+'31)/B23)',4)+'</row>'); // 11
+  rows.push('<row>'+tx('ROI (Unit Holders)',0)+fc('IF(B23=0,0,(B14-B23)/B23)',9)+'</row>'); // 12
+  rows.push('<row>'+tx('Annual ROI (UH)',0)+fc('IF(B23=0,0,B12/(Assumptions!B3/12))',9)+'</row>'); // 13
+  rows.push('<row>'+tx('Total Dividends (SAR)',0)+fc('-SUM(CashFlow!B31:'+lc+'31)',6)+'</row>'); // 14
+  rows.push('<row>'+tx('Performance Fee (SAR)',0)+fc('-SUM(CashFlow!B19:'+lc+'19)',6)+'</row>'); // 15
+  rows.push('<row/>'); // 16
+
+  // Debt & Finance
+  rows.push('<row>'+hd('Debt & Finance')+hd('')+'</row>'); // 17
+  rows.push('<row>'+tx('Total Debt Drawn (SAR)',0)+fc('SUM(Debt!B3:'+lc+'3)',6)+'</row>'); // 18
+  rows.push('<row>'+tx('Total Interest (SAR)',0)+fc('SUM(Debt!B6:'+lc+'6)',6)+'</row>'); // 19
+  rows.push('<row>'+tx('LTC Ratio',0)+fc('IF((Assumptions!B65+Assumptions!B72)=0,0,B18/(Assumptions!B65+Assumptions!B72))',9)+'</row>'); // 20
+  rows.push('<row/>'); // 21
+
+  // Intermediate calculations for Performance Fee
+  rows.push('<row>'+hd('Performance Fee Calculation')+hd('')+'</row>'); // 22
+  // B23: Total Equity = Cash equity + sum of in-kind
+  rows.push('<row>'+tx('Total Equity Invested',0)+fc('Assumptions!B49+SUM(Schedules!B14:'+lc+'14)',6)+'</row>'); // 23
+  // B24: Cash Before Perf (last Q) = Opening + Sales + VATNet + SubtotalFundExp + Interest + NetInv + NetBorrow + Equity + InKind
+  {const lcc=lc;
+   rows.push('<row>'+tx('Cash Before Perf & Div',0)+fc('CashFlow!'+lcc+'34+CashFlow!'+lcc+'2+CashFlow!'+lcc+'5+CashFlow!'+lcc+'18+CashFlow!'+lcc+'21+CashFlow!'+lcc+'26+CashFlow!'+lcc+'28+CashFlow!'+lcc+'29+CashFlow!'+lcc+'30',6)+'</row>');} // 24
+  // B25: Hurdle Amount = TotalEquity * hurdle_rate * years
+  rows.push('<row>'+tx('Hurdle Amount',0)+fc('B23*Assumptions!B39*(Assumptions!B3/12)',4)+'</row>'); // 25
+  // B26: Profit = CBP - Total Equity
+  rows.push('<row>'+tx('Profit Above Equity',0)+fc('B24-B23',4)+'</row>'); // 26
+  // B27: Performance Fee = IF(Profit > Hurdle, (Profit-Hurdle)*perf_pct, 0)
+  rows.push('<row>'+tx('Performance Fee Amount',0)+fc('IF(B26>B25,(B26-B25)*Assumptions!B40,0)',4)+'</row>'); // 27
+
+  sheets.push({name:'Summary',rows});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 6: CAPITAL STRUCTURE
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+hd('Capital Structure — How Total Cost Is Financed')+hd('Amount (SAR)')+hd('% of Total Cost')+'</row>'); // 1
+  rows.push('<row/>'); // 2
+  // B3: Total Cost (= Land + ConIncVAT + FundExp + Interest) — reference from Summary B5
+  rows.push('<row>'+tx('Total Cost (Fund Size)',0)+fc('Summary!B5',8)+'</row>'); // 3
+  rows.push('<row/>'); // 4
+  // B5: Cash Equity
+  rows.push('<row>'+tx('Cash Equity',0)+fc('Assumptions!B49',6)+fc('IF(B3=0,0,B5/B3)',9)+'</row>'); // 5
+  // B6: In-Kind
+  rows.push('<row>'+tx('In-Kind Contributions',0)+fc('SUM(Schedules!B14:'+lc+'14)',6)+fc('IF(B3=0,0,B6/B3)',9)+'</row>'); // 6
+  // B7: Off-Plan Sales = Total Cost - Cash - InKind - Debt (residual, clamped to 0)
+  rows.push('<row>'+tx('Off-Plan Sales',0)+fc('MAX(0,B3-B5-B6-B8)',6)+fc('IF(B3=0,0,B7/B3)',9)+'</row>'); // 7
+  // B8: Debt
+  rows.push('<row>'+tx('Debt Financing',0)+fc('SUM(Debt!B3:'+lc+'3)',6)+fc('IF(B3=0,0,B8/B3)',9)+'</row>'); // 8
+  // B9: Total Sources (should = Total Cost)
+  rows.push('<row>'+tx('Total Sources',0)+fc('SUM(B5:B8)',8)+fc('SUM(C5:C8)',9)+'</row>'); // 9
+  rows.push('<row/>'); // 10
+  // Max Land Price
+  rows.push('<row>'+hd('Land Price Analysis')+hd('')+'</row>'); // 11
+  rows.push('<row>'+tx('Current Land Price / sqm',0)+fc('Assumptions!B8',6)+'</row>'); // 12
+  rows.push('<row>'+tx('Max Land Price / sqm (Breakeven)',0)+fc('IF(Assumptions!B7=0,0,(Summary!B4-'
+    +'(Assumptions!B13*Assumptions!B14*(1+Assumptions!B36/100))'
+    +'-(-SUM(CashFlow!B20:'+lc+'20))-(-SUM(CashFlow!B21:'+lc+'21))'
+    +')/Assumptions!B7)',4)+'</row>'); // 13
+
+  sheets.push({name:'CapStructure',rows});
+
+  // ═══════════════════════════════════════════════
+  // BUILD OOXML ZIP
+  // ═══════════════════════════════════════════════
+
+  // Worksheet XML for each sheet
+  const xmlS=sheets.map(s=>{
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      +'<sheetViews><sheetView tabSelected="0" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      +'<sheetFormatPr defaultRowHeight="15"/>'
+      +'<cols><col min="1" max="1" width="28" customWidth="1"/></cols>'
+      +'<sheetData>'+s.rows.join('')+'</sheetData>'
+      +'</worksheet>';
+  });
+
+  // Content Types
+  const ct='<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    +'<Default Extension="xml" ContentType="application/xml"/>'
+    +'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+    +sheets.map((_,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('')
+    +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+    +'</Types>';
+
+  // Root rels
+  const rels='<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+    +'</Relationships>';
+
+  // Workbook rels
+  const wbR='<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId0" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+    +sheets.map((_,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')
+    +'</Relationships>';
+
+  // Workbook XML — with iterative calc flag (calcPr MUST come after sheets per OOXML schema)
+  const wb='<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    +'<workbookPr/>'
+    +'<bookViews><workbookView xWindow="0" yWindow="0" windowWidth="28800" windowHeight="12000"/></bookViews>'
+    +'<sheets>'+sheets.map((s,i)=>'<sheet name="'+esc(s.name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join('')+'</sheets>'
+    +'<calcPr calcId="191029" iterate="1" iterateCount="100" iterateDelta="1"/>'
+    +'</workbook>';
+
+  // Assemble ZIP file entries
+  const files=[
+    {p:'[Content_Types].xml', d:enc.encode(ct)},
+    {p:'_rels/.rels', d:enc.encode(rels)},
+    {p:'xl/_rels/workbook.xml.rels', d:enc.encode(wbR)},
+    {p:'xl/workbook.xml', d:enc.encode(wb)},
+    {p:'xl/styles.xml', d:enc.encode(styles)},
+    ...xmlS.map((x,i)=>({p:'xl/worksheets/sheet'+(i+1)+'.xml', d:enc.encode(x)}))
+  ];
+
+  // CRC-32 computation for valid ZIP files
+  function crc32(data){
+    let crc=~0;
+    for(let i=0;i<data.length;i++){
+      crc^=data[i];
+      for(let j=0;j<8;j++) crc=(crc>>>1)^(crc&1?0xEDB88320:0);
+    }
+    return (crc^~0)>>>0;
+  }
+
+  // Build minimal ZIP (stored, no compression)
+  const parts=[];let off=0;const entries=[];
+  files.forEach(f=>{
+    const nb=enc.encode(f.p);
+    const crc=crc32(f.d);
+    const lh=new Uint8Array(30+nb.length);
+    const dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);
+    dv.setUint16(4,20,true);
+    dv.setUint32(14,crc,true);
+    dv.setUint32(18,f.d.length,true);
+    dv.setUint32(22,f.d.length,true);
+    dv.setUint16(26,nb.length,true);
+    lh.set(nb,30);
+    entries.push({off,nb,sz:f.d.length,crc});
+    parts.push(lh,f.d);
+    off+=lh.length+f.d.length;
+  });
+  const cdS=off;
+  files.forEach((f,i)=>{
+    const e=entries[i];
+    const cd=new Uint8Array(46+e.nb.length);
+    const dv=new DataView(cd.buffer);
+    dv.setUint32(0,0x02014b50,true);
+    dv.setUint16(4,20,true);
+    dv.setUint16(6,20,true);
+    dv.setUint32(16,e.crc,true);
+    dv.setUint32(20,e.sz,true);
+    dv.setUint32(24,e.sz,true);
+    dv.setUint16(28,e.nb.length,true);
+    dv.setUint32(42,e.off,true);
+    cd.set(e.nb,46);
+    parts.push(cd);
+    off+=cd.length;
+  });
+  const eocd=new Uint8Array(22);
+  const ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true);
+  ev.setUint16(8,files.length,true);
+  ev.setUint16(10,files.length,true);
+  ev.setUint32(12,off-cdS,true);
+  ev.setUint32(16,cdS,true);
+  parts.push(eocd);
+
+  const blob=new Blob(parts,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='RE_Fund_Model_'+nq+'Q_Formula.xlsx';
+  a.click();
+}
+
+// =============================================
+// SENSITIVITY ANALYSIS
+// =============================================
+function calcWith(overrides){
+  const A={};
+  Object.keys(D).forEach(k=>{const el=document.getElementById(k);A[k]=el?(el.type==='number'?parseFloat(el.value)||0:el.tagName==='SELECT'?el.value:el.value):D[k];});
+  Object.keys(overrides||{}).forEach(k=>{A[k]=overrides[k];});
+
+  // FIX 3: Resolve design/supervision fees
+  const _bCR=A.build_area*A.dev_cost_sqm;
+  if(A.design_fee_mode==='pct') A.design_fee=_bCR*(A.design_fee_pct/100);
+  if(A.supervision_fee_mode==='pct') A.supervision_fee=_bCR*(A.supervision_fee_pct/100);
+
+  const nq=Math.floor(A.fund_period_months/3);
+  if(nq<2) return null;
+  const V=1+pct(A.vat_rate);
+  const baseLand=A.land_area*A.land_price_sqm;
+  const brokerageExVAT=baseLand*pct(A.brokerage_pct);
+  const brokerageVAT=brokerageExVAT*pct(A.vat_rate);
+  const brokerageIncVAT=brokerageExVAT+brokerageVAT;
+  const rettAmt=baseLand*pct(A.rett_pct);
+  const tLand=baseLand+brokerageIncVAT+rettAmt;
+  const baseCon=A.build_area*A.dev_cost_sqm;
+  const devFees=baseCon*pct(A.dev_fee_pct);
+  const contingency=baseCon*pct(A.contingency_pct);
+  const insurance=baseCon*pct(A.insurance_pct);
+  const tConExVAT=baseCon+devFees+contingency+insurance+A.design_fee+A.supervision_fee+A.licensing_fee;
+  const tConIncVAT=tConExVAT*V;
+  const tRev=A.sell_area*A.sale_price_sqm;
+  const rate=(pct(A.saibor)+pct(A.margin));
+
+  let _schBC=schBaseCon,_schDF=schDevFee,_schCont=schContingency,_schLic=schLicensing,_schDes=schDesign,_schIns=schInsurance,_schSup=schSupervision,_schMkt=schMarketing,_saleDist=salesSchedule;
+  if(_schBC.length!==nq){
+    const def=genSCurve(nq);
+    _schBC=[...def];_schDF=[...def];_schCont=[...def];_schIns=[...def];
+    _schLic=Array(nq).fill(0);_schLic[Math.min(1,nq-1)]=100;
+    _schDes=Array(nq).fill(0);_schDes[Math.min(1,nq-1)]=100;
+    _schSup=[...def];
+    _schMkt=Array(nq).fill(0);_schMkt[Math.min(1,nq-1)]=100;
+    _saleDist=Array(nq).fill(0);
+    if(nq>=2){_saleDist[nq-2]=10;_saleDist[nq-1]=90;}else _saleDist[nq-1]=100;
+  }
+
+  const dBC=_schBC.map(v=>v/100),dDF=_schDF.map(v=>v/100),dCo=_schCont.map(v=>v/100);
+  const dLi=_schLic.map(v=>v/100),dDe=_schDes.map(v=>v/100),dIn=_schIns.map(v=>v/100);
+  const dSu=_schSup.map(v=>v/100),dMk=_schMkt.map(v=>v/100),sDist=_saleDist.map(v=>v/100);
+
+  const qCon=Array.from({length:nq},(_,i)=>baseCon*dBC[i]*V+devFees*dDF[i]*V+contingency*dCo[i]*V+A.licensing_fee*dLi[i]*V+A.design_fee*dDe[i]*V+insurance*dIn[i]*V+A.supervision_fee*dSu[i]*V);
+  const qGrossSales=sDist.map(d=>tRev*d);
+  const qWafi=qGrossSales.map(v=>v*pct(A.wafi_pct)*V);
+  const qSellExp=qGrossSales.map(v=>v*pct(A.sell_exp_pct)*V);
+  const qMkt=dMk.map(d=>A.marketing_cost*d*V);
+
+  const qCustody=Array(nq).fill(0),qSPV=Array(nq).fill(0),qFundSetup=Array(nq).fill(0);
+  const qAuditor=Array(nq).fill(0),qSharia=Array(nq).fill(0),qEngineering=Array(nq).fill(0);
+  const qBoard=Array(nq).fill(0),qFinAdvisor=Array(nq).fill(0);
+  const qMgmtFee=Array(nq).fill(0),qBankMgmt=Array(nq).fill(0),qVATAdvisor=Array(nq).fill(0);
+  const qPerfFee=Array(nq).fill(0),qArrFee=Array(nq).fill(0);
+
+  for(let qi=0;qi<nq;qi++){
+    qCustody[qi]=freqAmount(A.custody_annual,A.custody_freq,qi,nq)*V;
+    qAuditor[qi]=freqAmount(A.auditor_annual,A.auditor_freq,qi,nq)*V;
+    qSharia[qi]=freqAmount(A.sharia_annual,A.sharia_freq,qi,nq)*V;
+    qEngineering[qi]=freqAmount(A.engineering_annual,A.engineering_freq,qi,nq)*V;
+    qBoard[qi]=freqAmount(A.board_annual,A.board_freq,qi,nq)*V;
+  }
+  qSPV[0]=A.spv_setup*V;qFundSetup[0]=A.fund_setup*V;qFinAdvisor[0]=A.fin_advisor*V;
+
+  const qIKLand=Array(nq).fill(0);qIKLand[0]=pct(A.ik_land_pct)*baseLand;
+  const qIKDev=dDF.map(d=>pct(A.ik_dev_pct)*devFees*d);
+  const qIKCon=dBC.map(d=>pct(A.ik_con_pct)*baseCon*d);
+  const qIKMkt=dMk.map(d=>pct(A.ik_mkt_pct)*A.marketing_cost*d);
+  const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]);
+
+  const delayQ=Math.floor(A.vat_refund_months/3),lastQ=nq-1;
+  const qConVAT=qCon.map(c=>c-c/V);
+  const qVATRefundCon=Array(nq).fill(0);
+  if(Number(A.vat_refund_con)){
+    for(let i=delayQ;i<nq;i++) qVATRefundCon[i]=qConVAT[i-delayQ];
+    for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundCon[lastQ]+=qConVAT[i];}
+  }
+  const qBrokVATRefund=Array(nq).fill(0);
+  const qRETTRefund=Array(nq).fill(0);
+  if(Number(A.vat_refund_land)) qBrokVATRefund[Math.min(delayQ,lastQ)]=brokerageVAT;
+  if(Number(A.rett_refund)) qRETTRefund[Math.min(delayQ,lastQ)]=rettAmt;
+  const qExpVAT=Array(nq).fill(0),qVATRefundExp=Array(nq).fill(0),qVATNet=Array(nq).fill(0);
+
+  let drawdowns=Array(nq).fill(0);
+  const qLoanOpen=Array(nq).fill(0),qLoanClose=Array(nq).fill(0);
+  const qInterest=Array(nq).fill(0),qRepay=Array(nq).fill(0);
+  const qEquity=Array(nq).fill(0);qEquity[0]=A.equity;
+  const qLandCF=Array(nq).fill(0);qLandCF[0]=-tLand;
+  const qTotalAssets=Array(nq).fill(0),qNAV=Array(nq).fill(0),qDSCR=Array(nq).fill(0);
+  const qCashOpen=Array(nq).fill(0),qCashClose=Array(nq).fill(0);
+  const qDividends=Array(nq).fill(0),qTotalFundExp=Array(nq).fill(0);
+  const qNetOp=Array(nq).fill(0),qNetInv=Array(nq).fill(0),qNetFin=Array(nq).fill(0);
+  let cumCon=0;
+
+  for(let iter=0;iter<100;iter++){
+    cumCon=0;
+    const iterDebt=drawdowns.reduce((a,b)=>a+b,0);
+    qArrFee[0]=iterDebt*pct(A.arr_fee_pct);
+    qBankMgmt.fill(0);qBankMgmt[0]=iterDebt*pct(A.bank_mgmt_pct);
+    for(let qi=0;qi<nq;qi++){
+      qLoanOpen[qi]=qi===0?0:qLoanClose[qi-1];
+      const bal=qLoanOpen[qi]+drawdowns[qi];
+      qInterest[qi]=qLoanOpen[qi]*rate/4;
+      qRepay[qi]=(qi===nq-1)?bal:0;
+      qLoanClose[qi]=bal-qRepay[qi];
+    }
+    cumCon=0;
+    for(let qi=0;qi<nq;qi++){
+      cumCon+=qCon[qi];
+      const baseExp=qCustody[qi]+qSPV[qi]+qFundSetup[qi]+qAuditor[qi]+qSharia[qi]+qEngineering[qi]+qBoard[qi]+qFinAdvisor[qi]+qMkt[qi]+qBankMgmt[qi]+qVATAdvisor[qi]+qWafi[qi]+qSellExp[qi]+qArrFee[qi];
+      const cash=qi>0?qCashClose[qi-1]:0;
+      qTotalAssets[qi]=tLand+cumCon+cash;
+      qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
+      if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4;
+      else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4;
+      else qMgmtFee[qi]=A.mgmt_fee_fixed/4;
+      qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
+    }
+    for(let qi=0;qi<nq;qi++) qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
+    qVATRefundExp.fill(0);
+    if(Number(A.vat_refund_con)){
+      for(let i=delayQ;i<nq;i++) qVATRefundExp[i]=qExpVAT[i-delayQ];
+      for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundExp[lastQ]+=qExpVAT[i];}
+    }
+    for(let qi=0;qi<nq;qi++){
+      const totalRef=qVATRefundCon[qi]+qVATRefundExp[qi]+qBrokVATRefund[qi]+qRETTRefund[qi];
+      qVATAdvisor[qi]=totalRef*pct(A.vat_advisor_pct);
+      qVATNet[qi]=totalRef-qVATAdvisor[qi];
+    }
+    for(let qi=0;qi<nq;qi++){
+      qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
+      qNetInv[qi]=qLandCF[qi]+(-qCon[qi]);
+      const netBorrow=drawdowns[qi]-qRepay[qi];
+      qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
+      qCashOpen[qi]=qi===0?0:qCashClose[qi-1];
+      qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+    }
+    const newDD=Array(nq).fill(0),tempCash=Array(nq).fill(0);
+    for(let qi=0;qi<nq;qi++){
+      const open=qi===0?0:tempCash[qi-1];
+      const netNoBorrow=qNetOp[qi]+qNetInv[qi]+qEquity[qi]+qIKTotal[qi]-(qi===nq-1?qRepay[qi]:0);
+      const raw=open+netNoBorrow;
+      if(raw<A.min_cash&&qi<nq-1) newDD[qi]=A.min_cash-raw;
+      tempCash[qi]=raw+newDD[qi];
+    }
+    let delta=0;
+    for(let qi=0;qi<nq;qi++) delta+=Math.abs(newDD[qi]-drawdowns[qi]);
+    drawdowns=[...newDD];
+    if(delta<1) break;
+  }
+
+  cumCon=0;
+  for(let qi=0;qi<nq;qi++){
+    qLoanOpen[qi]=qi===0?0:qLoanClose[qi-1];
+    const bal=qLoanOpen[qi]+drawdowns[qi];
+    qInterest[qi]=qLoanOpen[qi]*rate/4;
+    qRepay[qi]=(qi===nq-1)?bal:0;
+    qLoanClose[qi]=bal-qRepay[qi];
+  }
+  const totalDebtDrawn=drawdowns.reduce((a,b)=>a+b,0);
+  qArrFee[0]=totalDebtDrawn*pct(A.arr_fee_pct);
+  qBankMgmt[0]=totalDebtDrawn*pct(A.bank_mgmt_pct);
+  cumCon=0;
+  for(let qi=0;qi<nq;qi++){
+    cumCon+=qCon[qi];
+    const baseExp=qCustody[qi]+qSPV[qi]+qFundSetup[qi]+qAuditor[qi]+qSharia[qi]+qEngineering[qi]+qBoard[qi]+qFinAdvisor[qi]+qMkt[qi]+qBankMgmt[qi]+qVATAdvisor[qi]+qWafi[qi]+qSellExp[qi]+qArrFee[qi];
+    const cash=qi>0?qCashClose[qi-1]:0;
+    qTotalAssets[qi]=tLand+cumCon+cash;
+    qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
+    if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4;
+    else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4;
+    else qMgmtFee[qi]=A.mgmt_fee_fixed/4;
+    qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
+  }
+  for(let qi=0;qi<nq;qi++){
+    const allExp=qTotalFundExp[qi]+qInterest[qi];
+    qExpVAT[qi]=allExp-allExp/V;
+  }
+  qVATRefundExp.fill(0);
+  if(Number(A.vat_refund_con)){
+    for(let i=delayQ;i<nq;i++) qVATRefundExp[i]=qExpVAT[i-delayQ];
+    for(let i=0;i<nq;i++){if(i+delayQ>=nq) qVATRefundExp[lastQ]+=qExpVAT[i];}
+  }
+  for(let qi=0;qi<nq;qi++){
+    const totalRef=qVATRefundCon[qi]+qVATRefundExp[qi]+qBrokVATRefund[qi]+qRETTRefund[qi];
+    qVATAdvisor[qi]=totalRef*pct(A.vat_advisor_pct);
+    qVATNet[qi]=totalRef-qVATAdvisor[qi];
+  }
+  for(let qi=0;qi<nq;qi++){
+    qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
+    qNetInv[qi]=qLandCF[qi]+(-qCon[qi]);
+    const netBorrow=drawdowns[qi]-qRepay[qi];
+    qCashOpen[qi]=qi===0?0:qCashClose[qi-1];
+    if(qi===nq-1){
+      const cashBeforePerf=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+netBorrow+qEquity[qi]+qIKTotal[qi];
+      const totalEquity=A.equity+qIKTotal.reduce((a,b)=>a+b,0);
+      const hurdleAmount=totalEquity*pct(A.hurdle_rate)*(A.fund_period_months/12);
+      const profit=cashBeforePerf-totalEquity;
+      if(profit>hurdleAmount) qPerfFee[qi]=(profit-hurdleAmount)*pct(A.perf_fee_pct);
+      const cashAfterPerf=cashBeforePerf-qPerfFee[qi];
+      qDividends[qi]=Math.max(0,cashAfterPerf);
+      qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi]-qDividends[qi];
+      qTotalFundExp[qi]+=qPerfFee[qi];
+      qNetOp[qi]-=qPerfFee[qi];
+      qCashClose[qi]=0;
+    } else {
+      qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
+      qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+    }
+  }
+
+  for(let qi=0;qi<nq;qi++){
+    const debtService=qInterest[qi]+(qi===nq-1?qRepay[qi]:0);
+    qDSCR[qi]=debtService>0?qNetOp[qi]/debtService:0;
+  }
+
+  const totalFundExpS=qTotalFundExp.reduce((a,b)=>a+b,0);
+  const totalIntS=qInterest.reduce((a,b)=>a+b,0);
+  const totalCostExVAT=tLand+tConExVAT+totalFundExpS/V+totalIntS;
+  const totalCost=totalCostExVAT;
+  const grossProfit=tRev-totalCost;
+  const totalDiv=qDividends.reduce((a,b)=>a+b,0);
+  const totalIK=qIKTotal.reduce((a,b)=>a+b,0);
+  const totalUH=A.equity+totalIK;
+  const roiUH=totalUH?(totalDiv-totalUH)/totalUH:0;
+
+  const eqMult=totalUH?totalDiv/totalUH:0;
+
+  const cfs=Array.from({length:nq},(_,i)=>{
+    let cf=qNetOp[i]+qNetInv[i]+qNetFin[i];
+    if(i===0) cf-=A.equity;
+    if(i===nq-1) cf+=qDividends[i];
+    return cf;
+  });
+  const invCF=Array(nq).fill(0);
+  invCF[0]=-A.equity-qIKTotal[0];
+  for(let i=1;i<nq;i++) invCF[i]=-qIKTotal[i];
+  invCF[nq-1]+=totalDiv;
+
+  // XIRR: date-based IRR using actual calendar dates
+  // Q1 = start_date, each Q = +3 months, last CF at start_date + fund_period_months
+  const sd=new Date(A.start_date||'2026-01-01');
+  const qDates=[];
+  for(let i=0;i<nq;i++){
+    const d=new Date(sd);
+    d.setMonth(d.getMonth()+i*3);
+    qDates.push(d);
+  }
+  // Last cash flow at fund end (start + fund_period_months), not Q8 start
+  const fundEnd=new Date(sd);
+  fundEnd.setMonth(fundEnd.getMonth()+A.fund_period_months);
+  qDates[nq-1]=fundEnd;
+  // Year fractions from start date
+  const msPerDay=86400000;
+  const tFrac=qDates.map(d=>(d-sd)/msPerDay/365.0);
+
+  let irrAnn=0.12;
+  for(let it=0;it<300;it++){
+    let npv=0,dnpv=0;
+    for(let i=0;i<nq;i++){
+      const t=tFrac[i];
+      if(1+irrAnn<=0) {irrAnn=0.01; break;}
+      const disc=Math.pow(1+irrAnn,t);
+      if(!isFinite(disc)||disc===0) break;
+      npv+=invCF[i]/disc;
+      if(t>0) dnpv+=-t*invCF[i]/Math.pow(1+irrAnn,t+1);
+    }
+    if(Math.abs(dnpv)<1e-12) break;
+    const step=npv/dnpv;
+    irrAnn-=step;
+    if(!isFinite(irrAnn)){irrAnn=-1; break;}
+    if(irrAnn<-0.99) {irrAnn=-0.99; break;}
+    if(Math.abs(step)<1e-10) break;
+  }
+  if(!isFinite(irrAnn)) irrAnn=-1;
+
+  const avgDSCR=qDSCR.reduce((a,b)=>a+b,0)/nq;
+
+  return {irr:irrAnn,eqMult,netProfit:grossProfit,roiUH,totalDiv,totalCost,tRev,grossProfit,profitMargin:totalCost?grossProfit/totalCost:0,avgDSCR,
+    qNetOp,qNetInv,qNetFin,qCashClose,labels:Array.from({length:nq},(_,i)=>'Q'+(i+1)),nq};
+}
+
+
+// =============================================
+// MAX LAND PRICE GOAL-SEEK (Binary Search on IRR = Hurdle)
+// =============================================
+function calcMaxLandPrice(){
+  if(!R) return 0;
+  const hurdle=pct(R.A.hurdle_rate);
+  let lo=0, hi=R.A.land_price_sqm*5;
+  // Binary search: find max land_price_sqm where IRR >= hurdle
+  for(let i=0;i<60;i++){
+    const mid=(lo+hi)/2;
+    const res=calcWith({land_price_sqm:mid});
+    if(!res || isNaN(res.irr) || res.irr < hurdle){
+      hi=mid;
+    } else {
+      lo=mid;
+    }
+    if(hi-lo<0.5) break;
+  }
+  return Math.floor(lo);
+}
+
+function renderSensitivity(){
+  if(!R) return;
+  const p=document.getElementById('p-sensitivity');
+
+  const base=calcWith({});
+  if(!base) return;
+
+  const SL=TX[lang].sens;
+  p.innerHTML=`<div class="sens-layout">
+    <div class="sens-sidebar">
+      <h3>${SL.drivers}</h3>
+      <div class="sld-group"><label><span>${SL.salePrice}</span> <b id="sv_sp">${D.sale_price_sqm}</b></label>
+        <input type="range" id="sr_sp" min="1500" max="3500" step="25" value="${D.sale_price_sqm}" oninput="onSensSlider()"></div>
+      <div class="sld-group"><label><span>${SL.sellArea}</span> <b id="sv_sa">${Math.round(D.sell_area)}</b></label>
+        <input type="range" id="sr_sa" min="${Math.round(D.sell_area*0.5)}" max="${Math.round(D.sell_area*1.5)}" step="100" value="${Math.round(D.sell_area)}" oninput="onSensSlider()"></div>
+      <div class="sld-group"><label><span>${SL.conCost}</span> <b id="sv_cc">${Math.round(D.dev_cost_sqm)}</b></label>
+        <input type="range" id="sr_cc" min="${Math.round(D.dev_cost_sqm*0.5)}" max="${Math.round(D.dev_cost_sqm*2)}" step="5" value="${Math.round(D.dev_cost_sqm)}" oninput="onSensSlider()"></div>
+      <div class="sld-group"><label><span>${SL.saibor}</span> <b id="sv_sb">${D.saibor}</b></label>
+        <input type="range" id="sr_sb" min="4" max="10" step="0.1" value="${D.saibor}" oninput="onSensSlider()"></div>
+      <div class="sld-group"><label><span>${SL.fundPeriod}</span> <b id="sv_fp">${D.fund_period_months}</b></label>
+        <input type="range" id="sr_fp" min="12" max="48" step="3" value="${D.fund_period_months}" oninput="onSensSlider()"></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn-sens" style="margin-top:0" onclick="onSensSlider()">${SL.update}</button>
+        <button class="btn-sens btn-sens-reset" style="margin-top:0;background:var(--surface-ch);color:var(--on-surface)" onclick="resetSensSliders()">${SL.reset}</button>
+      </div>
+    </div>
+    <div class="sens-main">
+      <div class="sens-kpis">
+        <div class="sens-kpi"><div class="sv" id="sk_irr">-</div><div class="sl">IRR</div><div class="sd" id="skd_irr"></div></div>
+        <div class="sens-kpi"><div class="sv" id="sk_em">-</div><div class="sl">${SL.eqMult}</div><div class="sd" id="skd_em"></div></div>
+        <div class="sens-kpi"><div class="sv" id="sk_np">-</div><div class="sl">${SL.netProfit}</div><div class="sd" id="skd_np"></div></div>
+        <div class="sens-kpi"><div class="sv" id="sk_rev">-</div><div class="sl">${SL.totalRev}</div><div class="sd" id="skd_rev"></div></div>
+      </div>
+      <div class="ch-card"><h3>${SL.cfQuarter}</h3><canvas id="cSensCF"></canvas></div>
+      <div class="hm-wrap"><h3>${SL.irrHeatmap}</h3>
+        <p>${SL.hmDesc}</p>
+        <canvas id="cHeatmap"></canvas>
+      </div>
+    </div>
+  </div>`;
+
+  onSensSlider();
+}
+
+function onSensSlider(){
+  if(!R) return;
+  const sp=parseFloat(document.getElementById('sr_sp')?.value)||D.sale_price_sqm;
+  const sa=parseFloat(document.getElementById('sr_sa')?.value)||D.sell_area;
+  const cc=parseFloat(document.getElementById('sr_cc')?.value)||D.dev_cost_sqm;
+  const sb=parseFloat(document.getElementById('sr_sb')?.value)||D.saibor;
+  const fp=parseInt(document.getElementById('sr_fp')?.value)||D.fund_period_months;
+
+  const svSp=document.getElementById('sv_sp');if(svSp) svSp.textContent=Math.round(sp);
+  const svSa=document.getElementById('sv_sa');if(svSa) svSa.textContent=Math.round(sa);
+  const svCc=document.getElementById('sv_cc');if(svCc) svCc.textContent=Math.round(cc);
+  const svSb=document.getElementById('sv_sb');if(svSb) svSb.textContent=sb;
+  const svFp=document.getElementById('sv_fp');if(svFp) svFp.textContent=fp;
+
+  const res=calcWith({sale_price_sqm:sp, sell_area:sa, dev_cost_sqm:cc, saibor:sb, fund_period_months:fp});
+  const base=calcWith({});
+  if(!res||!base) return;
+
+  function setKPI(id,val,baseVal,fmt){
+    const el=document.getElementById(id);
+    const del=document.getElementById(id.replace('sk_','skd_'));
+    if(el) el.textContent=fmt(val);
+    if(del){
+      const diff=val-baseVal;
+      const sign=diff>=0?'+':'';
+      del.textContent=sign+fmt(diff)+' vs base';
+      del.className='sd '+(diff>=0?'pos':'neg');
+    }
+  }
+  setKPI('sk_irr',res.irr,base.irr,v=>(v*100).toFixed(1)+'%');
+  setKPI('sk_em',res.eqMult,base.eqMult,v=>v.toFixed(2)+'x');
+  setKPI('sk_np',res.netProfit,base.netProfit,v=>fM(v)+' SAR');
+  setKPI('sk_rev',res.tRev,base.tRev,v=>fM(v)+' SAR');
+
+  setTimeout(()=>{
+    drawBarChart('cSensCF',res.labels,[{d:res.qNetOp,c:'#00322d'},{d:res.qNetInv,c:'#ba1a1a'},{d:res.qNetFin,c:'#1a6b3c'}],TX[lang].dash.chLegCF);
+    drawHeatmap();
+  },30);
+
+  function drawHeatmap(){
+    const cv=document.getElementById('cHeatmap');if(!cv)return;
+    const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
+    const W=Math.min(cv.parentElement.clientWidth-32,1200),H=360;
+    cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+    ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+
+    const n=9;
+    const baseSP=sp, baseSA=sa;
+    const spVals=Array.from({length:n},(_,i)=>Math.round(baseSP*(0.8+i*0.4/(n-1))));
+    const saVals=Array.from({length:n},(_,i)=>Math.round(baseSA*(0.8+i*0.4/(n-1))));
+
+    const matrix=[];
+    let minIRR=Infinity, maxIRR=-Infinity;
+    for(let r=0;r<n;r++){
+      matrix[r]=[];
+      for(let c=0;c<n;c++){
+        const result=calcWith({sale_price_sqm:spVals[c], sell_area:saVals[r], dev_cost_sqm:cc, saibor:sb, fund_period_months:fp});
+        const rawIrr=result?result.irr:0;
+        const irr=(isFinite(rawIrr)?rawIrr:0);
+        matrix[r][c]=irr;
+        if(irr<minIRR) minIRR=irr;
+        if(irr>maxIRR) maxIRR=irr;
+      }
+    }
+
+    const pad={t:40,r:80,b:50,l:80};
+    const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+    const cellW=cW/n, cellH=cH/n;
+
+    function irrColor(irr){
+      const hurdle=pct(D.hurdle_rate);
+      if(irr<=0) return 'rgb(186,26,26)';
+      if(irr>=hurdle*1.5) return 'rgb(0,50,45)';
+      const t=irr/hurdle;
+      if(t<0.5){const f=t/0.5;return `rgb(${186+Math.round((232-186)*f)},${26+Math.round((173-26)*f)},${26+Math.round((104-26)*f)})`;}
+      if(t<1){const f=(t-0.5)/0.5;return `rgb(${232-Math.round((232-119)*f)},${173-Math.round((173-90)*f)},${104-Math.round((104-25)*f)})`;}
+      const f=Math.min((t-1)/0.5,1);return `rgb(${119-Math.round((119-0)*f)},${90-Math.round((90-50)*f)},${25+Math.round((45-25)*f)})`;
+    }
+
+    for(let r=0;r<n;r++){
+      for(let c=0;c<n;c++){
+        const x=pad.l+c*cellW, y=pad.t+r*cellH;
+        ctx.fillStyle=irrColor(matrix[r][c]);
+        ctx.fillRect(x,y,cellW-1,cellH-1);
+        ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText((matrix[r][c]*100).toFixed(1)+'%',x+cellW/2,y+cellH/2);
+      }
+    }
+
+    ctx.fillStyle='#333';ctx.font='9px sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
+    spVals.forEach((v,i)=>ctx.fillText(fM(v),pad.l+i*cellW+cellW/2,pad.t+n*cellH+6));
+    ctx.font='bold 10px sans-serif';
+    ctx.fillText(TX[lang].sens.hmXLabel,pad.l+cW/2,H-10);
+
+    ctx.textAlign='right';ctx.textBaseline='middle';ctx.font='9px sans-serif';
+    saVals.forEach((v,i)=>ctx.fillText(fM(v),pad.l-8,pad.t+i*cellH+cellH/2));
+    ctx.save();ctx.translate(14,pad.t+cH/2);ctx.rotate(-Math.PI/2);
+    ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(TX[lang].sens.hmYLabel,0,0);
+    ctx.restore();
+
+    const lx=W-pad.r+10,ly=pad.t;
+    const lH=cH, lW=14;
+    const steps=20;
+    for(let i=0;i<steps;i++){
+      const t=i/(steps-1);
+      const irr=minIRR+(maxIRR-minIRR)*(1-t);
+      ctx.fillStyle=irrColor(irr);
+      ctx.fillRect(lx,ly+t*lH/steps*steps,lW,lH/steps+1);
+    }
+    ctx.fillStyle='#333';ctx.font='8px sans-serif';ctx.textAlign='left';
+    ctx.fillText((maxIRR*100).toFixed(0)+'%',lx+lW+4,ly+8);
+    ctx.fillText((minIRR*100).toFixed(0)+'%',lx+lW+4,ly+lH-2);
+    ctx.fillText('IRR',lx+lW+4,ly+lH/2);
+  }
+}
+
+function resetSensSliders(){
+  const sp=document.getElementById('sr_sp');
+  const sa=document.getElementById('sr_sa');
+  const cc=document.getElementById('sr_cc');
+  const sb=document.getElementById('sr_sb');
+  const fp=document.getElementById('sr_fp');
+  if(sp) sp.value=Math.round(D.sale_price_sqm);
+  if(sa) sa.value=Math.round(D.sell_area);
+  if(cc) cc.value=Math.round(D.dev_cost_sqm);
+  if(sb) sb.value=D.saibor;
+  if(fp) fp.value=D.fund_period_months;
+  onSensSlider();
+}
+
+// =============================================
+// LANGUAGE TOGGLE
+// =============================================
+function toggleLang(){
+  lang=lang==='en'?'ar':'en';
+  document.body.dir=lang==='ar'?'rtl':'ltr';
+  document.getElementById('appTitle').textContent=TX[lang].title;
+  const subEl=document.getElementById('appSub');if(subEl) subEl.textContent=TX[lang].sub;
+  document.getElementById('btnDL').textContent=TX[lang].dl;
+  document.querySelector('.btn-lang').textContent=TX[lang].langB;
+  buildTabs();buildForm();
+  if(R){renderDashboard();renderCashFlow();renderDebt();renderSensitivity();}
+}
+
+// =============================================
+// INIT
+// =============================================
+buildTabs();buildForm();
+</script>
+</body>
+</html>
