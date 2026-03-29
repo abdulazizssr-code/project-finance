@@ -2012,68 +2012,153 @@ function dlPDF(){
 }
 
 // =============================================
-// EXCEL EXPORT - ENHANCED OOXML
+// EXCEL EXPORT - IB FORMATTED OOXML
 // =============================================
 function dlExcel(){
   if(!R) return;
-  const A=R.A||D, nq=R.nq, lb=R.labels;
+  const A=R.A||D, nq=R.nq||Math.floor(A.fund_period_months/3);
   const enc=new TextEncoder();
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function cl(i){return String.fromCharCode(66+i);} // 0->B, 1->C, ...
-  const lc=cl(nq-1); // last data column letter
-  const tc=cl(nq);   // total column letter
-
-  // ── Cell builders ──
-  // s = style index
-  function vc(v,s){return '<c s="'+s+'"><v>'+(Math.round(v*100)/100)+'</v></c>';}
-  function fc(f,s){return '<c s="'+(s||4)+'"><f>'+esc(f)+'</f></c>';}
-  function tx(v,s){return '<c s="'+(s||0)+'" t="inlineStr"><is><t>'+esc(String(v))+'</t></is></c>';}
-  function hd(v){return '<c s="1" t="inlineStr"><is><t>'+esc(String(v))+'</t></is></c>';}
-  function sumF(c1,r,c2){return 'SUM('+c1+r+':'+c2+r+')';}
-
-  // ── Styles XML with IB color coding ──
-  // Fonts: 0=black, 1=bold-black, 2=red, 3=blue(0000FF), 4=green(008000), 5=bold-blue
-  // CellXf indices:
-  //  0=default  1=boldHeader  2=blue#,##0  3=blue%  4=black#,##0
-  //  5=red#,##0  6=green#,##0  7=blueText  8=bold#,##0  9=black%
-  //  10=green%  11=blueDate  12=boldGreen#,##0
-  const styles='<?xml version="1.0"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-    +'<numFmts count="3"><numFmt numFmtId="164" formatCode="#,##0"/><numFmt numFmtId="165" formatCode="0.00%"/><numFmt numFmtId="166" formatCode="yyyy-mm-dd"/></numFmts>'
-    +'<fonts count="6">'
-    +'<font><sz val="11"/><color theme="1"/><name val="Calibri"/></font>'
-    +'<font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/></font>'
-    +'<font><sz val="11"/><color rgb="FFba1a1a"/><name val="Calibri"/></font>'
-    +'<font><sz val="11"/><color rgb="FF0000FF"/><name val="Calibri"/></font>'
-    +'<font><sz val="11"/><color rgb="FF008000"/><name val="Calibri"/></font>'
-    +'<font><b/><sz val="11"/><color rgb="FF0000FF"/><name val="Calibri"/></font>'
-    +'</fonts>'
-    +'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor theme="2"/></patternFill></fill></fills>'
-    +'<borders count="2"><border><left/><right/><top/><bottom/></border><border><left/><right/><top/><bottom style="thin"/></border></borders>'
-    +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-    +'<cellXfs count="13">'
-    +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
-    +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'
-    +'<xf numFmtId="164" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
-    +'<xf numFmtId="165" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
-    +'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
-    +'<xf numFmtId="164" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
-    +'<xf numFmtId="164" fontId="4" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
-    +'<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
-    +'<xf numFmtId="164" fontId="1" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1"/>'
-    +'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
-    +'<xf numFmtId="165" fontId="4" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
-    +'<xf numFmtId="166" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
-    +'<xf numFmtId="164" fontId="4" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1"/>'
-    +'</cellXfs></styleSheet>';
-
-  // ── Precompute values needed for Schedules ──
+  function cl(i){return String.fromCharCode(66+i);}
+  const lc=cl(nq-1);
   const pct=v=>v/100;
   const V=1+pct(A.vat_rate);
-  const baseLand=A.land_area*A.land_price_sqm;
-  const brkExVAT=baseLand*pct(A.brokerage_pct);
-  const tLand=baseLand+brkExVAT*V+baseLand*pct(A.rett_pct);
-  let cumC=0;
-  const cumDevCost=R.qCon.map(c=>{cumC+=c;return tLand+cumC;});
+  const lastQ=nq-1;
+
+  // ── IB Styles XML ──
+  // Fonts: 0=Ar10 black, 1=Ar10 bold black, 2=Ar10 blue, 3=Ar10 green, 4=Ar10 red, 5=Ar11 bold white (title), 6=Ar10 bold white (colhdr), 7=Ar9 gray (subtitle)
+  // Fills: 0=none, 1=gray125, 2=#001840(darkNavy), 3=#002060(navy), 4=#DCE6F1(ltBlue), 5=#F2F2F2(altGray), 6=#D9D9D9(secGray)
+  // Borders: 0=none, 1=thin top+bottom, 2=medium top+bottom, 3=medium bottom
+  // CellXf: see S.* constants
+  const styles='<?xml version="1.0"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<numFmts count="3">'
+    +'<numFmt numFmtId="164" formatCode="#,##0;\\(#,##0\\);\\-"/>'
+    +'<numFmt numFmtId="165" formatCode="0.00%;\\(0.00%\\);\\-"/>'
+    +'<numFmt numFmtId="166" formatCode="yyyy-mm-dd"/>'
+    +'</numFmts>'
+    +'<fonts count="8">'
+    +'<font><sz val="10"/><color rgb="FF000000"/><name val="Arial"/></font>'          // 0 black
+    +'<font><b/><sz val="10"/><color rgb="FF000000"/><name val="Arial"/></font>'      // 1 bold black
+    +'<font><sz val="10"/><color rgb="FF0000FF"/><name val="Arial"/></font>'          // 2 blue
+    +'<font><sz val="10"/><color rgb="FF008000"/><name val="Arial"/></font>'          // 3 green
+    +'<font><sz val="10"/><color rgb="FFBA1A1A"/><name val="Arial"/></font>'          // 4 red
+    +'<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>'      // 5 bold white 11pt (title)
+    +'<font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>'      // 6 bold white 10pt (col header)
+    +'<font><sz val="9"/><color rgb="FF666666"/><name val="Arial"/></font>'           // 7 gray 9pt (subtitle)
+    +'</fonts>'
+    +'<fills count="7">'
+    +'<fill><patternFill patternType="none"/></fill>'                                  // 0
+    +'<fill><patternFill patternType="gray125"/></fill>'                               // 1
+    +'<fill><patternFill patternType="solid"><fgColor rgb="FF001840"/></patternFill></fill>'  // 2 dark navy
+    +'<fill><patternFill patternType="solid"><fgColor rgb="FF002060"/></patternFill></fill>'  // 3 navy
+    +'<fill><patternFill patternType="solid"><fgColor rgb="FFDCE6F1"/></patternFill></fill>'  // 4 light blue
+    +'<fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F2"/></patternFill></fill>'  // 5 alt gray
+    +'<fill><patternFill patternType="solid"><fgColor rgb="FFD9D9D9"/></patternFill></fill>'  // 6 section gray
+    +'</fills>'
+    +'<borders count="4">'
+    +'<border><left/><right/><top/><bottom/></border>'                                 // 0 none
+    +'<border><left/><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom></border>'    // 1 thin
+    +'<border><left/><right/><top style="medium"><color auto="1"/></top><bottom style="medium"><color auto="1"/></bottom></border>' // 2 medium
+    +'<border><left/><right/><top/><bottom style="medium"><color auto="1"/></bottom></border>'  // 3 medium bottom only
+    +'</borders>'
+    +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    +'<cellXfs count="24">'
+    // 0: default
+    +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+    // 1: title (white bold on dark navy)
+    +'<xf numFmtId="0" fontId="5" fillId="2" borderId="3" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left"/></xf>'
+    // 2: column header (white bold on navy, centered)
+    +'<xf numFmtId="0" fontId="6" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>'
+    // 3: section header (bold on gray)
+    +'<xf numFmtId="0" fontId="1" fillId="6" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'
+    // 4: label (black, thin borders)
+    +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="left"/></xf>'
+    // 5: label-alt (black, alt gray bg, thin borders)
+    +'<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left"/></xf>'
+    // 6: blue input number (blue text, light blue bg, thin borders, right)
+    +'<xf numFmtId="164" fontId="2" fillId="4" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 7: blue input percent (blue text, light blue bg, thin borders, right)
+    +'<xf numFmtId="165" fontId="2" fillId="4" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 8: blue text (blue text, light blue bg, thin borders, left)
+    +'<xf numFmtId="0" fontId="2" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left"/></xf>'
+    // 9: black formula number (black, thin borders, right)
+    +'<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 10: black formula number alt (black, alt gray bg, thin borders, right)
+    +'<xf numFmtId="164" fontId="0" fillId="5" borderId="1" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 11: green cross-sheet number (green, thin borders, right)
+    +'<xf numFmtId="164" fontId="3" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 12: green cross-sheet number alt (green, alt gray bg, thin borders, right)
+    +'<xf numFmtId="164" fontId="3" fillId="5" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 13: red fixed number (red, thin borders, right)
+    +'<xf numFmtId="164" fontId="4" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 14: red fixed number alt (red, alt gray bg, thin borders, right)
+    +'<xf numFmtId="164" fontId="4" fillId="5" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 15: bold total number (bold, medium bottom border, right)
+    +'<xf numFmtId="164" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 16: black formula percent (black, thin borders, right)
+    +'<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 17: green percent (green, thin borders, right)
+    +'<xf numFmtId="165" fontId="3" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 18: subtitle (gray 9pt)
+    +'<xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="left"/></xf>'
+    // 19: blue date (blue, light blue bg, thin borders, right)
+    +'<xf numFmtId="166" fontId="2" fillId="4" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 20: note text (no borders)
+    +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left"/></xf>'
+    // 21: bold total percent
+    +'<xf numFmtId="165" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 22: green cross-sheet percent (green, thin borders, right)
+    +'<xf numFmtId="165" fontId="3" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    // 23: green number alt gray bg percent
+    +'<xf numFmtId="165" fontId="3" fillId="5" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>'
+    +'</cellXfs></styleSheet>';
+
+  // Style index constants
+  const S={
+    def:0, title:1, colHdr:2, secHdr:3,
+    lbl:4, lblA:5,          // label, label-alt
+    blN:6, blP:7, blT:8,    // blue number, blue percent, blue text
+    bkN:9, bkNA:10,         // black number, black number alt
+    grN:11, grNA:12,         // green number, green number alt
+    rdN:13, rdNA:14,         // red number, red number alt
+    bdN:15,                  // bold total number
+    bkP:16, grP:17,          // black percent, green percent
+    sub:18, blD:19, note:20, // subtitle, blue date, note
+    bdP:21, grPA:23          // bold total percent, green percent alt
+  };
+
+  // ── Cell builders with IB formatting ──
+  function vc(v,s){return '<c s="'+s+'"><v>'+v+'</v></c>';}
+  function fc(f,s){return '<c s="'+(s||S.bkN)+'"><f>'+esc(f)+'</f></c>';}
+  function tx(v,s){return '<c s="'+(s!=null?s:S.def)+'" t="inlineStr"><is><t>'+esc(String(v))+'</t></is></c>';}
+  function ec(s){return '<c s="'+(s||0)+'"/>';}
+
+  // Row-aware helpers (alt = alternating gray row)
+  function title(v){return tx(v,S.title);}
+  function colHdr(v){return tx(v,S.colHdr);}
+  function secHdr(v){return tx(v,S.secHdr);}
+  function lbl(v,alt){return tx(v,alt?S.lblA:S.lbl);}
+  function blueNum(v){return vc(v,S.blN);}
+  function bluePct(v){return vc(v,S.blP);}
+  function blueTx(v){return tx(v,S.blT);}
+  function blueDate(v){return vc(v,S.blD);}
+  function blackNum(f,alt){return fc(f,alt?S.bkNA:S.bkN);}
+  function greenNum(f,alt){return fc(f,alt?S.grNA:S.grN);}
+  function redNum(v,alt){return vc(v,alt?S.rdNA:S.rdN);}
+  function boldNum(f){return fc(f,S.bdN);}
+  function blackPct(f,alt){return fc(f,alt?S.bkP:S.bkP);} // no alt for pct (same style)
+  function greenPct(f,alt){return fc(f,alt?S.grPA:S.grP);}
+  function boldPct(f){return fc(f,S.bdP);}
+
+  // Column widths XML per sheet type
+  function colsQ(labelW, dataW){
+    let c='<cols><col min="1" max="1" width="'+labelW+'" customWidth="1"/>';
+    c+='<col min="2" max="'+(nq+1)+'" width="'+(dataW||15)+'" customWidth="1"/>';
+    c+='<col min="'+(nq+2)+'" max="'+(nq+2)+'" width="'+(dataW||15)+'" customWidth="1"/>';
+    return c+'</cols>';
+  }
+  function colsAssump(){return '<cols><col min="1" max="1" width="38" customWidth="1"/><col min="2" max="2" width="20" customWidth="1"/><col min="3" max="3" width="28" customWidth="1"/><col min="4" max="4" width="30" customWidth="1"/></cols>';}
+  function colsSummary(){return '<cols><col min="1" max="1" width="32" customWidth="1"/><col min="2" max="2" width="22" customWidth="1"/><col min="3" max="3" width="14" customWidth="1"/></cols>';}
 
   // XIRR dates
   const sd=new Date(A.start_date||'2026-01-01');
@@ -2082,489 +2167,694 @@ function dlExcel(){
   for(let i=0;i<nq;i++){const d=new Date(sd);d.setMonth(d.getMonth()+i*3);qDates.push(d);}
   const fundEnd=new Date(sd);fundEnd.setMonth(fundEnd.getMonth()+A.fund_period_months);
   qDates[nq-1]=fundEnd;
-  const dateSN=qDates.map(d=>dateSerial(d));
 
-  // Investor CFs
-  const invCF=Array(nq).fill(0);
-  invCF[0]=-A.equity-R.qIKTotal[0];
-  for(let i=1;i<nq;i++) invCF[i]=-R.qIKTotal[i];
-  invCF[nq-1]+=R.qDividends.reduce((a,b)=>a+b,0);
-
+  const delayQ=Math.floor(A.vat_refund_months/3);
   const sheets=[];
 
   // ═══════════════════════════════════════════════
   // SHEET 1: ASSUMPTIONS
-  // All inputs as blue-text values at fixed row addresses
-  // Derived values as black formulas
   // ═══════════════════════════════════════════════
   let rows=[];
-  rows.push('<row>'+hd('Parameter')+hd('Value')+hd('Unit')+'</row>'); // row 1
-  // Row 2-4: Fund Info
-  rows.push('<row>'+tx('Fund Name',0)+tx(A.fund_name||D.fund_name,7)+'</row>');
-  rows.push('<row>'+tx('Fund Period (Months)',0)+vc(A.fund_period_months,2)+tx('months',0)+'</row>');
-  rows.push('<row>'+tx('Start Date',0)+tx(A.start_date||'2026-01-01',7)+'</row>');
-  rows.push('<row/>'); // 5
-  rows.push('<row>'+hd('Land Acquisition')+hd('')+'</row>'); // 6
-  rows.push('<row>'+tx('Land Area',0)+vc(A.land_area,2)+tx('sqm',0)+'</row>'); // 7
-  rows.push('<row>'+tx('Price per sqm',0)+vc(A.land_price_sqm,2)+tx('SAR',0)+'</row>'); // 8
-  rows.push('<row>'+tx('Brokerage %',0)+vc(A.brokerage_pct/100,3)+'</row>'); // 9
-  rows.push('<row>'+tx('RETT %',0)+vc(A.rett_pct/100,3)+'</row>'); // 10
-  rows.push('<row/>'); // 11
-  rows.push('<row>'+hd('Construction')+hd('')+'</row>'); // 12
-  rows.push('<row>'+tx('Gross Floor Area',0)+vc(A.build_area,2)+tx('sqm',0)+'</row>'); // 13
-  rows.push('<row>'+tx('Cost per sqm',0)+vc(A.dev_cost_sqm,2)+tx('SAR',0)+'</row>'); // 14
-  rows.push('<row>'+tx('Developer Fee %',0)+vc(A.dev_fee_pct/100,3)+'</row>'); // 15
-  rows.push('<row>'+tx('Contingency %',0)+vc(A.contingency_pct/100,3)+'</row>'); // 16
-  rows.push('<row>'+tx('Insurance %',0)+vc(A.insurance_pct/100,3)+'</row>'); // 17
-  rows.push('<row>'+tx('Design Fee',0)+vc(A.design_fee,2)+tx('SAR',0)+'</row>'); // 18
-  rows.push('<row>'+tx('Supervision Fee',0)+vc(A.supervision_fee,2)+tx('SAR',0)+'</row>'); // 19
-  rows.push('<row>'+tx('Licensing Fee',0)+vc(A.licensing_fee,2)+tx('SAR',0)+'</row>'); // 20
-  rows.push('<row>'+tx('Construction Period',0)+vc(A.con_period_months,2)+tx('months',0)+'</row>'); // 21
-  rows.push('<row/>'); // 22
-  rows.push('<row>'+hd('Fund Expenses')+hd('')+'</row>'); // 23
-  rows.push('<row>'+tx('Custody (Annual)',0)+vc(A.custody_annual,2)+tx('SAR',0)+'</row>'); // 24
-  rows.push('<row>'+tx('SPV Setup',0)+vc(A.spv_setup,2)+tx('SAR',0)+'</row>'); // 25
-  rows.push('<row>'+tx('Fund Setup',0)+vc(A.fund_setup,2)+tx('SAR',0)+'</row>'); // 26
-  rows.push('<row>'+tx('Auditor (Annual)',0)+vc(A.auditor_annual,2)+tx('SAR',0)+'</row>'); // 27
-  rows.push('<row>'+tx('Sharia (Annual)',0)+vc(A.sharia_annual,2)+tx('SAR',0)+'</row>'); // 28
-  rows.push('<row>'+tx('Engineering (Annual)',0)+vc(A.engineering_annual,2)+tx('SAR',0)+'</row>'); // 29
-  rows.push('<row>'+tx('Board (Annual)',0)+vc(A.board_annual,2)+tx('SAR',0)+'</row>'); // 30
-  rows.push('<row>'+tx('Financial Advisor',0)+vc(A.fin_advisor||0,2)+tx('SAR',0)+'</row>'); // 31
-  rows.push('<row>'+tx('Mgmt Fee Mode',0)+tx(A.mgmt_fee_mode||'total_asset',7)+'</row>'); // 32
-  rows.push('<row>'+tx('Mgmt Fee %',0)+vc(A.mgmt_fee_pct/100,3)+'</row>'); // 33
-  rows.push('<row>'+tx('Mgmt Fee Fixed',0)+vc(A.mgmt_fee_fixed||0,2)+tx('SAR',0)+'</row>'); // 34
-  rows.push('<row>'+tx('Marketing Cost',0)+vc(A.marketing_cost,2)+tx('SAR',0)+'</row>'); // 35
-  rows.push('<row>'+tx('VAT %',0)+vc(A.vat_rate/100,3)+'</row>'); // 36
-  rows.push('<row>'+tx('VAT Refund Delay',0)+vc(A.vat_refund_months,2)+tx('months',0)+'</row>'); // 37
-  rows.push('<row>'+tx('VAT Advisor %',0)+vc(A.vat_advisor_pct/100,3)+'</row>'); // 38
-  rows.push('<row>'+tx('Hurdle Rate %',0)+vc(A.hurdle_rate/100,3)+'</row>'); // 39
-  rows.push('<row>'+tx('Performance Fee %',0)+vc(A.perf_fee_pct/100,3)+'</row>'); // 40
-  rows.push('<row/>'); // 41
-  rows.push('<row>'+hd('Sales')+hd('')+'</row>'); // 42
-  rows.push('<row>'+tx('Sellable Area',0)+vc(A.sell_area,2)+tx('sqm',0)+'</row>'); // 43
-  rows.push('<row>'+tx('Sale Price per sqm',0)+vc(A.sale_price_sqm,2)+tx('SAR',0)+'</row>'); // 44
-  rows.push('<row>'+tx('WAFI %',0)+vc(A.wafi_pct/100,3)+'</row>'); // 45
-  rows.push('<row>'+tx('Selling Expenses %',0)+vc(A.sell_exp_pct/100,3)+'</row>'); // 46
-  rows.push('<row/>'); // 47
-  rows.push('<row>'+hd('Capital Structure')+hd('')+'</row>'); // 48
-  rows.push('<row>'+tx('Investor Equity',0)+vc(A.equity,2)+tx('SAR',0)+'</row>'); // 49
-  rows.push('<row>'+tx('In-Kind Land %',0)+vc(A.ik_land_pct/100,3)+'</row>'); // 50
-  rows.push('<row>'+tx('In-Kind Developer %',0)+vc(A.ik_dev_pct/100,3)+'</row>'); // 51
-  rows.push('<row>'+tx('In-Kind Contractor %',0)+vc(A.ik_con_pct/100,3)+'</row>'); // 52
-  rows.push('<row>'+tx('In-Kind Marketing %',0)+vc((A.ik_mkt_pct||0)/100,3)+'</row>'); // 53
-  rows.push('<row>'+tx('SAIBOR %',0)+vc(A.saibor/100,3)+'</row>'); // 54
-  rows.push('<row>'+tx('Margin %',0)+vc(A.margin/100,3)+'</row>'); // 55
-  rows.push('<row>'+tx('Arrangement Fee %',0)+vc(A.arr_fee_pct/100,3)+'</row>'); // 56
-  rows.push('<row>'+tx('Bank Mgmt Fee %',0)+vc(A.bank_mgmt_pct/100,3)+'</row>'); // 57
-  rows.push('<row>'+tx('Min Cash Reserve',0)+vc(A.min_cash,2)+tx('SAR',0)+'</row>'); // 58
-  rows.push('<row/>'); // 59
-
-  // Derived values (formulas, black text)
-  rows.push('<row>'+hd('Derived Values')+hd('')+'</row>'); // 60
-  rows.push('<row>'+tx('Base Land Cost',0)+fc('B7*B8',4)+'</row>'); // 61
-  rows.push('<row>'+tx('Brokerage ex VAT',0)+fc('B61*B9',4)+'</row>'); // 62
-  rows.push('<row>'+tx('Brokerage VAT',0)+fc('B62*B36',4)+'</row>'); // 63
-  rows.push('<row>'+tx('RETT Amount',0)+fc('B61*B10',4)+'</row>'); // 64
-  rows.push('<row>'+tx('Total Land Cost',0)+fc('B61+B62+B63+B64',8)+'</row>'); // 65
-  rows.push('<row>'+tx('Base Construction',0)+fc('B13*B14',4)+'</row>'); // 66
-  rows.push('<row>'+tx('Developer Fees',0)+fc('B66*B15',4)+'</row>'); // 67
-  rows.push('<row>'+tx('Contingency',0)+fc('B66*B16',4)+'</row>'); // 68
-  rows.push('<row>'+tx('Insurance',0)+fc('B66*B17',4)+'</row>'); // 69
-  rows.push('<row>'+tx('Total Con ex VAT',0)+fc('B66+B67+B68+B69+B18+B19+B20',4)+'</row>'); // 70
-  rows.push('<row>'+tx('VAT Multiplier',0)+fc('1+B36',4)+'</row>'); // 71
-  rows.push('<row>'+tx('Total Con inc VAT',0)+fc('B70*B71',8)+'</row>'); // 72
-  rows.push('<row>'+tx('Total Revenue',0)+fc('B43*B44',8)+'</row>'); // 73
-  rows.push('<row>'+tx('Interest Rate (Annual)',0)+fc('B54+B55',9)+'</row>'); // 74
-  sheets.push({name:'Assumptions',rows});
+  rows.push('<row>'+title('REAL ESTATE FUND - KEY ASSUMPTIONS')+'</row>');
+  rows.push('<row>'+tx('All values in SAR unless noted',S.sub)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('LAND ACQUISITION')+'</row>');
+  rows.push('<row>'+lbl('Land Area (m\u00B2)',0)+blueNum(A.land_area)+ec()+'</row>');
+  rows.push('<row>'+lbl('Land Price (SAR/m\u00B2)',1)+blueNum(A.land_price_sqm)+'</row>');
+  rows.push('<row>'+lbl('Brokerage (%)',0)+bluePct(A.brokerage_pct/100)+'</row>');
+  rows.push('<row>'+lbl('RETT (%)',1)+bluePct(A.rett_pct/100)+'</row>');
+  rows.push('<row>'+lbl('RETT Refund',0)+blueNum(A.rett_refund||0)+tx('0=No, 1=Yes',S.lbl)+'</row>');
+  rows.push('<row>'+lbl('Base Land Cost',1)+blackNum('B5*B6',1)+'</row>');
+  rows.push('<row>'+lbl('Brokerage (ex-VAT)',0)+blackNum('B10*B7')+'</row>');
+  rows.push('<row>'+lbl('VAT Multiplier (1+VAT%)',1)+blackNum('1+B30',1)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('CONSTRUCTION')+'</row>');
+  rows.push('<row>'+lbl('Build Area (m\u00B2)',0)+blueNum(A.build_area)+'</row>');
+  rows.push('<row>'+lbl('Development Cost (SAR/m\u00B2)',1)+blueNum(A.dev_cost_sqm)+'</row>');
+  rows.push('<row>'+lbl('Developer Fee (%)',0)+bluePct(A.dev_fee_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Contingency (%)',1)+bluePct(A.contingency_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Insurance (%)',0)+bluePct(A.insurance_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Design Fee (fixed)',1)+blueNum(A.design_fee)+'</row>');
+  rows.push('<row>'+lbl('Supervision Fee (fixed)',0)+blueNum(A.supervision_fee||0)+'</row>');
+  rows.push('<row>'+lbl('Licensing Fee',1)+blueNum(A.licensing_fee)+'</row>');
+  rows.push('<row>'+lbl('Base Construction Cost',0)+blackNum('B15*B16')+'</row>');
+  rows.push('<row>'+lbl('Developer Fees',1)+blackNum('B23*B17',1)+'</row>');
+  rows.push('<row>'+lbl('Contingency Amount',0)+blackNum('B23*B18')+'</row>');
+  rows.push('<row>'+lbl('Insurance Amount',1)+blackNum('B23*B19',1)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('REVENUE')+'</row>');
+  rows.push('<row>'+lbl('Sale Price (SAR/m\u00B2)',0)+blueNum(A.sale_price_sqm)+'</row>');
+  rows.push('<row>'+lbl('VAT Rate (%)',1)+bluePct(A.vat_rate/100)+'</row>');
+  rows.push('<row>'+lbl('Sellable Area (m\u00B2)',0)+blueNum(A.sell_area)+'</row>');
+  rows.push('<row>'+lbl('WAFI (%)',1)+bluePct(A.wafi_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Selling Expenses (%)',0)+bluePct(A.sell_exp_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Total Revenue (GDV)',1)+boldNum('B31*B29')+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('FUND EXPENSES (Annual)')+ec()+tx('Frequency',S.secHdr)+'</row>');
+  rows.push('<row>'+lbl('Custody Fee (annual)',0)+blueNum(A.custody_annual)+blueTx(A.custody_freq||'annual')+'</row>');
+  rows.push('<row>'+lbl('SPV Setup',1)+blueNum(A.spv_setup)+blueTx('One-time Q1')+'</row>');
+  rows.push('<row>'+lbl('Fund Setup',0)+blueNum(A.fund_setup)+blueTx('One-time Q1')+'</row>');
+  rows.push('<row>'+lbl('Auditor Fee (annual)',1)+blueNum(A.auditor_annual)+blueTx(A.auditor_freq||'quarterly')+'</row>');
+  rows.push('<row>'+lbl('Sharia Fee (annual)',0)+blueNum(A.sharia_annual)+blueTx(A.sharia_freq||'quarterly')+'</row>');
+  rows.push('<row>'+lbl('Engineering Fee (annual)',1)+blueNum(A.engineering_annual)+blueTx(A.engineering_freq||'quarterly')+'</row>');
+  rows.push('<row>'+lbl('Board Fee (annual)',0)+blueNum(A.board_annual)+blueTx(A.board_freq||'semiannual')+'</row>');
+  rows.push('<row>'+lbl('Financial Advisor',1)+blueNum(A.fin_advisor||0)+blueTx('One-time Q1')+'</row>');
+  rows.push('<row>'+lbl('Marketing Cost',0)+blueNum(A.marketing_cost)+'</row>');
+  rows.push('<row>'+lbl('Management Fee (%)',1)+bluePct(A.mgmt_fee_pct/100)+tx('% of Total Assets/qtr',S.lblA)+'</row>');
+  rows.push('<row>'+lbl('VAT Advisor (%)',0)+bluePct(A.vat_advisor_pct/100)+tx('% of VAT refunds',S.lbl)+'</row>');
+  rows.push('<row>'+lbl('VAT Refund Delay (months)',1)+blueNum(A.vat_refund_months)+'</row>');
+  rows.push('<row>'+lbl('VAT Refund on Construction',0)+blueNum(Number(A.vat_refund_con)||0)+tx('0=No, 1=Yes',S.lbl)+'</row>');
+  rows.push('<row>'+lbl('VAT Refund on Land Brokerage',1)+blueNum(Number(A.vat_refund_land)||0)+tx('0=No, 1=Yes',S.lblA)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('FINANCING')+'</row>');
+  rows.push('<row>'+lbl('Equity Injection',0)+blueNum(A.equity)+'</row>');
+  rows.push('<row>'+lbl('SAIBOR (%)',1)+bluePct(A.saibor/100)+'</row>');
+  rows.push('<row>'+lbl('Bank Margin (%)',0)+bluePct(A.margin/100)+'</row>');
+  rows.push('<row>'+lbl('Arrangement Fee (%)',1)+bluePct(A.arr_fee_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Bank Mgmt Fee (%)',0)+bluePct(A.bank_mgmt_pct/100)+'</row>');
+  rows.push('<row>'+lbl('Minimum Cash Balance',1)+blueNum(A.min_cash)+'</row>');
+  rows.push('<row>'+lbl('All-in Rate (SAIBOR+Margin)',0)+fc('B54+B55',S.bkP)+'</row>');
+  rows.push('<row>'+lbl('Total Debt Drawn (computed)',1)+redNum(R.totalDebt,1)+tx('From platform iterative solver',S.lblA)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('PERFORMANCE WATERFALL')+'</row>');
+  rows.push('<row>'+lbl('Hurdle Rate (%)',0)+bluePct(A.hurdle_rate/100)+'</row>');
+  rows.push('<row>'+lbl('Performance Fee (%)',1)+bluePct(A.perf_fee_pct/100)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('IN-KIND CONTRIBUTIONS')+'</row>');
+  rows.push('<row>'+lbl('In-Kind Land (%)',0)+bluePct(A.ik_land_pct/100)+'</row>');
+  rows.push('<row>'+lbl('In-Kind Dev (%)',1)+bluePct(A.ik_dev_pct/100)+'</row>');
+  rows.push('<row>'+lbl('In-Kind Construction (%)',0)+bluePct(A.ik_con_pct/100)+'</row>');
+  rows.push('<row>'+lbl('In-Kind Marketing (%)',1)+bluePct((A.ik_mkt_pct||0)/100)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('FUND PERIOD')+'</row>');
+  rows.push('<row>'+lbl('Fund Period (months)',0)+blueNum(A.fund_period_months)+'</row>');
+  rows.push('<row>'+lbl('Number of Quarters',1)+blackNum('B73/3',1)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+lbl('Repayment Quarter',0)+blackNum('B74')+tx('Quarter when debt is fully repaid (default = last quarter)',S.lbl)+'</row>');
+  sheets.push({name:'Assumptions',rows,cols:colsAssump()});
 
   // ═══════════════════════════════════════════════
   // SHEET 2: SCHEDULES
-  // Quarterly computed values (blue text) that serve as
-  // intermediate inputs to CashFlow/Debt formulas
   // ═══════════════════════════════════════════════
   rows=[];
-  // Row 1: Headers
-  let hdrCells=hd('Schedule Item');
-  for(let i=0;i<nq;i++) hdrCells+=hd('Q'+(i+1));
-  hdrCells+=hd('Total');
-  rows.push('<row>'+hdrCells+'</row>');
+  rows.push('<row>'+title('DISTRIBUTION SCHEDULES (%)')+'</row>');
+  {let h=colHdr('Quarter'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
 
-  // Helper: row of blue values with SUM total
-  function schRow(label, arr){
-    let cells=tx(label,0);
-    for(let i=0;i<nq;i++) cells+=vc(arr[i],2);
-    const r=rows.length+1; // 1-indexed row we're about to push
-    cells+=fc(sumF('B',r,lc),4);
-    return '<row>'+cells+'</row>';
+  function schPctRow(label, arr, rowNum, alt){
+    let c=lbl(label,alt);
+    for(let i=0;i<nq;i++) c+=bluePct(arr[i]/100);
+    c+=fc('SUM(B'+rowNum+':'+lc+rowNum+')',S.bkP);
+    return '<row>'+c+'</row>';
+  }
+  rows.push(schPctRow('Base Construction', schBaseCon, 3, false));
+  rows.push(schPctRow('Developer Fee', schDevFee, 4, true));
+  rows.push(schPctRow('Contingency', schContingency, 5, false));
+  rows.push(schPctRow('Licensing', schLicensing, 6, true));
+  rows.push(schPctRow('Design Fee', schDesign, 7, false));
+  rows.push(schPctRow('Insurance', schInsurance, 8, true));
+  rows.push(schPctRow('Supervision', schSupervision, 9, false));
+  rows.push(schPctRow('Marketing', schMarketing, 10, true));
+  rows.push(schPctRow('Sales Distribution', salesSchedule, 11, false));
+  sheets.push({name:'Schedules',rows,cols:colsQ(26,12)});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 3: CONSTRUCTION COST
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+title('CONSTRUCTION COST SCHEDULE (SAR, incl. VAT)')+'</row>');
+  {let h=colHdr('Item'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
+
+  function conRow(label, assRef, schRow, rowNum, alt){
+    let c=lbl(label,alt);
+    for(let i=0;i<nq;i++) c+=greenNum('Assumptions!$B$'+assRef+'*Schedules!'+cl(i)+schRow+'*Assumptions!$B$12',alt);
+    c+=greenNum('SUM(B'+rowNum+':'+lc+rowNum+')',alt);
+    return '<row>'+c+'</row>';
+  }
+  rows.push(conRow('Base Construction', 23, 3, 3, false));
+  rows.push(conRow('Developer Fee', 24, 4, 4, true));
+  rows.push(conRow('Contingency', 25, 5, 5, false));
+  rows.push(conRow('Licensing Fee', 22, 6, 6, true));
+  rows.push(conRow('Design Fee', 20, 7, 7, false));
+  rows.push(conRow('Insurance', 26, 8, 8, true));
+  rows.push(conRow('Supervision Fee', 21, 9, 9, false));
+
+  {let c=lbl('TOTAL CONSTRUCTION',false);
+   for(let i=0;i<nq;i++) c+=boldNum('SUM('+cl(i)+'3:'+cl(i)+'9)');
+   c+=boldNum('SUM(B10:'+lc+'10)');
+   rows.push('<row>'+c+'</row>');}
+
+  sheets.push({name:'Construction Cost',rows,cols:colsQ(26,15)});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 4: REVENUE
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+title('REVENUE SCHEDULE (SAR)')+'</row>');
+  {let h=colHdr('Item'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
+
+  {let c=lbl('Gross Sales',false);
+   for(let i=0;i<nq;i++) c+=greenNum('Assumptions!$B$34*Schedules!'+cl(i)+'11');
+   c+=greenNum('SUM(B3:'+lc+'3)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Less: WAFI Fee',true);
+   for(let i=0;i<nq;i++) c+=blackNum(cl(i)+'3*Assumptions!$B$32*Assumptions!$B$12',true);
+   c+=blackNum('SUM(B4:'+lc+'4)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Less: Selling Expenses',false);
+   for(let i=0;i<nq;i++) c+=blackNum(cl(i)+'3*Assumptions!$B$33*Assumptions!$B$12');
+   c+=blackNum('SUM(B5:'+lc+'5)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('NET SALES REVENUE',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'3-'+cl(i)+'4-'+cl(i)+'5');
+   c+=boldNum('SUM(B6:'+lc+'6)');
+   rows.push('<row>'+c+'</row>');}
+
+  sheets.push({name:'Revenue',rows,cols:colsQ(26,15)});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 5: FUND EXPENSES
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+title('FUND OPERATING EXPENSES (SAR, incl. VAT)')+'</row>');
+  {let h=colHdr('Expense'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
+
+  // Helper for formula expense rows
+  function expRow(label, formula, rowNum, alt, style){
+    let c=lbl(label,alt);
+    const st=style||(alt?S.bkNA:S.bkN);
+    for(let i=0;i<nq;i++) c+=fc(formula,st);
+    c+=fc('SUM(B'+rowNum+':'+lc+rowNum+')',st);
+    return '<row>'+c+'</row>';
   }
 
-  rows.push(schRow('Gross Sales', R.qGrossSales));       // 2
-  rows.push(schRow('Construction Cost', R.qCon));          // 3
-  rows.push(schRow('Custody', R.qCustody));                // 4
-  rows.push(schRow('SPV Setup', R.qSPV));                  // 5
-  rows.push(schRow('Fund Setup', R.qFundSetup));            // 6
-  rows.push(schRow('Auditor', R.qAuditor));                 // 7
-  rows.push(schRow('Sharia', R.qSharia));                   // 8
-  rows.push(schRow('Engineering', R.qEngineering));          // 9
-  rows.push(schRow('Board', R.qBoard));                      // 10
-  rows.push(schRow('Financial Advisor', R.qFinAdvisor));     // 11
-  rows.push(schRow('Marketing', R.qMkt));                    // 12
-  rows.push(schRow('VAT Net Refund', R.qVATNet));            // 13
-  rows.push(schRow('In-Kind Total', R.qIKTotal));            // 14
-  rows.push(schRow('Equity', R.qEquity));                    // 15
-  rows.push(schRow('Cumulative Dev Cost', cumDevCost));      // 16
+  rows.push(expRow('Custody Fee','IF(MOD(COLUMN()-2,4)=3,Assumptions!$B$37*Assumptions!$B$12,0)',3,false));
+  rows.push(expRow('SPV Setup','IF(COLUMN()=2,Assumptions!$B$38*Assumptions!$B$12,0)',4,true));
+  rows.push(expRow('Fund Setup','IF(COLUMN()=2,Assumptions!$B$39*Assumptions!$B$12,0)',5,false));
+  rows.push(expRow('Auditor Fee','Assumptions!$B$40/4*Assumptions!$B$12',6,true));
+  rows.push(expRow('Sharia Fee','Assumptions!$B$41/4*Assumptions!$B$12',7,false));
+  rows.push(expRow('Engineering Fee','Assumptions!$B$42/4*Assumptions!$B$12',8,true));
+  rows.push(expRow('Board Fee','IF(MOD(COLUMN()-2,2)=1,Assumptions!$B$43/2*Assumptions!$B$12,0)',9,false));
+  rows.push(expRow('Financial Advisor','IF(COLUMN()=2,Assumptions!$B$44*Assumptions!$B$12,0)',10,true));
 
-  // Row 17: XIRR Dates (date serial numbers)
-  {let cells=tx('XIRR Dates',0);
-   for(let i=0;i<nq;i++) cells+=vc(dateSN[i],11);
-   cells+='<c s="0"/>';
-   rows.push('<row>'+cells+'</row>');}
+  // Row 11: Marketing (green cross-sheet)
+  {let c=lbl('Marketing',false);
+   for(let i=0;i<nq;i++) c+=greenNum('Assumptions!$B$45*Schedules!'+cl(i)+'10*Assumptions!$B$12');
+   c+=greenNum('SUM(B11:'+lc+'11)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 18: Investor Cash Flows
-  {let cells=tx('Investor CFs',0);
-   for(let i=0;i<nq;i++) cells+=vc(invCF[i],2);
-   cells+=fc(sumF('B',18,lc),4);
-   rows.push('<row>'+cells+'</row>');}
+  // Row 12: Bank Management Fee
+  rows.push(expRow('Bank Management Fee','IF(COLUMN()=2,Assumptions!$B$60*Assumptions!$B$57,0)',12,true));
 
-  sheets.push({name:'Schedules',rows});
+  // Row 13: VAT Advisor FIXED (red)
+  {let c=lbl('VAT Advisor Fee *',false);
+   for(let i=0;i<nq;i++) c+=redNum(R.qVATAdvisor[i]);
+   c+=fc('SUM(B13:'+lc+'13)',S.rdN);
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 14: WAFI (green cross-sheet)
+  {let c=lbl('WAFI Fee',true);
+   for(let i=0;i<nq;i++) c+=greenNum('Revenue!'+cl(i)+'4',true);
+   c+=greenNum('SUM(B14:'+lc+'14)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 15: Selling Expenses (green cross-sheet)
+  {let c=lbl('Selling Expenses',false);
+   for(let i=0;i<nq;i++) c+=greenNum('Revenue!'+cl(i)+'5');
+   c+=greenNum('SUM(B15:'+lc+'15)');
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 16: Arrangement Fee
+  rows.push(expRow('Arrangement Fee','IF(COLUMN()=2,Assumptions!$B$60*Assumptions!$B$56,0)',16,true));
+
+  // Row 17: Management Fee FIXED (red)
+  {let c=lbl('Management Fee *',false);
+   for(let i=0;i<nq;i++) c+=redNum(R.qMgmtFee[i]);
+   c+=fc('SUM(B17:'+lc+'17)',S.rdN);
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 18: TOTAL
+  {let c=lbl('TOTAL FUND EXPENSES',false);
+   for(let i=0;i<nq;i++) c+=boldNum('SUM('+cl(i)+'3:'+cl(i)+'17)');
+   c+=boldNum('SUM(B18:'+lc+'18)');
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 19: Performance Fee FIXED (red)
+  {let c=lbl('Performance Fee',true);
+   for(let i=0;i<nq;i++){
+     if(i===lastQ) c+=redNum(R.qPerfFee[lastQ],true);
+     else c+=vc(0,S.bkNA);
+   }
+   c+=fc('SUM(B19:'+lc+'19)',S.bkNA);
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 20: TOTAL INCL PERF
+  {let c=lbl('TOTAL INCL. PERF FEE',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'18+'+cl(i)+'19');
+   c+=boldNum('SUM(B20:'+lc+'20)');
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row/>');
+  rows.push('<row>'+tx('* = Fixed from platform solver (circular dependency)',S.note)+'</row>');
+  rows.push('<row>'+tx('  Management Fee: depends on Total Assets which includes cash balance',S.note)+'</row>');
+  rows.push('<row>'+tx('  VAT Advisor: depends on VAT refunds which depend on Fund Expenses',S.note)+'</row>');
+  sheets.push({name:'Fund Expenses',rows,cols:colsQ(26,15)});
 
   // ═══════════════════════════════════════════════
-  // SHEET 3: CASH FLOW (All Formulas!)
+  // SHEET 6: DEBT SCHEDULE
   // ═══════════════════════════════════════════════
   rows=[];
-  // Row 1: Headers
-  hdrCells=hd('Cash Flow Item');
-  for(let i=0;i<nq;i++) hdrCells+=hd('Q'+(i+1));
-  hdrCells+=hd('Total');
-  rows.push('<row>'+hdrCells+'</row>');
+  rows.push('<row>'+title('DEBT SCHEDULE (SAR)')+'</row>');
+  {let h=colHdr('Item'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
 
-  // Helper: build a formula row
-  // fmGen: function(colLetter, qIdx) -> formula string
-  // style: cell style for formula cells
-  // totalStyle: style for total column (default 8=bold)
-  function cfRow(label, fmGen, style, totalStyle){
-    const r=rows.length+1;
-    let cells=tx(label,0);
-    for(let i=0;i<nq;i++){
-      const c=cl(i);
-      cells+=fc(fmGen(c,i),style||4);
-    }
-    cells+=fc(sumF('B',r,lc),totalStyle||8);
-    return '<row>'+cells+'</row>';
-  }
-
-  // Row 2: Gross Sales = Schedules quarterly value
-  rows.push(cfRow('Gross Sales', c=>'Schedules!'+c+'2', 6, 8));
-
-  // Row 3: WAFI Fee = -GrossSales * wafi% * (1+VAT)
-  rows.push(cfRow('WAFI Fee', c=>'-'+c+'2*Assumptions!$B$45*(1+Assumptions!$B$36)', 4, 8));
-
-  // Row 4: Selling Expenses = -GrossSales * sellexp% * (1+VAT)
-  rows.push(cfRow('Selling Expenses', c=>'-'+c+'2*Assumptions!$B$46*(1+Assumptions!$B$36)', 4, 8));
-
-  // Row 5: VAT Refund (Net) from Schedules
-  rows.push(cfRow('VAT Refund (Net)', c=>'Schedules!'+c+'13', 6, 8));
-
-  // Row 6-12: Fund expenses from Schedules (negated)
-  rows.push(cfRow('Custody Expenses', c=>'-Schedules!'+c+'4', 6, 8));  // 6
-  rows.push(cfRow('SPV Setup', c=>'-Schedules!'+c+'5', 6, 8));          // 7
-  rows.push(cfRow('Fund Setup', c=>'-Schedules!'+c+'6', 6, 8));          // 8
-  rows.push(cfRow('Auditor Expenses', c=>'-Schedules!'+c+'7', 6, 8));    // 9
-  rows.push(cfRow('Sharia Committee', c=>'-Schedules!'+c+'8', 6, 8));    // 10
-  rows.push(cfRow('Engineering Consultant', c=>'-Schedules!'+c+'9', 6, 8)); // 11
-  rows.push(cfRow('Board Compensation', c=>'-Schedules!'+c+'10', 6, 8));   // 12
-
-  // Row 13: Financial Advisor from Schedules (negated)
-  rows.push(cfRow('Financial Advisor', c=>'-Schedules!'+c+'11', 6, 8));
-
-  // Row 14: Management Fees = -(CumDevCost + OpeningCash) * mgmt_pct / 4
-  // Uses IF for mode: total_asset, nav, or fixed
-  rows.push(cfRow('Management Fees', c=>{
-    return 'IF(Assumptions!$B$32="total_asset",-(Schedules!'+c+'16+'+c+'34)*Assumptions!$B$33/4,'
-      +'IF(Assumptions!$B$32="nav",-(Schedules!'+c+'16+'+c+'34-Debt!'+c+'5)*Assumptions!$B$33/4,'
-      +'-Assumptions!$B$34/4))';
-  }, 4, 8));
-
-  // Row 15: Marketing from Schedules (negated)
-  rows.push(cfRow('Marketing Costs', c=>'-Schedules!'+c+'12', 6, 8));
-
-  // Row 16: Bank Mgmt Fees from Debt tab (negated, green cross-sheet)
-  rows.push(cfRow('Bank Management Fees', c=>'-Debt!'+c+'7', 6, 8));
-
-  // Row 17: Arrangement Fee from Debt tab (negated)
-  rows.push(cfRow('Arrangement Fee', c=>'-Debt!'+c+'8', 6, 8));
-
-  // Row 18: Subtotal Fund Expenses (excl perf) = SUM(row3:row17)
-  rows.push(cfRow('Subtotal Fund Expenses', c=>'SUM('+c+'3:'+c+'17)', 4, 8));
-
-  // Row 19: Performance Fee (only in last quarter, from Summary helper)
-  {const r=rows.length+1;
-   let cells=tx('Performance Fees',0);
+  // Row 3: Opening Balance
+  {let c=lbl('Opening Balance',false);
    for(let i=0;i<nq;i++){
-     const c=cl(i);
-     if(i===nq-1) cells+=fc('-Summary!$B$27',6);
-     else cells+=vc(0,4);
+     if(i===0) c+=blackNum('IF(COLUMN()=2,0,0)');
+     else c+=blackNum('IF(COLUMN()=2,0,'+cl(i-1)+'7)');
    }
-   cells+=fc(sumF('B',r,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+   c+=ec(S.lbl);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 20: Total Fund Expenses = row18 + row19
-  rows.push(cfRow('Total Fund Expenses', c=>c+'18+'+c+'19', 8, 8));
+  // Row 4: Drawdown FIXED (red)
+  {let c=lbl('Drawdown',true);
+   for(let i=0;i<nq;i++) c+=redNum(R.drawdowns[i],true);
+   c+=fc('SUM(B4:'+lc+'4)',S.rdNA);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 21: Interest from Debt tab (negated, green)
-  rows.push(cfRow('Debt Profit', c=>'-Debt!'+c+'6', 6, 8));
+  // Row 5: Interest
+  {let c=lbl('Interest',false);
+   for(let i=0;i<nq;i++) c+=blackNum(cl(i)+'3*Assumptions!$B$59/4');
+   c+=blackNum('SUM(B5:'+lc+'5)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 22: Net Operating CF = row2 + row5 + row20 + row21
-  rows.push(cfRow('Net Operating Cash Flow', c=>c+'2+'+c+'5+'+c+'20+'+c+'21', 8, 8));
+  // Row 6: Repayment
+  {let c=lbl('Repayment',true);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$76,'+cl(i)+'3+'+cl(i)+'4,0)',true);
+   c+=blackNum('SUM(B6:'+lc+'6)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 23: blank
+  // Row 7: Closing
+  {let c=lbl('Closing Balance',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'3+'+cl(i)+'4-'+cl(i)+'6');
+   c+=ec(S.lbl);
+   rows.push('<row>'+c+'</row>');}
+
   rows.push('<row/>');
+  rows.push('<row>'+tx('Note: Drawdowns computed by platform iterative solver (100 iterations)',S.note)+'</row>');
+  rows.push('<row>'+tx('Repayment occurs in the quarter specified by Assumptions!B76',S.note)+'</row>');
+  rows.push('<row>'+tx('All-in Rate: '+(A.saibor+A.margin).toFixed(1)+'% (SAIBOR '+A.saibor+'% + Margin '+A.margin+'%)',S.note)+'</row>');
+  sheets.push({name:'Debt Schedule',rows,cols:colsQ(26,15)});
 
-  // Row 24: Land Acquisition (negative in Q1 only)
-  {const r=rows.length+1;
-   let cells=tx('Land Acquisition',0);
+  // ═══════════════════════════════════════════════
+  // SHEET 7: VAT SCHEDULE
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+title('VAT REFUND SCHEDULE (SAR)')+'</row>');
+  {let h=colHdr('Item'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
+
+  // Row 3: Con VAT Paid
+  {let c=lbl('Construction VAT Paid',false);
+   for(let i=0;i<nq;i++) c+=greenNum("'Construction Cost'!"+cl(i)+'10*(1-1/Assumptions!$B$12)');
+   c+=greenNum('SUM(B3:'+lc+'3)');
+   rows.push('<row>'+c+'</row>');}
+
+  // Row 4: Con VAT Refund (with delay)
+  {let c=lbl('Construction VAT Refund',true);
    for(let i=0;i<nq;i++){
-     const c=cl(i);
-     if(i===0) cells+=fc('-Assumptions!$B$65',6);
-     else cells+=vc(0,4);
-   }
-   cells+=fc(sumF('B',r,lc),8);
-   rows.push('<row>'+cells+'</row>');}
-
-  // Row 25: Construction Cost (negated from Schedules)
-  rows.push(cfRow('Construction Cost', c=>'-Schedules!'+c+'3', 6, 8));
-
-  // Row 26: Net Investing = row24 + row25
-  rows.push(cfRow('Net Investing', c=>c+'24+'+c+'25', 8, 8));
-
-  // Row 27: blank
-  rows.push('<row/>');
-
-  // Row 28: Net Borrowing = Drawdowns - Repayment from Debt
-  rows.push(cfRow('Net Borrowing', c=>'Debt!'+c+'3-Debt!'+c+'4', 6, 8));
-
-  // Row 29: Investor Equity from Schedules
-  rows.push(cfRow('Investor Equity', c=>'Schedules!'+c+'15', 6, 8));
-
-  // Row 30: In-Kind from Schedules
-  rows.push(cfRow('In-Kind Participation', c=>'Schedules!'+c+'14', 6, 8));
-
-  // Row 31: Dividends (only last quarter)
-  // = -(OpeningCash + NetOp + NetInv + NetBorrow + Equity + InKind)
-  {const r=rows.length+1;
-   let cells=tx('Dividends',0);
-   for(let i=0;i<nq;i++){
-     const c=cl(i);
-     if(i===nq-1){
-       cells+=fc('-('+c+'34+'+c+'22+'+c+'26+'+c+'28+'+c+'29+'+c+'30)',4);
-     } else {
-       cells+=vc(0,4);
+     if(i<delayQ) c+=blackNum('IF(Assumptions!$B$49=0,0,0)',true);
+     else if(i<lastQ) c+=greenNum('IF(Assumptions!$B$49=1,'+cl(i-delayQ)+'3,0)',true);
+     else{
+       let parts=[];
+       for(let j=0;j<nq;j++){if(j+delayQ>=nq&&j!==i-delayQ) parts.push(cl(j)+'3');}
+       if(i-delayQ>=0) parts.unshift(cl(i-delayQ)+'3');
+       c+=greenNum('IF(Assumptions!$B$49=1,'+parts.join('+')+',0)',true);
      }
    }
-   cells+=fc(sumF('B',r,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+   c+=greenNum('SUM(B4:'+lc+'4)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 32: Net Financing = SUM(row28:row31)
-  rows.push(cfRow('Net Financing', c=>'SUM('+c+'28:'+c+'31)', 8, 8));
-
-  // Row 33: blank
-  rows.push('<row/>');
-
-  // Row 34: Opening Cash (0 in Q1, previous closing otherwise)
-  {const r=rows.length+1;
-   let cells=tx('Opening Cash',0);
+  // Row 5: Expense VAT Paid
+  {let c=lbl('Expense VAT Paid',false);
    for(let i=0;i<nq;i++){
-     const c=cl(i);
-     if(i===0) cells+=vc(0,4);
-     else cells+=fc(cl(i-1)+'36',4);
+     if(i===lastQ) c+=greenNum("'Fund Expenses'!"+cl(i)+'20*(1-1/Assumptions!$B$12)');
+     else c+=greenNum("('Fund Expenses'!"+cl(i)+"18+'Debt Schedule'!"+cl(i)+'5)*(1-1/Assumptions!$B$12)');
    }
-   cells+='<c s="0"/>';
-   rows.push('<row>'+cells+'</row>');}
+   c+=greenNum('SUM(B5:'+lc+'5)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 35: Change in Cash = row22 + row26 + row32
-  rows.push(cfRow('Change in Cash', c=>c+'22+'+c+'26+'+c+'32', 4, 8));
-
-  // Row 36: Closing Cash = row34 + row35
-  rows.push(cfRow('Closing Cash', c=>c+'34+'+c+'35', 8, 8));
-
-  sheets.push({name:'CashFlow',rows});
-
-  // ═══════════════════════════════════════════════
-  // SHEET 4: DEBT (Formulas with circular references!)
-  // ═══════════════════════════════════════════════
-  rows=[];
-  hdrCells=hd('Debt Schedule');
-  for(let i=0;i<nq;i++) hdrCells+=hd('Q'+(i+1));
-  hdrCells+=hd('Total');
-  rows.push('<row>'+hdrCells+'</row>');
-
-  // Row 2: Opening Balance (0 in Q1, prev closing otherwise)
-  {let cells=tx('Opening Balance',0);
+  // Row 6: Expense VAT Refund (with delay)
+  {let c=lbl('Expense VAT Refund',true);
    for(let i=0;i<nq;i++){
-     if(i===0) cells+=vc(0,4);
-     else cells+=fc(cl(i-1)+'5',4);
-   }
-   cells+='<c s="0"/>';
-   rows.push('<row>'+cells+'</row>');}
-
-  // Row 3: Drawdowns = MAX(0, MinCash - (OpenCash + NetOp + NetInv + Equity + InKind))
-  // For last quarter: 0 (no borrowing in final quarter)
-  {let cells=tx('Drawdowns',0);
-   for(let i=0;i<nq;i++){
-     const c=cl(i);
-     if(i===nq-1){
-       cells+=vc(0,4); // no drawdown in last Q
-     } else {
-       cells+=fc('MAX(0,Assumptions!$B$58-(CashFlow!'+c+'34+CashFlow!'+c+'22+CashFlow!'+c+'26+CashFlow!'+c+'29+CashFlow!'+c+'30))',4);
+     if(i<delayQ) c+=blackNum('IF(Assumptions!$B$49=0,0,0)',true);
+     else if(i<lastQ) c+=greenNum('IF(Assumptions!$B$49=1,'+cl(i-delayQ)+'5,0)',true);
+     else{
+       let parts=[];
+       for(let j=0;j<nq;j++){if(j+delayQ>=nq&&j!==i-delayQ) parts.push(cl(j)+'5');}
+       if(i-delayQ>=0) parts.unshift(cl(i-delayQ)+'5');
+       c+=greenNum('IF(Assumptions!$B$49=1,'+parts.join('+')+',0)',true);
      }
    }
-   cells+=fc(sumF('B',3,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+   c+=greenNum('SUM(B6:'+lc+'6)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 4: Repayment (0 except last Q = Opening + Drawdown)
-  {let cells=tx('Repayment',0);
-   for(let i=0;i<nq;i++){
-     const c=cl(i);
-     if(i===nq-1) cells+=fc(c+'2+'+c+'3',4);
-     else cells+=vc(0,4);
-   }
-   cells+=fc(sumF('B',4,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+  // Row 7: Brokerage VAT Refund
+  {let c=lbl('Brokerage VAT Refund',false);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(AND(Assumptions!$B$50=1,COLUMN()-2=Assumptions!$B$48/3),Assumptions!$B$10*Assumptions!$B$7*Assumptions!$B$30,0)');
+   c+=blackNum('SUM(B7:'+lc+'7)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 5: Closing Balance = Opening + Drawdown - Repayment
-  {let cells=tx('Closing Balance',0);
-   for(let i=0;i<nq;i++){
-     const c=cl(i);
-     cells+=fc(c+'2+'+c+'3-'+c+'4',8);
-   }
-   cells+='<c s="0"/>';
-   rows.push('<row>'+cells+'</row>');}
+  // Row 8: RETT Refund
+  {let c=lbl('RETT Refund',true);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(AND(Assumptions!$B$9=1,COLUMN()-2=Assumptions!$B$48/3),Assumptions!$B$10*Assumptions!$B$8,0)',true);
+   c+=blackNum('SUM(B8:'+lc+'8)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 6: Interest = Opening * (SAIBOR+Margin) / 4
-  {let cells=tx('Debt Profit',0);
-   for(let i=0;i<nq;i++){
-     const c=cl(i);
-     cells+=fc(c+'2*Assumptions!$B$74/4',4);
-   }
-   cells+=fc(sumF('B',6,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+  // Row 9: Total Gross Refund
+  {let c=lbl('Total Gross Refund',false);
+   for(let i=0;i<nq;i++) c+=blackNum(cl(i)+'4+'+cl(i)+'6+'+cl(i)+'7+'+cl(i)+'8');
+   c+=blackNum('SUM(B9:'+lc+'9)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 7: Bank Mgmt Fees = TotalDrawdowns * bank_mgmt_pct (only Q1, CIRCULAR)
-  {let cells=tx('Bank Mgmt Fees',0);
-   for(let i=0;i<nq;i++){
-     if(i===0) cells+=fc('SUM($B$3:$'+lc+'$3)*Assumptions!$B$57',4);
-     else cells+=vc(0,4);
-   }
-   cells+=fc(sumF('B',7,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+  // Row 10: VAT Advisor Fee
+  {let c=lbl('Less: VAT Advisor Fee',true);
+   for(let i=0;i<nq;i++) c+=blackNum(cl(i)+'9*Assumptions!$B$47',true);
+   c+=blackNum('SUM(B10:'+lc+'10)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  // Row 8: Arrangement Fee = TotalDrawdowns * arr_fee_pct (only Q1, CIRCULAR)
-  {let cells=tx('Arrangement Fee',0);
-   for(let i=0;i<nq;i++){
-     if(i===0) cells+=fc('SUM($B$3:$'+lc+'$3)*Assumptions!$B$56',4);
-     else cells+=vc(0,4);
-   }
-   cells+=fc(sumF('B',8,lc),8);
-   rows.push('<row>'+cells+'</row>');}
+  // Row 11: Net VAT Refund
+  {let c=lbl('NET VAT REFUND',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'9-'+cl(i)+'10');
+   c+=boldNum('SUM(B11:'+lc+'11)');
+   rows.push('<row>'+c+'</row>');}
 
-  sheets.push({name:'Debt',rows});
+  sheets.push({name:'VAT Schedule',rows,cols:colsQ(26,15)});
 
   // ═══════════════════════════════════════════════
-  // SHEET 5: SUMMARY (KPIs + XIRR + helper calcs)
+  // SHEET 8: IN-KIND
   // ═══════════════════════════════════════════════
   rows=[];
-  rows.push('<row>'+hd('Key Performance Indicators')+hd('Value')+'</row>'); // 1
-  rows.push('<row/>'); // 2
+  rows.push('<row>'+title('IN-KIND CONTRIBUTIONS (SAR)')+'</row>');
+  {let h=colHdr('Item'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
 
-  // Revenue & Cost section
-  rows.push('<row>'+hd('Revenue & Cost')+hd('')+'</row>'); // 3
-  rows.push('<row>'+tx('Total Revenue (SAR)',0)+fc('Assumptions!B73',6)+'</row>'); // 4
-  // Total Cost = Land + ConIncVAT - SUM(TotalFundExp) - SUM(Interest)
-  // Note: CashFlow rows 20 and 21 are negative, so we negate the sums
-  rows.push('<row>'+tx('Total Cost (SAR)',0)+fc('Assumptions!B65+Assumptions!B72-SUM(CashFlow!B20:'+lc+'20)-SUM(CashFlow!B21:'+lc+'21)',6)+'</row>'); // 5
-  rows.push('<row>'+tx('Gross Profit (SAR)',0)+fc('B4-B5',4)+'</row>'); // 6
-  rows.push('<row>'+tx('Profit Margin',0)+fc('IF(B5=0,0,B6/B5)',9)+'</row>'); // 7
-  rows.push('<row/>'); // 8
+  {let c=lbl('In-Kind Land',false);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()=2,Assumptions!$B$67*Assumptions!$B$10,0)');
+   c+=blackNum('SUM(B3:'+lc+'3)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Investor Returns
-  rows.push('<row>'+hd('Investor Returns')+hd('')+'</row>'); // 9
-  rows.push('<row>'+tx('IRR (Annual)',0)+fc('XIRR(Schedules!B18:'+lc+'18,Schedules!B17:'+lc+'17)',9)+'</row>'); // 10
-  rows.push('<row>'+tx('Equity Multiple',0)+fc('IF(B23=0,0,-SUM(CashFlow!B31:'+lc+'31)/B23)',4)+'</row>'); // 11
-  rows.push('<row>'+tx('ROI (Unit Holders)',0)+fc('IF(B23=0,0,(B14-B23)/B23)',9)+'</row>'); // 12
-  rows.push('<row>'+tx('Annual ROI (UH)',0)+fc('IF(B23=0,0,B12/(Assumptions!B3/12))',9)+'</row>'); // 13
-  rows.push('<row>'+tx('Total Dividends (SAR)',0)+fc('-SUM(CashFlow!B31:'+lc+'31)',6)+'</row>'); // 14
-  rows.push('<row>'+tx('Performance Fee (SAR)',0)+fc('-SUM(CashFlow!B19:'+lc+'19)',6)+'</row>'); // 15
-  rows.push('<row/>'); // 16
+  {let c=lbl('In-Kind Dev Fee',true);
+   for(let i=0;i<nq;i++) c+=greenNum('Assumptions!$B$68*Assumptions!$B$24*Schedules!'+cl(i)+'4',true);
+   c+=greenNum('SUM(B4:'+lc+'4)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  // Debt & Finance
-  rows.push('<row>'+hd('Debt & Finance')+hd('')+'</row>'); // 17
-  rows.push('<row>'+tx('Total Debt Drawn (SAR)',0)+fc('SUM(Debt!B3:'+lc+'3)',6)+'</row>'); // 18
-  rows.push('<row>'+tx('Total Interest (SAR)',0)+fc('SUM(Debt!B6:'+lc+'6)',6)+'</row>'); // 19
-  rows.push('<row>'+tx('LTC Ratio',0)+fc('IF((Assumptions!B65+Assumptions!B72)=0,0,B18/(Assumptions!B65+Assumptions!B72))',9)+'</row>'); // 20
-  rows.push('<row/>'); // 21
+  {let c=lbl('In-Kind Construction',false);
+   for(let i=0;i<nq;i++) c+=greenNum('Assumptions!$B$69*Assumptions!$B$23*Schedules!'+cl(i)+'3');
+   c+=greenNum('SUM(B5:'+lc+'5)');
+   rows.push('<row>'+c+'</row>');}
 
-  // Intermediate calculations for Performance Fee
-  rows.push('<row>'+hd('Performance Fee Calculation')+hd('')+'</row>'); // 22
-  // B23: Total Equity = Cash equity + sum of in-kind
-  rows.push('<row>'+tx('Total Equity Invested',0)+fc('Assumptions!B49+SUM(Schedules!B14:'+lc+'14)',6)+'</row>'); // 23
-  // B24: Cash Before Perf (last Q) = Opening + Sales + VATNet + SubtotalFundExp + Interest + NetInv + NetBorrow + Equity + InKind
-  {const lcc=lc;
-   rows.push('<row>'+tx('Cash Before Perf & Div',0)+fc('CashFlow!'+lcc+'34+CashFlow!'+lcc+'2+CashFlow!'+lcc+'5+CashFlow!'+lcc+'18+CashFlow!'+lcc+'21+CashFlow!'+lcc+'26+CashFlow!'+lcc+'28+CashFlow!'+lcc+'29+CashFlow!'+lcc+'30',6)+'</row>');} // 24
-  // B25: Hurdle Amount = TotalEquity * hurdle_rate * years
-  rows.push('<row>'+tx('Hurdle Amount',0)+fc('B23*Assumptions!B39*(Assumptions!B3/12)',4)+'</row>'); // 25
-  // B26: Profit = CBP - Total Equity
-  rows.push('<row>'+tx('Profit Above Equity',0)+fc('B24-B23',4)+'</row>'); // 26
-  // B27: Performance Fee = IF(Profit > Hurdle, (Profit-Hurdle)*perf_pct, 0)
-  rows.push('<row>'+tx('Performance Fee Amount',0)+fc('IF(B26>B25,(B26-B25)*Assumptions!B40,0)',4)+'</row>'); // 27
+  {let c=lbl('In-Kind Marketing',true);
+   for(let i=0;i<nq;i++) c+=greenNum('Assumptions!$B$70*Assumptions!$B$45*Schedules!'+cl(i)+'10',true);
+   c+=greenNum('SUM(B6:'+lc+'6)',true);
+   rows.push('<row>'+c+'</row>');}
 
-  sheets.push({name:'Summary',rows});
+  {let c=lbl('TOTAL IN-KIND',false);
+   for(let i=0;i<nq;i++) c+=boldNum('SUM('+cl(i)+'3:'+cl(i)+'6)');
+   c+=boldNum('SUM(B7:'+lc+'7)');
+   rows.push('<row>'+c+'</row>');}
+
+  sheets.push({name:'In-Kind',rows,cols:colsQ(26,15)});
 
   // ═══════════════════════════════════════════════
-  // SHEET 6: CAPITAL STRUCTURE
+  // SHEET 9: CASH FLOW
   // ═══════════════════════════════════════════════
   rows=[];
-  rows.push('<row>'+hd('Capital Structure — How Total Cost Is Financed')+hd('Amount (SAR)')+hd('% of Total Cost')+'</row>'); // 1
-  rows.push('<row/>'); // 2
-  // B3: Total Cost (= Land + ConIncVAT + FundExp + Interest) — reference from Summary B5
-  rows.push('<row>'+tx('Total Cost (Fund Size)',0)+fc('Summary!B5',8)+'</row>'); // 3
-  rows.push('<row/>'); // 4
-  // B5: Cash Equity
-  rows.push('<row>'+tx('Cash Equity',0)+fc('Assumptions!B49',6)+fc('IF(B3=0,0,B5/B3)',9)+'</row>'); // 5
-  // B6: In-Kind
-  rows.push('<row>'+tx('In-Kind Contributions',0)+fc('SUM(Schedules!B14:'+lc+'14)',6)+fc('IF(B3=0,0,B6/B3)',9)+'</row>'); // 6
-  // B7: Off-Plan Sales = Total Cost - Cash - InKind - Debt (residual, clamped to 0)
-  rows.push('<row>'+tx('Off-Plan Sales',0)+fc('MAX(0,B3-B5-B6-B8)',6)+fc('IF(B3=0,0,B7/B3)',9)+'</row>'); // 7
-  // B8: Debt
-  rows.push('<row>'+tx('Debt Financing',0)+fc('SUM(Debt!B3:'+lc+'3)',6)+fc('IF(B3=0,0,B8/B3)',9)+'</row>'); // 8
-  // B9: Total Sources (should = Total Cost)
-  rows.push('<row>'+tx('Total Sources',0)+fc('SUM(B5:B8)',8)+fc('SUM(C5:C8)',9)+'</row>'); // 9
-  rows.push('<row/>'); // 10
-  // Max Land Price
-  rows.push('<row>'+hd('Land Price Analysis')+hd('')+'</row>'); // 11
-  rows.push('<row>'+tx('Current Land Price / sqm',0)+fc('Assumptions!B8',6)+'</row>'); // 12
-  rows.push('<row>'+tx('Max Land Price / sqm (Breakeven)',0)+fc('IF(Assumptions!B7=0,0,(Summary!B4-'
-    +'(Assumptions!B13*Assumptions!B14*(1+Assumptions!B36/100))'
-    +'-(-SUM(CashFlow!B20:'+lc+'20))-(-SUM(CashFlow!B21:'+lc+'21))'
-    +')/Assumptions!B7)',4)+'</row>'); // 13
+  rows.push('<row>'+title('CASH FLOW STATEMENT (SAR)')+'</row>');
+  {let h=colHdr('Line Item'); for(let i=0;i<nq;i++) h+=colHdr('Q'+(i+1)); h+=colHdr('Total');
+   rows.push('<row>'+h+'</row>');}
 
-  sheets.push({name:'CapStructure',rows});
+  rows.push('<row>'+secHdr('OPERATING ACTIVITIES')+'</row>');
+
+  {let c=lbl('Gross Sales Revenue',false);
+   for(let i=0;i<nq;i++) c+=greenNum('Revenue!'+cl(i)+'3');
+   c+=greenNum('SUM(B4:'+lc+'4)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Net VAT Refund',true);
+   for(let i=0;i<nq;i++) c+=greenNum("'VAT Schedule'!"+cl(i)+'11',true);
+   c+=greenNum('SUM(B5:'+lc+'5)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Less: Fund Expenses',false);
+   for(let i=0;i<nq;i++) c+=greenNum("-'Fund Expenses'!"+cl(i)+'18');
+   c+=greenNum('SUM(B6:'+lc+'6)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Less: Performance Fee',true);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$74,-$I$33,0)',true);
+   c+=blackNum('SUM(B7:'+lc+'7)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Less: Interest Expense',false);
+   for(let i=0;i<nq;i++) c+=greenNum("-'Debt Schedule'!"+cl(i)+'5');
+   c+=greenNum('SUM(B8:'+lc+'8)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Net Operating Cash Flow',false);
+   for(let i=0;i<nq;i++) c+=boldNum('SUM('+cl(i)+'4:'+cl(i)+'8)');
+   c+=boldNum('SUM(B9:'+lc+'9)');
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('INVESTING ACTIVITIES')+'</row>');
+
+  {let c=lbl('Land Acquisition',false);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()=2,-(Assumptions!$B$10+Assumptions!$B$10*Assumptions!$B$7*Assumptions!$B$12+Assumptions!$B$10*Assumptions!$B$8),0)');
+   c+=blackNum('SUM(B12:'+lc+'12)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Construction Costs',true);
+   for(let i=0;i<nq;i++) c+=greenNum("-'Construction Cost'!"+cl(i)+'10',true);
+   c+=greenNum('SUM(B13:'+lc+'13)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Net Investing Cash Flow',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'12+'+cl(i)+'13');
+   c+=boldNum('SUM(B14:'+lc+'14)');
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('FINANCING ACTIVITIES')+'</row>');
+
+  {let c=lbl('Debt Drawdown',false);
+   for(let i=0;i<nq;i++) c+=greenNum("'Debt Schedule'!"+cl(i)+'4');
+   c+=greenNum('SUM(B17:'+lc+'17)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Debt Repayment',true);
+   for(let i=0;i<nq;i++) c+=greenNum("-'Debt Schedule'!"+cl(i)+'6',true);
+   c+=greenNum('SUM(B18:'+lc+'18)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Equity Injection',false);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()=2,Assumptions!$B$53,0)');
+   c+=blackNum('SUM(B19:'+lc+'19)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('In-Kind Contributions',true);
+   for(let i=0;i<nq;i++) c+=greenNum("'In-Kind'!"+cl(i)+'7',true);
+   c+=greenNum('SUM(B20:'+lc+'20)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Dividends Paid',false);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$74,-$I$34,0)');
+   c+=blackNum('SUM(B21:'+lc+'21)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Net Financing Cash Flow',false);
+   for(let i=0;i<nq;i++) c+=boldNum('SUM('+cl(i)+'17:'+cl(i)+'21)');
+   c+=boldNum('SUM(B22:'+lc+'22)');
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row/>');
+
+  {let c=lbl('NET CASH FLOW',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'9+'+cl(i)+'14+'+cl(i)+'22');
+   c+=boldNum('SUM(B24:'+lc+'24)');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Opening Cash Balance',true);
+   for(let i=0;i<nq;i++){
+     if(i===0) c+=blackNum('IF(COLUMN()=2,0,0)',true);
+     else c+=blackNum('IF(COLUMN()=2,0,'+cl(i-1)+'26)',true);
+   }
+   c+=ec(S.lblA);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Closing Cash Balance',false);
+   for(let i=0;i<nq;i++) c+=boldNum(cl(i)+'25+'+cl(i)+'24');
+   c+=ec(S.lbl);
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row/>');
+  rows.push('<row>'+secHdr('PERFORMANCE FEE CALCULATION')+'</row>');
+
+  {let c=lbl('Total Equity (Cash + In-Kind)',false);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lbl);
+   c+=greenNum("Assumptions!$B$53+'In-Kind'!J7");
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Hurdle Amount',true);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
+   c+=blackNum(lc+'29*Assumptions!$B$63*(Assumptions!$B$73/12)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Cash Before Performance Fee',false);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lbl);
+   c+=blackNum(lc+'25+'+lc+'4+'+lc+'5+'+lc+'6+'+lc+'8+'+lc+'14+'+lc+'17+'+lc+'18+'+lc+'19+'+lc+'20');
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Profit Above Equity',true);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
+   c+=blackNum(lc+'31-'+lc+'29',true);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Performance Fee',false);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lbl);
+   c+=redNum(R.qPerfFee[lastQ]);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Dividends',true);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
+   c+=blackNum('MAX(0,'+lc+'31-'+lc+'33)',true);
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row>'+tx('* Performance Fee & Dividends from platform solver (circular dependency)',S.note)+'</row>');
+  sheets.push({name:'Cash Flow',rows,cols:colsQ(28,15)});
+
+  // ═══════════════════════════════════════════════
+  // SHEET 10: SUMMARY
+  // ═══════════════════════════════════════════════
+  rows=[];
+  rows.push('<row>'+title('FUND PERFORMANCE SUMMARY')+'</row>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('KEY ASSUMPTIONS &amp; PROJECT INFO')+'</row>');
+  rows.push('<row>'+lbl('Purpose',false)+blueTx('Residential / Commercial')+'</row>');
+  rows.push('<row>'+lbl('Location',true)+blueTx('Riyadh, KSA')+'</row>');
+  rows.push('<row>'+lbl('Fund Period',false)+fc('Assumptions!B73/12&" yrs / "&Assumptions!B74&" Q"',S.blT)+'</row>');
+  rows.push('<row>'+lbl('Land Area (m\u00B2)',true)+greenNum('Assumptions!B5',true)+'</row>');
+  rows.push('<row>'+lbl('Land Price (SAR/m\u00B2)',false)+greenNum('Assumptions!B6')+'</row>');
+  rows.push('<row>'+lbl('Total GFA (m\u00B2)',true)+greenNum('Assumptions!B15',true)+'</row>');
+  rows.push('<row>'+lbl('Hurdle Rate',false)+greenPct('Assumptions!B63')+'</row>');
+  rows.push('<row>'+lbl('Performance Fee',true)+greenPct('Assumptions!B64',true)+'</row>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('BANK FINANCING')+'</row>');
+  rows.push('<row>'+lbl('Financing Amount',false)+greenNum('Assumptions!B60')+'</row>');
+  rows.push('<row>'+lbl('% of Cost',true)+blackPct('IF(B62>0,Assumptions!B60/B62,0)',true)+'</row>');
+  rows.push('<row>'+lbl('SAIBOR + Margin',false)+greenPct('Assumptions!B59')+'</row>');
+  rows.push('<row>'+lbl('Total Interest',true)+greenNum("'Debt Schedule'!J5",true)+'</row>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('COSTS &amp; EXPENSES')+ec(S.secHdr)+secHdr('% of Cost')+'</row>');
+  rows.push('<row>'+lbl('Land Cost',false)+blackNum('-(Assumptions!B10+Assumptions!B10*Assumptions!B7*Assumptions!B12+Assumptions!B10*Assumptions!B8)')+blackPct('IF(B62>0,ABS(B20)/B62,0)')+'</row>');
+  rows.push('<row>'+lbl('Brokerage',true)+blackNum('-(Assumptions!B10*Assumptions!B7*Assumptions!B12)',true)+blackPct('Assumptions!B7',true)+'</row>');
+  rows.push('<row>'+lbl('RETT',false)+blackNum('-(Assumptions!B10*Assumptions!B8)')+blackPct('Assumptions!B8')+'</row>');
+  rows.push('<row>'+lbl('Construction',true)+greenNum("-'Construction Cost'!J10",true)+blackPct('IF(B62>0,ABS(B23)/B62,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Developer Fee',false)+blackNum('-(Assumptions!B23*Assumptions!B17*Assumptions!B12)')+blackPct('Assumptions!B17')+'</row>');
+  rows.push('<row>'+lbl('Design &amp; Supervision',true)+blackNum('-(Assumptions!B20+Assumptions!B21)*Assumptions!B12',true)+'</row>');
+  rows.push('<row>'+lbl('Fund Mgmt Fee',false)+greenNum("-'Fund Expenses'!J17")+greenPct('Assumptions!B46')+'</row>');
+  rows.push('<row>'+lbl('Marketing',true)+blackNum('-Assumptions!B45*Assumptions!B12',true)+'</row>');
+  rows.push('<row>'+lbl('Contingency &amp; Insurance',false)+blackNum('-(Assumptions!B25+Assumptions!B26)*Assumptions!B12')+fc('TEXT(Assumptions!B18,"0.0%")&" + "&TEXT(Assumptions!B19,"0.0%")',S.lbl)+'</row>');
+  rows.push('<row>'+lbl('Other Fund Expenses',true)+blackNum("-('Fund Expenses'!J18-'Fund Expenses'!J17)",true)+'</row>');
+  rows.push('<row>'+lbl('Financing Cost',false)+greenNum("-'Debt Schedule'!J5")+greenPct('Assumptions!B59')+'</row>');
+  rows.push('<row>'+lbl('TOTAL COSTS',false)+boldNum('-B62')+'</row>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('REVENUE &amp; PROFITABILITY')+'</row>');
+  rows.push('<row>'+lbl('Total Revenue',false)+greenNum('Assumptions!B34')+'</row>');
+  rows.push('<row>'+lbl('Net Profit',true)+blackNum('B34-B62',true)+'</row>');
+  rows.push('<row>'+lbl('Return on Project',false)+blackPct('IF(B62>0,B35/B62,0)')+'</row>');
+  rows.push('<row>'+lbl('ROE (Total Equity)',true)+blackPct('IF(B54>0,(B59-B54)/B54,0)',true)+'</row>');
+  rows.push('<row>'+lbl('IRR (Annual)',false)+blackPct('B67')+'</row>');
+  rows.push('<row>'+lbl('Equity Multiple',true)+blackNum('IF(B54>0,B59/B54,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Annual Return',false)+blackPct('IF(Assumptions!B73>0,B36/(Assumptions!B73/12),0)')+'</row>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('DEBT RATIOS')+'</row>');
+  rows.push('<row>'+lbl('LTC Ratio',false)+blackPct('IF(B62>0,Assumptions!B60/B62,0)')+'</row>');
+  rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('IF(B69>0,Assumptions!B60/B69,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Debt Coverage',false)+blackNum("IF(('Debt Schedule'!J5+'Debt Schedule'!J4)>0,Assumptions!B34/('Debt Schedule'!J5+'Debt Schedule'!J4),0)")+'</row>');
+  rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('B70',true)+'</row>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('CAPITAL STRUCTURE')+ec(S.secHdr)+secHdr('% of Total')+'</row>');
+  rows.push('<row>'+lbl('Equity (Cash)',false)+greenNum('Assumptions!B53')+blackPct('IF(B55>0,B49/B55,0)')+'</row>');
+  rows.push('<row>'+lbl('In-Kind',true)+greenNum("'In-Kind'!J7",true)+blackPct('IF(B55>0,B50/B55,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Off-Plan Sales',false)+blackNum('MAX(0,B62-B49-B50-Assumptions!B60)')+blackPct('IF(B55>0,B51/B55,0)')+'</row>');
+  rows.push('<row>'+lbl('Bank Debt',true)+greenNum('Assumptions!B60',true)+blackPct('IF(B55>0,B52/B55,0)',true)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+lbl('TOTAL EQUITY (Cash + In-Kind)',false)+boldNum('B49+B50')+'</row>');
+  rows.push('<row>'+lbl('TOTAL INVESTMENT',true)+boldNum('B49+B50+B51+B52')+'</row>');
+  rows.push('<row/>');
+  rows.push('<row/>');
+
+  rows.push('<row>'+secHdr('COMPUTED HELPERS')+'</row>');
+  rows.push('<row>'+lbl('Total Dividends',false)+greenNum("'Cash Flow'!"+lc+'34')+'</row>');
+  rows.push('<row>'+lbl('Performance Fee',true)+greenNum("'Cash Flow'!"+lc+'33',true)+tx('Last quarter only',S.lblA)+'</row>');
+  rows.push('<row>'+lbl('Total Fund Expenses (incl perf)',false)+greenNum("'Fund Expenses'!J20")+'</row>');
+  rows.push('<row>'+lbl('Total Cost (ex VAT)',true)+blackNum("(Assumptions!B10+Assumptions!B10*Assumptions!B7*Assumptions!B12+Assumptions!B10*Assumptions!B8)+'Construction Cost'!J10/Assumptions!B12+'Fund Expenses'!J20/Assumptions!B12+'Debt Schedule'!J5",true)+'</row>');
+
+  {let c=lbl('XIRR Dates',false);
+   for(let i=0;i<nq;i++) c+=blueDate(dateSerial(qDates[i]));
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Investor Cash Flows',true);
+   for(let i=0;i<nq;i++){
+     if(i===0) c+=blackNum("-Assumptions!$B$53-'In-Kind'!B7",true);
+     else if(i===lastQ) c+=blackNum("-'In-Kind'!"+cl(i)+"7+'Cash Flow'!"+cl(i)+'34',true);
+     else c+=blackNum("-'In-Kind'!"+cl(i)+'7',true);
+   }
+   rows.push('<row>'+c+'</row>');}
+
+  rows.push('<row/>');
+  rows.push('<row>'+lbl('XIRR (Annual)',false)+blackPct('XIRR(B64:'+lc+'64,B63:'+lc+'63)')+'</row>');
+  rows.push('<row>'+lbl('Annual IRR',true)+blackPct('B66',true)+'</row>');
+  rows.push('<row/>');
+  rows.push('<row>'+lbl('Total Assets (Q8)',false)+blackNum("(Assumptions!B10+Assumptions!B10*Assumptions!B7*Assumptions!B12+Assumptions!B10*Assumptions!B8)+'Construction Cost'!J10+'Cash Flow'!"+cl(nq-2)+'26')+'</row>');
+  rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('AVERAGE(B71:'+lc+'71)',true)+'</row>');
+
+  {let c=lbl('Quarterly DSCR',false);
+   for(let i=0;i<nq;i++){
+     const cc=cl(i);
+     c+=blackNum("IF(('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6)>0,'Cash Flow'!"+cc+"9/('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6),0)");
+   }
+   rows.push('<row>'+c+'</row>');}
+
+  sheets.push({name:'Summary',rows,cols:colsSummary()});
 
   // ═══════════════════════════════════════════════
   // BUILD OOXML ZIP
   // ═══════════════════════════════════════════════
-
-  // Worksheet XML for each sheet
   const xmlS=sheets.map(s=>{
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-      +'<sheetViews><sheetView tabSelected="0" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      +'<sheetViews><sheetView tabSelected="0" workbookViewId="0"><pane ySplit="'+(s.name==='Assumptions'?'1':'2')+'" topLeftCell="A'+(s.name==='Assumptions'?'2':'3')+'" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
       +'<sheetFormatPr defaultRowHeight="15"/>'
-      +'<cols><col min="1" max="1" width="28" customWidth="1"/></cols>'
+      +(s.cols||'<cols><col min="1" max="1" width="30" customWidth="1"/></cols>')
       +'<sheetData>'+s.rows.join('')+'</sheetData>'
       +'</worksheet>';
   });
 
-  // Content Types
   const ct='<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
     +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
     +'<Default Extension="xml" ContentType="application/xml"/>'
@@ -2573,18 +2863,15 @@ function dlExcel(){
     +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
     +'</Types>';
 
-  // Root rels
   const rels='<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
     +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
     +'</Relationships>';
 
-  // Workbook rels
   const wbR='<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
     +'<Relationship Id="rId0" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
     +sheets.map((_,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')
     +'</Relationships>';
 
-  // Workbook XML — with iterative calc flag (calcPr MUST come after sheets per OOXML schema)
   const wb='<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
     +'<workbookPr/>'
     +'<bookViews><workbookView xWindow="0" yWindow="0" windowWidth="28800" windowHeight="12000"/></bookViews>'
@@ -2592,7 +2879,6 @@ function dlExcel(){
     +'<calcPr calcId="191029" iterate="1" iterateCount="100" iterateDelta="1"/>'
     +'</workbook>';
 
-  // Assemble ZIP file entries
   const files=[
     {p:'[Content_Types].xml', d:enc.encode(ct)},
     {p:'_rels/.rels', d:enc.encode(rels)},
@@ -2602,66 +2888,41 @@ function dlExcel(){
     ...xmlS.map((x,i)=>({p:'xl/worksheets/sheet'+(i+1)+'.xml', d:enc.encode(x)}))
   ];
 
-  // CRC-32 computation for valid ZIP files
   function crc32(data){
     let crc=~0;
-    for(let i=0;i<data.length;i++){
-      crc^=data[i];
-      for(let j=0;j<8;j++) crc=(crc>>>1)^(crc&1?0xEDB88320:0);
-    }
+    for(let i=0;i<data.length;i++){crc^=data[i];for(let j=0;j<8;j++) crc=(crc>>>1)^(crc&1?0xEDB88320:0);}
     return (crc^~0)>>>0;
   }
 
-  // Build minimal ZIP (stored, no compression)
   const parts=[];let off=0;const entries=[];
   files.forEach(f=>{
-    const nb=enc.encode(f.p);
-    const crc=crc32(f.d);
-    const lh=new Uint8Array(30+nb.length);
-    const dv=new DataView(lh.buffer);
-    dv.setUint32(0,0x04034b50,true);
-    dv.setUint16(4,20,true);
-    dv.setUint32(14,crc,true);
-    dv.setUint32(18,f.d.length,true);
-    dv.setUint32(22,f.d.length,true);
-    dv.setUint16(26,nb.length,true);
-    lh.set(nb,30);
-    entries.push({off,nb,sz:f.d.length,crc});
-    parts.push(lh,f.d);
-    off+=lh.length+f.d.length;
+    const nb=enc.encode(f.p);const crc=crc32(f.d);
+    const lh=new Uint8Array(30+nb.length);const dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);
+    dv.setUint32(14,crc,true);dv.setUint32(18,f.d.length,true);dv.setUint32(22,f.d.length,true);
+    dv.setUint16(26,nb.length,true);lh.set(nb,30);
+    entries.push({off,nb,sz:f.d.length,crc});parts.push(lh,f.d);off+=lh.length+f.d.length;
   });
   const cdS=off;
   files.forEach((f,i)=>{
-    const e=entries[i];
-    const cd=new Uint8Array(46+e.nb.length);
-    const dv=new DataView(cd.buffer);
-    dv.setUint32(0,0x02014b50,true);
-    dv.setUint16(4,20,true);
-    dv.setUint16(6,20,true);
-    dv.setUint32(16,e.crc,true);
-    dv.setUint32(20,e.sz,true);
-    dv.setUint32(24,e.sz,true);
-    dv.setUint16(28,e.nb.length,true);
-    dv.setUint32(42,e.off,true);
-    cd.set(e.nb,46);
-    parts.push(cd);
-    off+=cd.length;
+    const e=entries[i];const cd=new Uint8Array(46+e.nb.length);const dv=new DataView(cd.buffer);
+    dv.setUint32(0,0x02014b50,true);dv.setUint16(4,20,true);dv.setUint16(6,20,true);
+    dv.setUint32(16,e.crc,true);dv.setUint32(20,e.sz,true);dv.setUint32(24,e.sz,true);
+    dv.setUint16(28,e.nb.length,true);dv.setUint32(42,e.off,true);cd.set(e.nb,46);
+    parts.push(cd);off+=cd.length;
   });
-  const eocd=new Uint8Array(22);
-  const ev=new DataView(eocd.buffer);
-  ev.setUint32(0,0x06054b50,true);
-  ev.setUint16(8,files.length,true);
-  ev.setUint16(10,files.length,true);
-  ev.setUint32(12,off-cdS,true);
-  ev.setUint32(16,cdS,true);
-  parts.push(eocd);
+  const eocd=new Uint8Array(22);const ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);
+  ev.setUint32(12,off-cdS,true);ev.setUint32(16,cdS,true);parts.push(eocd);
 
   const blob=new Blob(parts,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='RE_Fund_Model_'+nq+'Q_Formula.xlsx';
+  a.download='RE_Fund_Model_'+nq+'Q.xlsx';
   a.click();
 }
+
+
 
 // =============================================
 // SENSITIVITY ANALYSIS
