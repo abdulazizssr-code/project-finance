@@ -58,6 +58,7 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 .project-bar .proj-del{background:var(--error);color:#fff}
 .project-bar .proj-save{background:var(--secondary);color:#fff}
 .project-bar label{font-size:.85rem;font-weight:600;color:var(--on-surface-v)}
+.project-bar .btn-calc{margin-left:auto;padding:10px 28px;background:linear-gradient(135deg,var(--primary),var(--primary-c));color:#fff;font-size:.95rem;font-weight:700;letter-spacing:.03em}
 .user-badge{font-size:.82rem;color:rgba(255,255,255,.6);font-weight:500}
 .btn-logout{background:rgba(186,26,26,.7);color:#fff}
 .btn-logout:hover{background:rgba(186,26,26,.9)}
@@ -380,7 +381,7 @@ canvas{max-width:100%;display:block}
     <button class="btn-logout" onclick="doLogout()">Logout</button>
   </div>
 </div>
-<div class="project-bar" id="projectBar"><label>Project:</label><select id="projSelect" onchange="loadProject()"></select><button class="proj-save" onclick="saveProject()">💾 Save</button><button class="proj-new" onclick="newProject()">+ New</button><button class="proj-del" onclick="deleteProject()">🗑 Delete</button></div>
+<div class="project-bar" id="projectBar"><label id="projLbl">Project:</label><select id="projSelect" onchange="loadProject()"></select><button class="proj-save" id="btnProjSave" onclick="saveProject()">💾 Save</button><button class="proj-new" id="btnProjNew" onclick="newProject()">+ New</button><button class="proj-del" id="btnProjDel" onclick="deleteProject()">🗑 Delete</button><button class="btn-calc" id="btnCalcTop" onclick="calculate()">Calculate</button></div>
 <nav class="tabs" id="tabNav"></nav>
 <main class="main">
   <div class="pnl act" id="p-assumptions"></div>
@@ -486,7 +487,7 @@ let lang='en', R=null, currentRole='fund_manager';
 let scenarios={base:null,upside:null,downside:null};
 
 const D={
-  fund_name:'صندوق تطوير عقاري', fund_period_months:24, start_date:'2026-01-01',
+  fund_name:'صندوق تطوير عقاري', project_location:'', project_type:'residential', fund_period_months:24, start_date:'2026-01-01',
   land_area:204624, land_price_sqm:900, brokerage_pct:2.5, rett_pct:2,
   rett_refund:0, vat_refund_con:1, vat_refund_land:1,
   build_area:204624, dev_cost_sqm:138, dev_fee_pct:12.7, contingency_pct:5, insurance_pct:5,
@@ -549,6 +550,7 @@ function compLabel(comp){
 const tabIcons=['⚙','📅','📊','💰','🏦','🔬','📋'];
 const TX={
   en:{title:'Real Estate Fund Financial Study',sub:'Professional Fund Modeling Platform',calc:'Calculate',dl:'Excel',langB:'العربية',
+    projLbl:'Project:',projSave:'💾 Save',projNew:'+ New',projDel:'🗑 Delete',pdf:'PDF',
     tabs:['Assumptions','Schedule','Dashboard','Cash Flow','Debt','Sensitivity','Summary'],
     roles:['Fund Manager','Developer','Financer'],
     roleKeys:['fund_manager','developer','financer'],
@@ -595,7 +597,9 @@ const TX={
       eqMult:'Equity Multiple',netProfit:'Net Profit',roiUH:'ROI (UH)',totalRev:'Total Revenue',
       cfQuarter:'Cash Flow by Quarter',irrHeatmap:'IRR Sensitivity Heatmap',
       hmDesc:'Sale Price × Sellable Area (±20%)',hmXLabel:'Sale Price / sqm',hmYLabel:'Sellable Area (sqm)'},
-    f:{fundName:'Fund Name',fundPeriod:'Fund Period (Months)',startDate:'Start Date',
+    f:{fundName:'Fund Name',projectLocation:'Project Location',projectType:'Project Type',
+      ptResidential:'Residential',ptCommercial:'Commercial',ptMixed:'Mixed-Use',ptHospitality:'Hospitality',ptIndustrial:'Industrial',ptInfra:'Infrastructure',
+      fundPeriod:'Fund Period (Months)',startDate:'Start Date',
       landArea:'Land Area (sqm)',pricePerSqm:'Price per sqm (SAR)',brokerage:'Brokerage %',
       rettAuto:'RETT % (Auto)',rettRefund:'RETT Refund?',vatRefLand:'VAT Refund on Brokerage?',
       gfaAuto:'Gross Floor Area (sqm) (Auto)',costSqmAuto:'Cost per sqm (SAR) (Auto)',
@@ -621,29 +625,30 @@ const TX={
       quarterly:'Quarterly',semiannual:'Semi-Annual',annual:'Annual'},
   },
   ar:{title:'الدراسة المالية للصندوق العقاري',sub:'منصة النمذجة المالية للصناديق',calc:'احسب',dl:'إكسل',langB:'English',
+    projLbl:'المشروع:',projSave:'💾 حفظ',projNew:'+ جديد',projDel:'🗑 حذف',pdf:'PDF',
     tabs:['الافتراضات','الجدول الزمني','لوحة المعلومات','التدفقات النقدية','هيكلة الدين','تحليل الحساسية','الملخص التنفيذي'],
     roles:['مدير الصندوق','المطور','الممول'],
     roleKeys:['fund_manager','developer','financer'],
     roleAr:['مدير الصندوق','المطور','الممول'],
-    s:['معلومات الصندوق','شراء الأرض','تكلفة البناء','مصاريف الصندوق','مبيعات المشروع','مصادر رأس المال'],
-    sch:['تكلفة البناء','أتعاب المطور','الاحتياطي','مصاريف الرخص','التصميم','تأمين','الإشراف','تكاليف التسويق'],
-    schConDist:'توزيع تكاليف البناء (%)',schSalesDist:'توزيع المبيعات (%)',
+    s:['معلومات الصندوق','شراء الأرض','تكلفة التطوير','مصاريف الصندوق','مبيعات المشروع','مصادر رأس المال'],
+    sch:['تكلفة التطوير','أتعاب المطور','الاحتياطي','مصاريف الرخص','التصميم','تأمين','الإشراف','تكاليف التسويق'],
+    schConDist:'توزيع تكاليف التطوير (%)',schSalesDist:'توزيع المبيعات (%)',
     schSalesRow:'جدول المبيعات',
-    conComp:'مكونات البناء',salesComp:'مكونات المبيعات',
+    conComp:'مكونات التطوير',salesComp:'مكونات المبيعات',
     conCols:['اسم المكون','المساحة (م²)','التكلفة / م² (ريال)','التكلفة الإجمالية','حذف'],
     saleCols:['اسم المكون','المساحة القابلة للبيع (م²)','السعر / م² (ريال)','الإيراد الإجمالي','حذف'],
     addComp:'إضافة مكون',totalGFA:'إجمالي المساحة',weightAvgCost:'متوسط التكلفة / م²',totalSellArea:'إجمالي المساحة القابلة للبيع',weightAvgPrice:'متوسط السعر / م²',
     cf:{hdr:'قائمة التدفقات النقدية',
       grossSales:'إجمالي المبيعات',wafi:'رسوم وافي',sellExp:'مصاريف البيع',
-      vatRefCon:'استرداد ضريبة البناء',vatRefExp:'استرداد ضريبة المصاريف',vatRefBrok:'استرداد ضريبة السعي',
+      vatRefCon:'استرداد ضريبة التطوير',vatRefExp:'استرداد ضريبة المصاريف',vatRefBrok:'استرداد ضريبة السعي',
       rettRef:'استرداد الرسوم العقارية',vatAdvisor:'مستشار الضريبة',netRefunds:'صافي الاسترداد',
       custody:'رسوم الحفظ',spv:'تأسيس الشركة',fundSetup:'تأسيس الصندوق',
       auditor:'أتعاب المراجع',sharia:'اللجنة الشرعية',engineering:'الاستشاري',
       board:'مجلس الإدارة',finAdvisor:'المستشار المالي',mgmtFee:'رسوم الإدارة',
       marketing:'تكاليف التسويق',bankMgmt:'رسوم إدارة البنك',arrFee:'رسوم الترتيب',
       perfFee:'رسوم الأداء',totalFundExp:'إجمالي مصاريف الصندوق',interest:'أرباح التمويل',
-      netOp:'صافي التشغيل',land:'الأرض',conCost:'تكلفة البناء',
-      conBase:'البناء الأساسي',conDevFee:'أتعاب المطور',conContingency:'الاحتياطي',conInsurance:'التأمين',conDesign:'رسوم التصميم',conSupervision:'رسوم الإشراف',conLicensing:'رسوم الرخص',
+      netOp:'صافي التشغيل',land:'الأرض',conCost:'تكلفة التطوير',
+      conBase:'التطوير الأساسي',conDevFee:'أتعاب المطور',conContingency:'الاحتياطي',conInsurance:'التأمين',conDesign:'رسوم التصميم',conSupervision:'رسوم الإشراف',conLicensing:'رسوم الرخص',
       netInv:'صافي الاستثمار',netBorrow:'صافي الاقتراض',equity:'اكتتاب المستثمرين',
       inKind:'الحصص العينية',dividends:'توزيعات الأرباح',netFin:'صافي التمويل',
       openCash:'النقد الافتتاحي',changeCash:'التغير في النقد',closeCash:'النقد الختامي'},
@@ -655,30 +660,32 @@ const TX={
       totalDebt:'إجمالي الدين',annROI:'العائد السنوي',ltcRatio:'نسبة الدين للتكلفة',dcr:'نسبة تغطية الدين',
       cfTime:'التدفق النقدي','costBreak':'توزيع التكاليف',closingCash:'الرصيد النقدي',debtSch:'جدول الدين',
       chLegCF:['التشغيل','الاستثمار','التمويل'],
-      chLegPie:['الأرض','البناء','أرباح التمويل','مصاريف الصندوق'],
+      chLegPie:['الأرض','التطوير','أرباح التمويل','مصاريف الصندوق'],
       chLegDebt:['الرصيد','السحوبات','أرباح التمويل'],
       irr:'العائد الداخلي',eqMult:'مضاعف الحقوق',navTimeline:'جدول صافي الأصول',waterfall:'توزيع متدرج',
       costAnalysis:'توزيع التكاليف',gfaEff:'كفاءة المساحة',maxLandPrice:'أقصى سعر أرض',maxLandIRR:'أقصى سعر أرض (عند العائد المستهدف)',profitMargin2:'هامش الربح',capStruct:'هيكل رأس المال',capCash:'نقد المستثمرين',capInKind:'حصص عينية',capOffPlan:'مبيعات على الخارطة',capDebt:'تمويل بنكي',
       dscr:'نسبة التغطية',ltcRatio2:'نسبة الدين للتكلفة',ltvRatio:'نسبة الدين للقيمة',compliance:'الامتثال التعاقدي'},
     scenarios:{title:'مقارنة السيناريوهات',saveBase:'احفظ كأساسي',saveUpside:'احفظ كإيجابي',saveDownside:'احفظ كسلبي',
       kpis:['العائد الداخلي','مضاعف الحقوق','صافي الربح','عائد المستثمرين','إجمالي الدين','هامش الربح','نسبة التغطية']},
-    sens:{drivers:'متغيرات التحليل',salePrice:'سعر البيع / م²',sellArea:'المساحة القابلة للبيع (م²)',conCost:'تكلفة البناء / م²',
+    sens:{drivers:'متغيرات التحليل',salePrice:'سعر البيع / م²',sellArea:'المساحة القابلة للبيع (م²)',conCost:'تكلفة التطوير / م²',
       saibor:'سايبور %',fundPeriod:'مدة الصندوق (شهر)',update:'تحديث التحليل',reset:'إعادة تعيين',
       eqMult:'مضاعف رأس المال',netProfit:'صافي الربح',roiUH:'عائد الاستثمار',totalRev:'إجمالي الإيرادات',
       cfQuarter:'التدفق النقدي',irrHeatmap:'خريطة حرارية للعائد',
       hmDesc:'سعر البيع × المساحة القابلة للبيع (±20%)',hmXLabel:'سعر البيع / م²',hmYLabel:'المساحة القابلة للبيع (م²)'},
-    f:{fundName:'اسم الصندوق',fundPeriod:'مدة الصندوق (شهر)',startDate:'تاريخ البداية',
+    f:{fundName:'اسم الصندوق',projectLocation:'موقع المشروع',projectType:'نوع المشروع',
+      ptResidential:'سكني',ptCommercial:'تجاري',ptMixed:'متعدد الاستخدامات',ptHospitality:'ضيافة',ptIndustrial:'صناعي',ptInfra:'بنية تحتية',
+      fundPeriod:'مدة الصندوق (شهر)',startDate:'تاريخ البداية',
       landArea:'مساحة الأرض (م²)',pricePerSqm:'سعر المتر (ريال)',brokerage:'نسبة السعي %',
-      rettAuto:'رسوم نقل الملكية % (تلقائي)',rettRefund:'استرداد رسوم النقل؟',vatRefLand:'استرداد ضريبة السعي؟',
+      rettAuto:'رسوم التصرفات العقارية % (تلقائي)',rettRefund:'استرداد رسوم التصرفات العقارية؟',vatRefLand:'استرداد ضريبة السعي؟',
       gfaAuto:'إجمالي المساحة المبنية (م²) (تلقائي)',costSqmAuto:'تكلفة المتر (ريال) (تلقائي)',
       devFee:'أتعاب المطور %',contingency:'الاحتياطي %',insurance:'التأمين %',
       designFee:'رسوم التصميم (ريال)',supervisionFee:'رسوم الإشراف (ريال)',licensingFee:'رسوم الرخص (ريال)',
-      conPeriod:'مدة البناء (شهر)',
+      conPeriod:'مدة التطوير (شهر)',
       custody:'رسوم الحفظ (سنوي)',spvSetup:'تأسيس الشركة (لمرة واحدة)',fundSetup:'تأسيس الصندوق (لمرة واحدة)',
       auditor:'أتعاب المراجع (سنوي)',sharia:'اللجنة الشرعية (سنوي)',
       engineering:'الاستشاري الهندسي (سنوي)',board:'مكافأة مجلس الإدارة (سنوي)',
       mgmtMode:'نوع رسوم الإدارة',mgmtPct:'رسوم الإدارة % (سنوي)',mgmtFixed:'رسوم الإدارة الثابتة (سنوي)',
-      marketingCost:'تكلفة التسويق (ريال)',vatRate:'نسبة الضريبة %',vatRefCon:'استرداد ضريبة البناء؟',
+      marketingCost:'تكلفة التسويق (ريال)',vatRate:'نسبة الضريبة %',vatRefCon:'استرداد ضريبة التطوير؟',
       vatRefDelay:'مدة استرداد الضريبة (شهر)',vatAdvisor:'مستشار الضريبة %',
       hurdle:'معدل العائد المستهدف % (سنوي)',perfFee:'رسوم الأداء %',
       sellAreaAuto:'المساحة القابلة للبيع (م²) (تلقائي)',salePriceAuto:'سعر البيع / م² (ريال) (تلقائي)',
@@ -687,9 +694,9 @@ const TX={
       ikCon:'حصة عينية مقاول %',ikMkt:'حصة عينية تسويق %',
       saibor:'سايبور %',margin:'الهامش %',arrFee:'رسوم الترتيب %',
       bankMgmt:'رسوم إدارة البنك % (لمرة واحدة)',minCash:'الحد الأدنى للنقد (ريال)',
-      yes:'نعم',no:'لا',navMode:'% من صافي الأصول',totalAssetMode:'% من إجمالي الأصول',fixedMode:'مبلغ ثابت',pctOfCon:'% من تكلفة البناء',
-      designFeeMode:'نوع رسوم التصميم',designFeePct:'رسوم التصميم % من البناء',
-      supervisionFeeMode:'نوع رسوم الإشراف',supervisionFeePct:'رسوم الإشراف % من البناء',
+      yes:'نعم',no:'لا',navMode:'% من صافي الأصول',totalAssetMode:'% من إجمالي الأصول',fixedMode:'مبلغ ثابت',pctOfCon:'% من تكلفة التطوير',
+      designFeeMode:'نوع رسوم التصميم',designFeePct:'رسوم التصميم % من التطوير',
+      supervisionFeeMode:'نوع رسوم الإشراف',supervisionFeePct:'رسوم الإشراف % من التطوير',
       quarterly:'ربع سنوي',semiannual:'نصف سنوي',annual:'سنوي'},
   }
 };
@@ -736,6 +743,8 @@ function buildForm(){
   p.innerHTML=`<div class="form-grid">
   <div class="sec"><div class="sec-t">${TX[lang].s[0]}</div>
     ${fld('fund_name',F.fundName,D.fund_name,'text')}
+    ${fld('project_location',F.projectLocation,D.project_location,'text')}
+    ${fld('project_type',F.projectType,D.project_type,'select',[['residential',F.ptResidential],['commercial',F.ptCommercial],['mixed',F.ptMixed],['hospitality',F.ptHospitality],['industrial',F.ptIndustrial],['infrastructure',F.ptInfra]])}
     ${fld('fund_period_months',F.fundPeriod,D.fund_period_months)}
     ${fld('start_date',F.startDate,D.start_date,'date')}
   </div>
@@ -803,8 +812,10 @@ function buildForm(){
     ${fld('bank_mgmt_pct',F.bankMgmt,D.bank_mgmt_pct)}
     ${fld('min_cash',F.minCash,D.min_cash)}
   </div>
-  </div>
-  <div class="calc-bar"><button class="btn-calc" onclick="calculate()">${TX[lang].calc}</button></div>`;
+  </div>`;
+  // Update top calc button text for language
+  const topCalcBtn=document.getElementById('btnCalcTop');
+  if(topCalcBtn) topCalcBtn.textContent=TX[lang].calc;
   D.rett_pct = 5 * (1 - (D.ik_land_pct || 0) / 100);
   const rettEl = document.getElementById('rett_pct');
   if(rettEl) rettEl.value = D.rett_pct;
@@ -919,7 +930,7 @@ function buildSchedule(){
   const schHdr=lang==='ar'?'البند':'Item', schTot=lang==='ar'?'المجموع':'Total';
   const secSep='<div style="height:48px;border-top:3px solid var(--primary);margin:32px 0;position:relative"><div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--surface-bg);padding:0 16px;color:var(--primary);font-weight:700;font-size:.85rem;white-space:nowrap">'+(lang==='ar'?'جدول المبيعات':'Sales Schedule')+'</div></div>';
   p.innerHTML=`
-  <div style="margin-bottom:8px;font-family:'Manrope',system-ui;font-size:1.1rem;font-weight:700;color:var(--primary);letter-spacing:.03em"${lang==='ar'?' dir="rtl"':''}>${lang==='ar'?'① مكونات البناء':'① Construction Components'}</div>
+  <div style="margin-bottom:8px;font-family:'Manrope',system-ui;font-size:1.1rem;font-weight:700;color:var(--primary);letter-spacing:.03em"${lang==='ar'?' dir="rtl"':''}>${lang==='ar'?'① مكونات التطوير':'① Construction Components'}</div>
   `+buildConTable()+`
   <div class="sch-wrap"><h3>${tl.schConDist}</h3>
   <table class="sch-tbl"><thead><tr><th>${schHdr}</th>${qlabels.map(q=>`<th>${q}</th>`).join('')}<th>${schTot}</th></tr></thead>
@@ -1337,6 +1348,7 @@ function renderDashboard(){
   const dcr=totalDebtService>0?R.tRev/totalDebtService:0;
   const perfFee=R.qPerfFee.reduce((a,b)=>a+b,0);
   const DH=TX[lang].dash, cur=lang==='ar'?'ريال':'SAR';
+  const qlb=lang==='ar'?R.labels.map(q=>q.replace('Q','ربع ')):R.labels;
   const p=document.getElementById('p-dashboard');
   let html='';
 
@@ -1433,20 +1445,20 @@ function renderDashboard(){
 
   setTimeout(()=>{
     if(currentRole==='fund_manager'){
-      drawBarChart('c1',R.labels,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
+      drawBarChart('c1',qlb,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
       drawPie('c2',[R.tLand,R.tConExVAT,R.totalInt,R.qTotalFundExp.reduce((a,b)=>a+b,0)/V],
-        [lang==='ar'?'الأرض':'Land',lang==='ar'?'البناء':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],
+        [lang==='ar'?'الأرض':'Land',lang==='ar'?'التطوير':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],
         ['#00322d','#004b44','#775a19','#767669']);
       drawPie('c5',[R.capCash,R.capInKind,R.capOffPlan,R.capDebt],[DH.capCash,DH.capInKind,DH.capOffPlan,DH.capDebt],['#00322d','#775a19','#1a6b3c','#004b44']);
-      drawLine('c3',R.labels,R.qCashClose,'#775a19');
-      drawBarChart('c4',R.labels,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'},{d:R.qInterest,c:'#775a19'}],DH.chLegDebt);
+      drawLine('c3',qlb,R.qCashClose,'#775a19');
+      drawBarChart('c4',qlb,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'},{d:R.qInterest,c:'#775a19'}],DH.chLegDebt);
     } else if(currentRole==='developer'){
-      drawBarChart('c1',R.labels,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
+      drawBarChart('c1',qlb,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
       drawPie('c2',[R.tLand,R.tConExVAT,R.totalInt,R.qTotalFundExp.reduce((a,b)=>a+b,0)/V],
-        [lang==='ar'?'الأرض':'Land',lang==='ar'?'البناء':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],['#00322d','#004b44','#775a19','#767669']);
+        [lang==='ar'?'الأرض':'Land',lang==='ar'?'التطوير':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],['#00322d','#004b44','#775a19','#767669']);
     } else if(currentRole==='financer'){
-      drawBarChart('c1',R.labels,[{d:R.qDSCR,c:'#00322d'}],[DH.dscr]);
-      drawBarChart('c2',R.labels,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'}],[DH.chLegDebt[0],DH.chLegDebt[1]]);
+      drawBarChart('c1',qlb,[{d:R.qDSCR,c:'#00322d'}],[DH.dscr]);
+      drawBarChart('c2',qlb,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'}],[DH.chLegDebt[0],DH.chLegDebt[1]]);
     }
   },50);
 }
@@ -1480,7 +1492,8 @@ function renderScenarioComparison(){
 // CASH FLOW TABLE
 // =============================================
 function renderCashFlow(){
-  const r=R, lb=r.labels, nq=r.nq;
+  const r=R, nq=r.nq;
+  const lb=lang==='ar'?r.labels.map(q=>q.replace('Q','ربع ')):r.labels;
   function tr(label,data,cls){
     const tot=data.reduce((a,b)=>a+b,0);
     const neg=v=>v<0?'neg':'';
@@ -1559,7 +1572,7 @@ function renderCashFlow(){
   if(cfSlider&&cfWrap){
     cfSlider.oninput=function(){
       const q=parseInt(this.value);
-      if(cfVal) cfVal.textContent='Q'+q;
+      if(cfVal) cfVal.textContent=(lang==='ar'?'ربع ':'Q')+q;
       const cols=cfWrap.querySelectorAll('th');
       if(cols.length>q){
         cols[q].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
@@ -1572,7 +1585,8 @@ function renderCashFlow(){
 // DEBT TABLE
 // =============================================
 function renderDebt(){
-  const r=R,lb=r.labels,nq=r.nq;
+  const r=R,nq=r.nq;
+  const lb=lang==='ar'?r.labels.map(q=>q.replace('Q','ربع ')):r.labels;
   function tr(label,data,cls){return `<tr class="${cls||''}"><td class="rl">${label}</td>${data.map(v=>`<td>${fN(v)}</td>`).join('')}</tr>`;}
 
   const DL=TX[lang].debt;
@@ -1707,7 +1721,9 @@ function renderSummary(){
   const isAr=lang==='ar';
   const dateStr=new Date().toLocaleDateString(isAr?'ar-SA':'en-US',{month:'long',year:'numeric'});
   const loc=AA.project_location||D.project_location||(isAr?'الرياض، المملكة العربية السعودية':'Riyadh, KSA');
-  const ptype=AA.project_type||D.project_type||(isAr?'سكني / تجاري':'Residential / Commercial');
+  const _ptKey=AA.project_type||D.project_type||'residential';
+  const _ptMap={residential:'ptResidential',commercial:'ptCommercial',mixed:'ptMixed',hospitality:'ptHospitality',industrial:'ptIndustrial',infrastructure:'ptInfra'};
+  const ptype=TX[lang].f[_ptMap[_ptKey]]||_ptKey;
   const yrP=(AA.fund_period_months/12).toFixed(1);
   const V=1+pct(AA.vat_rate), baseCon=AA.build_area*AA.dev_cost_sqm;
   const devFees=baseCon*pct(AA.dev_fee_pct), contingency=baseCon*pct(AA.contingency_pct), insurance=baseCon*pct(AA.insurance_pct);
@@ -1762,7 +1778,7 @@ function renderSummary(){
   h+=`<div>`;
   h+=`<div class="es-sec"><div class="es-sec-title">${L('Key Assumptions & Project Info','الافتراضات الرئيسية')}</div></div>`;
   h+=`<table class="es-tbl" dir="${tblDir}">`;
-  [[L('Purpose','الغرض'),ptype],[L('Location','الموقع'),loc],[L('Fund Period','مدة الصندوق'),(isAr?'<bdi>'+yrP+'</bdi> سنة / <bdi>'+nq+'</bdi> أرباع':yrP+' yrs / '+nq+' Q')],
+  [[L('Fund Name','اسم الصندوق'),AA.fund_name||D.fund_name],[L('Project Type','نوع المشروع'),ptype],[L('Location','الموقع'),loc],[L('Fund Period','مدة الصندوق'),(isAr?'<bdi>'+yrP+'</bdi> سنة / <bdi>'+nq+'</bdi> أرباع':yrP+' yrs / '+nq+' Q')],
    [L('Land Area','مساحة الأرض'),fU(fmt(AA.land_area),sqm)],[L('Land Price','سعر المتر'),fUr(fmt(AA.land_price_sqm),cur,sqm)],
    [L('Total GFA','المساحة المبنية'),fU(fmt(AA.build_area),sqm)],[L('Hurdle Rate','معدل العائد المستهدف'),AA.hurdle_rate+'%'],[L('Performance Fee','رسوم الأداء'),AA.perf_fee_pct+'%']
   ].forEach(([l,v])=>{
@@ -1799,8 +1815,8 @@ function renderSummary(){
   h+=`<table class="es-tbl es-tbl3" dir="${tblDir}">`;
   [[L('Land Cost','تكلفة الأرض'),'-',fmt(-R.tLand)],
    [L('Brokerage','السعي'),AA.brokerage_pct+'%',fmt(-R.brokerageIncVAT)],
-   [L('RETT','رسوم نقل الملكية'),AA.rett_pct+'%',fmt(-R.rettAmount)],
-   [L('Construction','تكلفة البناء'),'-',fmt(-R.tCon)],
+   [L('RETT','رسوم التصرفات العقارية'),AA.rett_pct+'%',fmt(-R.rettAmount)],
+   [L('Construction','تكلفة التطوير'),'-',fmt(-R.tCon)],
    [L('Developer Fee','أتعاب المطور'),AA.dev_fee_pct+'%',fmt(-devFees*V)],
    [L('Design & Supervision','التصميم والإشراف'),'-',fmt(-dsFee)],
    [L('Fund Mgmt Fee','رسوم الإدارة'),AA.mgmt_fee_pct+'%',fmt(-mgmtTotal)],
@@ -2748,8 +2764,10 @@ function dlExcel(){
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('KEY ASSUMPTIONS &amp; PROJECT INFO')+'</row>');
-  rows.push('<row>'+lbl('Purpose',false)+blueTx('Residential / Commercial')+'</row>');
-  rows.push('<row>'+lbl('Location',true)+blueTx('Riyadh, KSA')+'</row>');
+  rows.push('<row>'+lbl('Fund Name',false)+blueTx(A.fund_name||'')+'</row>');
+  const _ptk=A.project_type||'residential';
+  const _ptm={residential:'Residential',commercial:'Commercial',mixed:'Mixed-Use',hospitality:'Hospitality',industrial:'Industrial',infrastructure:'Infrastructure'};
+  rows.push('<row>'+lbl('Project Type / Location',true)+blueTx((_ptm[_ptk]||_ptk)+' — '+(A.project_location||''))+'</row>');
   rows.push('<row>'+lbl('Fund Period',false)+fc('Assumptions!B73/12&" yrs / "&Assumptions!B74&" Q"',S.blT)+'</row>');
   rows.push('<row>'+lbl('Land Area (m\u00B2)',true)+greenNum('Assumptions!B5',true)+'</row>');
   rows.push('<row>'+lbl('Land Price (SAR/m\u00B2)',false)+greenNum('Assumptions!B6')+'</row>');
@@ -3184,29 +3202,80 @@ function calcWith(overrides){
   const msPerDay=86400000;
   const tFrac=qDates.map(d=>(d-sd)/msPerDay/365.0);
 
-  let irrAnn=0.12;
-  for(let it=0;it<300;it++){
-    let npv=0,dnpv=0;
+  // Robust XIRR: Newton-Raphson with clamping + bisection fallback
+  function xirrNPV(rate){
+    let npv=0;
     for(let i=0;i<nq;i++){
       const t=tFrac[i];
-      if(1+irrAnn<=0) {irrAnn=0.01; break;}
-      const disc=Math.pow(1+irrAnn,t);
-      if(!isFinite(disc)||disc===0) break;
+      if(1+rate<=0) return NaN;
+      const disc=Math.pow(1+rate,t);
+      if(!isFinite(disc)||disc===0) return NaN;
       npv+=invCF[i]/disc;
-      if(t>0) dnpv+=-t*invCF[i]/Math.pow(1+irrAnn,t+1);
     }
-    if(Math.abs(dnpv)<1e-12) break;
-    const step=npv/dnpv;
-    irrAnn-=step;
-    if(!isFinite(irrAnn)){irrAnn=-1; break;}
-    if(irrAnn<-0.99) {irrAnn=-0.99; break;}
-    if(Math.abs(step)<1e-10) break;
+    return npv;
   }
-  if(!isFinite(irrAnn)) irrAnn=-1;
+  // Edge case: if all cash flows are zero or same sign, IRR is undefined
+  let hasPos=false,hasNeg=false;
+  for(let i=0;i<nq;i++){if(invCF[i]>0)hasPos=true;if(invCF[i]<0)hasNeg=true;}
+  let irrAnn=0;
+  if(!hasPos||!hasNeg){
+    irrAnn=0; // no sign change = no IRR
+  } else {
+    // Newton-Raphson with upper/lower clamping
+    irrAnn=0.12;
+    let converged=false;
+    for(let it=0;it<300;it++){
+      let npv=0,dnpv=0;
+      for(let i=0;i<nq;i++){
+        const t=tFrac[i];
+        if(1+irrAnn<=0){irrAnn=0.01;break;}
+        const disc=Math.pow(1+irrAnn,t);
+        if(!isFinite(disc)||disc===0) break;
+        npv+=invCF[i]/disc;
+        if(t>0) dnpv+=-t*invCF[i]/Math.pow(1+irrAnn,t+1);
+      }
+      if(Math.abs(dnpv)<1e-12) break;
+      const step=npv/dnpv;
+      irrAnn-=step;
+      if(!isFinite(irrAnn)){irrAnn=-1;break;}
+      // Clamp to reasonable range
+      if(irrAnn<-0.99) irrAnn=-0.99;
+      if(irrAnn>10.0) irrAnn=10.0; // cap at 1000%
+      if(Math.abs(step)<1e-10){converged=true;break;}
+    }
+    // Bisection fallback if Newton didn't converge or result looks suspicious
+    if(!converged||!isFinite(irrAnn)||irrAnn>=10.0||irrAnn<=-0.99){
+      // Try multiple brackets to find sign change
+      let lo=-0.5,hi=5.0,bracketed=false;
+      const brackets=[[-0.5,5],[-0.5,10],[-0.5,50],[-0.5,100]];
+      for(const [bLo,bHi] of brackets){
+        const nLo=xirrNPV(bLo),nHi=xirrNPV(bHi);
+        if(isFinite(nLo)&&isFinite(nHi)&&nLo*nHi<0){lo=bLo;hi=bHi;bracketed=true;break;}
+      }
+      if(bracketed){
+        for(let it=0;it<200;it++){
+          const mid=(lo+hi)/2;
+          const nMid=xirrNPV(mid);
+          if(!isFinite(nMid)||Math.abs(nMid)<1e-8){irrAnn=mid;break;}
+          if(nMid*xirrNPV(lo)<0) hi=mid; else lo=mid;
+          if(hi-lo<1e-10){irrAnn=(lo+hi)/2;break;}
+        }
+        irrAnn=(lo+hi)/2;
+      } else {
+        irrAnn=0; // cannot bracket — return 0
+      }
+    }
+  }
+  if(!isFinite(irrAnn)) irrAnn=0;
+  // Final clamp: cap display to ±999%
+  if(irrAnn>9.99) irrAnn=9.99;
+  if(irrAnn<-0.99) irrAnn=-0.99;
 
   const avgDSCR=qDSCR.reduce((a,b)=>a+b,0)/nq;
 
-  return {irr:irrAnn,eqMult,netProfit:grossProfit,roiUH,totalDiv,totalCost,tRev,grossProfit,profitMargin:totalCost?grossProfit/totalCost:0,avgDSCR,
+  // Final safety: ensure IRR is always a bounded number
+  const safeIRR=isFinite(irrAnn)?Math.max(-0.99,Math.min(9.99,irrAnn)):0;
+  return {irr:safeIRR,eqMult,netProfit:grossProfit,roiUH,totalDiv,totalCost,tRev,grossProfit,profitMargin:totalCost?grossProfit/totalCost:0,avgDSCR,
     qNetOp,qNetInv,qNetFin,qCashClose,labels:Array.from({length:nq},(_,i)=>'Q'+(i+1)),nq};
 }
 
@@ -3243,16 +3312,16 @@ function renderSensitivity(){
   p.innerHTML=`<div class="sens-layout">
     <div class="sens-sidebar">
       <h3>${SL.drivers}</h3>
-      <div class="sld-group"><label><span>${SL.salePrice}</span> <b id="sv_sp">${D.sale_price_sqm}</b></label>
-        <input type="range" id="sr_sp" min="1500" max="3500" step="25" value="${D.sale_price_sqm}" oninput="onSensSlider()"></div>
+      <div class="sld-group"><label><span>${SL.salePrice}</span> <b id="sv_sp">${Math.round(D.sale_price_sqm)}</b></label>
+        <input type="range" id="sr_sp" min="${Math.round(D.sale_price_sqm*0.5)}" max="${Math.round(D.sale_price_sqm*1.5)}" step="1" value="${Math.round(D.sale_price_sqm)}" oninput="onSensSlider()"></div>
       <div class="sld-group"><label><span>${SL.sellArea}</span> <b id="sv_sa">${Math.round(D.sell_area)}</b></label>
-        <input type="range" id="sr_sa" min="${Math.round(D.sell_area*0.5)}" max="${Math.round(D.sell_area*1.5)}" step="100" value="${Math.round(D.sell_area)}" oninput="onSensSlider()"></div>
+        <input type="range" id="sr_sa" min="${Math.round(D.sell_area*0.5)}" max="${Math.round(D.sell_area*1.5)}" step="1" value="${Math.round(D.sell_area)}" oninput="onSensSlider()"></div>
       <div class="sld-group"><label><span>${SL.conCost}</span> <b id="sv_cc">${Math.round(D.dev_cost_sqm)}</b></label>
-        <input type="range" id="sr_cc" min="${Math.round(D.dev_cost_sqm*0.5)}" max="${Math.round(D.dev_cost_sqm*2)}" step="5" value="${Math.round(D.dev_cost_sqm)}" oninput="onSensSlider()"></div>
+        <input type="range" id="sr_cc" min="${Math.round(D.dev_cost_sqm*0.5)}" max="${Math.round(D.dev_cost_sqm*2)}" step="1" value="${Math.round(D.dev_cost_sqm)}" oninput="onSensSlider()"></div>
       <div class="sld-group"><label><span>${SL.saibor}</span> <b id="sv_sb">${D.saibor}</b></label>
-        <input type="range" id="sr_sb" min="4" max="10" step="0.1" value="${D.saibor}" oninput="onSensSlider()"></div>
+        <input type="range" id="sr_sb" min="${Math.max(0,D.saibor-3).toFixed(1)}" max="${(D.saibor+3).toFixed(1)}" step="0.1" value="${D.saibor}" oninput="onSensSlider()"></div>
       <div class="sld-group"><label><span>${SL.fundPeriod}</span> <b id="sv_fp">${D.fund_period_months}</b></label>
-        <input type="range" id="sr_fp" min="12" max="48" step="3" value="${D.fund_period_months}" oninput="onSensSlider()"></div>
+        <input type="range" id="sr_fp" min="${Math.max(6,D.fund_period_months-12)}" max="${D.fund_period_months+24}" step="3" value="${D.fund_period_months}" oninput="onSensSlider()"></div>
       <div style="display:flex;gap:8px;margin-top:16px">
         <button class="btn-sens" style="margin-top:0" onclick="onSensSlider()">${SL.update}</button>
         <button class="btn-sens btn-sens-reset" style="margin-top:0;background:var(--surface-ch);color:var(--on-surface)" onclick="resetSensSliders()">${SL.reset}</button>
@@ -3284,9 +3353,9 @@ function onSensSlider(){
   const sb=parseFloat(document.getElementById('sr_sb')?.value)||D.saibor;
   const fp=parseInt(document.getElementById('sr_fp')?.value)||D.fund_period_months;
 
-  const svSp=document.getElementById('sv_sp');if(svSp) svSp.textContent=Math.round(sp);
-  const svSa=document.getElementById('sv_sa');if(svSa) svSa.textContent=Math.round(sa);
-  const svCc=document.getElementById('sv_cc');if(svCc) svCc.textContent=Math.round(cc);
+  const svSp=document.getElementById('sv_sp');if(svSp) svSp.textContent=Math.round(sp).toLocaleString();
+  const svSa=document.getElementById('sv_sa');if(svSa) svSa.textContent=Math.round(sa).toLocaleString();
+  const svCc=document.getElementById('sv_cc');if(svCc) svCc.textContent=Math.round(cc).toLocaleString();
   const svSb=document.getElementById('sv_sb');if(svSb) svSb.textContent=sb;
   const svFp=document.getElementById('sv_fp');if(svFp) svFp.textContent=fp;
 
@@ -3305,13 +3374,16 @@ function onSensSlider(){
       del.className='sd '+(diff>=0?'pos':'neg');
     }
   }
-  setKPI('sk_irr',res.irr,base.irr,v=>(v*100).toFixed(1)+'%');
+  // Clamp IRR display to ±999% as safety net
+  const clampIRR=v=>Math.max(-0.99,Math.min(9.99,isFinite(v)?v:0));
+  setKPI('sk_irr',clampIRR(res.irr),clampIRR(base.irr),v=>(v*100).toFixed(1)+'%');
   setKPI('sk_em',res.eqMult,base.eqMult,v=>v.toFixed(2)+'x');
   setKPI('sk_np',res.netProfit,base.netProfit,v=>fM(v)+' SAR');
   setKPI('sk_rev',res.tRev,base.tRev,v=>fM(v)+' SAR');
 
   setTimeout(()=>{
-    drawBarChart('cSensCF',res.labels,[{d:res.qNetOp,c:'#00322d'},{d:res.qNetInv,c:'#ba1a1a'},{d:res.qNetFin,c:'#1a6b3c'}],TX[lang].dash.chLegCF);
+    const _slb=lang==='ar'?res.labels.map(q=>q.replace('Q','ربع ')):res.labels;
+    drawBarChart('cSensCF',_slb,[{d:res.qNetOp,c:'#00322d'},{d:res.qNetInv,c:'#ba1a1a'},{d:res.qNetFin,c:'#1a6b3c'}],TX[lang].dash.chLegCF);
     drawHeatmap();
   },30);
 
@@ -3334,7 +3406,7 @@ function onSensSlider(){
       for(let c=0;c<n;c++){
         const result=calcWith({sale_price_sqm:spVals[c], sell_area:saVals[r], dev_cost_sqm:cc, saibor:sb, fund_period_months:fp});
         const rawIrr=result?result.irr:0;
-        const irr=(isFinite(rawIrr)?rawIrr:0);
+        const irr=isFinite(rawIrr)?Math.max(-0.99,Math.min(9.99,rawIrr)):0;
         matrix[r][c]=irr;
         if(irr<minIRR) minIRR=irr;
         if(irr>maxIRR) maxIRR=irr;
@@ -3416,8 +3488,8 @@ function toggleLang(){
   document.body.style.fontFamily=lang==='ar'?"'Cairo','Noto Kufi Arabic',system-ui,sans-serif":"'Inter','Manrope',system-ui,sans-serif";
   document.getElementById('appTitle').textContent=TX[lang].title;
   const subEl=document.getElementById('appSub');if(subEl) subEl.textContent=TX[lang].sub;
-  document.getElementById('btnDL').textContent=TX[lang].dl;
   document.querySelector('.btn-lang').textContent=TX[lang].langB;
+  updateProjectBar();
   buildTabs();buildForm();
   if(R){renderDashboard();renderCashFlow();renderDebt();renderSensitivity();renderSummary();}
 }
@@ -3425,7 +3497,18 @@ function toggleLang(){
 // =============================================
 // INIT
 // =============================================
-buildTabs();buildForm();
+function updateProjectBar(){
+  const _t=TX[lang];
+  const el=id=>document.getElementById(id);
+  if(el('projLbl')) el('projLbl').textContent=_t.projLbl;
+  if(el('btnProjSave')) el('btnProjSave').textContent=_t.projSave;
+  if(el('btnProjNew')) el('btnProjNew').textContent=_t.projNew;
+  if(el('btnProjDel')) el('btnProjDel').textContent=_t.projDel;
+  if(el('btnCalcTop')) el('btnCalcTop').textContent=_t.calc;
+  if(el('btnDL')) el('btnDL').textContent=_t.dl;
+  if(el('btnPDF')) el('btnPDF').textContent=_t.pdf||'PDF';
+}
+updateProjectBar();buildTabs();buildForm();
 </script>
 </body>
 </html>
