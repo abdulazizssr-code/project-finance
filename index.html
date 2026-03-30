@@ -616,11 +616,44 @@ function generateShareLink(){
   const json=JSON.stringify(payload);
   const encoded=compressStr(json);
   const base=window.location.origin+window.location.pathname;
-  const link=base+'#share='+encoded;
+  const longLink=base+'#share='+encoded;
   const linkArea=document.getElementById('shareLinkArea');
-  linkArea.textContent=link;
+  const btnGen=document.getElementById('btnGenLink');
+  const btnCopy=document.getElementById('btnCopyLink');
+  // Show "Shortening..." while we try URL shortener
+  linkArea.textContent=_t.shareShortening||'Shortening link...';
   linkArea.style.display='block';
-  document.getElementById('btnCopyLink').style.display='';
+  btnGen.disabled=true;
+  btnCopy.style.display='none';
+  // Try multiple shortener services with fallback
+  shortenUrl(longLink).then(shortLink=>{
+    linkArea.textContent=shortLink;
+    btnCopy.style.display='';
+    btnGen.disabled=false;
+  }).catch(()=>{
+    linkArea.textContent=longLink;
+    btnCopy.style.display='';
+    btnGen.disabled=false;
+  });
+}
+
+async function shortenUrl(url){
+  // Try is.gd first
+  try{
+    const r=await fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(url));
+    if(r.ok){const j=await r.json();if(j.shorturl) return j.shorturl;}
+  }catch(e){}
+  // Try TinyURL as fallback
+  try{
+    const r=await fetch('https://tinyurl.com/api-create.php?url='+encodeURIComponent(url));
+    if(r.ok){const t=await r.text();if(t.startsWith('http')) return t.trim();}
+  }catch(e){}
+  // Try v.gd as second fallback
+  try{
+    const r=await fetch('https://v.gd/create.php?format=json&url='+encodeURIComponent(url));
+    if(r.ok){const j=await r.json();if(j.shorturl) return j.shorturl;}
+  }catch(e){}
+  throw new Error('All shorteners failed');
 }
 
 function copyShareLink(){
@@ -820,7 +853,7 @@ const tabIcons=['⚙','📅','📊','💰','🏦','🔬','📋'];
 const TX={
   en:{title:'Real Estate Fund Financial Study',sub:'Professional Fund Modeling Platform',calc:'Calculate',dl:'Excel',langB:'العربية',
     projLbl:'Project:',projSave:'💾 Save',projNew:'+ New',projDel:'🗑 Delete',projShare:'🔗 Share',pdf:'PDF',
-    shareTitle:'Share Projects',shareDesc:'Select one or more projects to share via a unique link. Recipients can view the financial model.',shareProjHead:'Select Projects',shareToggle:'Allow recipient to modify assumptions',shareGenLink:'Generate Link',shareCopyLink:'Copy Link',shareClose:'Close',shareNoProj:'No saved projects to share. Save a project first.',shareCopied:'Link copied!',shareViewBadge:'SHARED VIEW',shareViewMsg:'You are viewing shared projects',shareViewMsgRO:' (read-only assumptions)',shareExit:'Exit Shared View',
+    shareTitle:'Share Projects',shareDesc:'Select one or more projects to share via a unique link. Recipients can view the financial model.',shareProjHead:'Select Projects',shareToggle:'Allow recipient to modify assumptions',shareGenLink:'Generate Link',shareCopyLink:'Copy Link',shareClose:'Close',shareNoProj:'No saved projects to share. Save a project first.',shareCopied:'Link copied!',shareShortening:'Shortening link...',shareViewBadge:'SHARED VIEW',shareViewMsg:'You are viewing shared projects',shareViewMsgRO:' (read-only assumptions)',shareExit:'Exit Shared View',
     tabs:['Assumptions','Schedule','Dashboard','Cash Flow','Debt','Sensitivity','Summary'],
     roles:['Fund Manager','Developer','Financer'],
     roleKeys:['fund_manager','developer','financer'],
@@ -896,7 +929,7 @@ const TX={
   },
   ar:{title:'الدراسة المالية للصندوق العقاري',sub:'منصة النمذجة المالية للصناديق',calc:'احسب',dl:'إكسل',langB:'English',
     projLbl:'المشروع:',projSave:'💾 حفظ',projNew:'+ جديد',projDel:'🗑 حذف',projShare:'🔗 مشاركة',pdf:'PDF',
-    shareTitle:'مشاركة المشاريع',shareDesc:'اختر مشروعًا أو أكثر لمشاركته عبر رابط فريد. يمكن للمستلمين عرض النموذج المالي.',shareProjHead:'اختر المشاريع',shareToggle:'السماح للمستلم بتعديل الافتراضات',shareGenLink:'إنشاء رابط',shareCopyLink:'نسخ الرابط',shareClose:'إغلاق',shareNoProj:'لا توجد مشاريع محفوظة للمشاركة. احفظ مشروعًا أولًا.',shareCopied:'تم نسخ الرابط!',shareViewBadge:'عرض مشترك',shareViewMsg:'أنت تشاهد مشاريع مشتركة',shareViewMsgRO:' (الافتراضات للقراءة فقط)',shareExit:'خروج من العرض المشترك',
+    shareTitle:'مشاركة المشاريع',shareDesc:'اختر مشروعًا أو أكثر لمشاركته عبر رابط فريد. يمكن للمستلمين عرض النموذج المالي.',shareProjHead:'اختر المشاريع',shareToggle:'السماح للمستلم بتعديل الافتراضات',shareGenLink:'إنشاء رابط',shareCopyLink:'نسخ الرابط',shareClose:'إغلاق',shareNoProj:'لا توجد مشاريع محفوظة للمشاركة. احفظ مشروعًا أولًا.',shareCopied:'تم نسخ الرابط!',shareShortening:'جارٍ اختصار الرابط...',shareViewBadge:'عرض مشترك',shareViewMsg:'أنت تشاهد مشاريع مشتركة',shareViewMsgRO:' (الافتراضات للقراءة فقط)',shareExit:'خروج من العرض المشترك',
     tabs:['الافتراضات','الجدول الزمني','لوحة المعلومات','التدفقات النقدية','هيكلة الدين','تحليل الحساسية','الملخص التنفيذي'],
     roles:['مدير الصندوق','المطور','الممول'],
     roleKeys:['fund_manager','developer','financer'],
