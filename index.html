@@ -1979,6 +1979,9 @@ function calculate(){
   // In-kind marketing (fund-level)
   const qIKMkt=qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0);
   const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]);
+  // Snapshot the base IK (no GP commitment portion) — used to recompute qIKTotal each iter
+  const qIKBase=[...qIKTotal];
+  const gpIKPct=pct(A.gp_commit_inkind_pct||0);
 
   const delayQ=Math.floor(A.vat_refund_months/3);
   const lastQ=nq-1;
@@ -2039,6 +2042,9 @@ function calculate(){
       else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
       qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
     }
+
+    // GP In-Kind = % of mgmt fee added back as in-kind equity. Reset qIKTotal so debt sizing accounts for it.
+    for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
     for(let qi=0;qi<nq;qi++){
       qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
@@ -2120,9 +2126,9 @@ function calculate(){
     qVATNet[qi]=totalRef-qVATAdvisor[qi];
   }
 
-  // GP In-Kind: GP contributes back a % of management fees as in-kind equity
-  const gpIKPct=pct(A.gp_commit_inkind_pct||0);
-  if(gpIKPct>0) for(let qi=0;qi<nq;qi++) qIKTotal[qi]+=qMgmtFee[qi]*gpIKPct;
+  // GP In-Kind: GP contributes back a % of management fees as in-kind equity.
+  // gpIKPct already defined earlier. RESET (not add) to avoid double-counting since iter loop already set it.
+  for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
   for(let qi=0;qi<nq;qi++){
     qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
@@ -2463,12 +2469,16 @@ function renderDashboard(){
         [lang==='ar'?'الأرض':'Land',lang==='ar'?'التطوير':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],
         ['#00322d','#004b44','#775a19','#767669']);}
       drawPie('c5',[R.capCash,R.capInKind,R.capOffPlan,R.capDebt],[DH.capCash,DH.capInKind,DH.capOffPlan,DH.capDebt],['#00322d','#775a19','#1a6b3c','#004b44']);
-      drawLine('c3',qlb,R.qCashClose,'#775a19');
+      // For Arabic, reverse labels+data so quarters display right-to-left on line charts
+      const _rtlLbl=lang==='ar'?[...qlb].reverse():qlb;
+      const _rtlCash=lang==='ar'?[...R.qCashClose].reverse():R.qCashClose;
+      drawLine('c3',_rtlLbl,_rtlCash,'#775a19');
       drawBarChart('c4',qlb,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'},{d:R.qInterest,c:'#775a19'}],DH.chLegDebt);
       // Cumulative investor CF
       const cumCF=[];let runCF=0;
       for(let i=0;i<R.nq;i++){runCF+=R.qEquity[i]+R.qIKTotal[i]-R.qDividends[i];cumCF.push(-runCF);}
-      drawLine('c6',qlb,cumCF,'#775a19');
+      const _rtlCumCF=lang==='ar'?[...cumCF].reverse():cumCF;
+      drawLine('c6',_rtlLbl,_rtlCumCF,'#775a19');
       // Revenue vs Cost bar
       drawBarChart('c7',qlb,[{d:R.qGrossSales,c:'#1a6b3c'},{d:R.qCon.map(v=>-v),c:'#ba1a1a'}],[L('Revenue','إيرادات'),L('Cost','تكاليف')]);
     } else if(currentRole==='developer'){
@@ -4244,6 +4254,9 @@ function calcWith(overrides){
 
   const qIKMkt=qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0);
   const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]);
+  // Snapshot base IK + GP commitment % — used to recompute qIKTotal each iter so debt sizing accounts for GP In-Kind
+  const qIKBase=[...qIKTotal];
+  const gpIKPct=pct(A.gp_commit_inkind_pct||0);
 
   const delayQ=Math.floor(A.vat_refund_months/3),lastQ=nq-1;
   const qConVAT=qCon.map(c=>c-c/V);
@@ -4294,6 +4307,8 @@ function calcWith(overrides){
       else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
       qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
     }
+    // GP In-Kind = % of mgmt fee added back as in-kind. Reset qIKTotal so debt sizing accounts for it.
+    for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
     for(let qi=0;qi<nq;qi++) qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
     qVATRefundExp.fill(0);
     if(Number(A.vat_refund)){
@@ -4364,9 +4379,8 @@ function calcWith(overrides){
     qVATAdvisor[qi]=totalRef*pct(A.vat_advisor_pct);
     qVATNet[qi]=totalRef-qVATAdvisor[qi];
   }
-  // GP In-Kind in calcWith
-  const gpIKPct=pct(A.gp_commit_inkind_pct||0);
-  if(gpIKPct>0) for(let qi=0;qi<nq;qi++) qIKTotal[qi]+=qMgmtFee[qi]*gpIKPct;
+  // GP In-Kind in calcWith — gpIKPct already defined above. RESET to avoid double-counting (iter loop already added).
+  for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
   for(let qi=0;qi<nq;qi++){
     qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
