@@ -426,6 +426,10 @@ canvas{max-width:100%;display:block}
     <div class="login-error" id="loginError">Invalid username or password</div>
     <div class="login-success" id="loginSuccess">Account created! You can now sign in.</div>
     <div class="login-toggle" id="authToggle">Don't have an account? <a onclick="toggleAuthMode()">Sign Up</a></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--outline);font-size:.85rem;color:var(--on-surface-vl)">
+      <a id="guestLink" onclick="enterGuestMode()" style="color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none">Continue as Guest</a>
+      <div style="font-size:.78rem;color:var(--on-surface-vl);margin-top:4px" id="guestHint">Try the platform without an account — projects won't be saved</div>
+    </div>
   </div>
 </div>
 <!-- SHARE MODAL -->
@@ -531,6 +535,20 @@ try{
 let currentUser=null;
 let currentUid=null;
 let authMode='login';
+let isGuest=false;
+
+function enterGuestMode(){
+  isGuest=true;
+  currentUser='Guest';
+  currentUid=null;
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appMain').style.display='';
+  const badge=document.getElementById('userBadge');
+  if(badge) badge.textContent='\u{1F464} '+(lang==='ar'?'زائر':'Guest');
+  // Guests start with a fresh project, no cloud list
+  const sel=document.getElementById('projSelect');
+  if(sel) sel.innerHTML='<option value="">-- '+(lang==='ar'?'مشروع غير محفوظ':'Unsaved Project')+' --</option>';
+}
 
 function toggleAuthMode(){
   const err=document.getElementById('loginError');
@@ -643,7 +661,11 @@ async function doLogin(){
 }
 
 function doLogout(){
-  if(fbAuth) fbAuth.signOut();
+  if(isGuest){
+    isGuest=false;
+  } else if(fbAuth){
+    fbAuth.signOut();
+  }
   currentUser=null;currentUid=null;
   document.getElementById('loginOverlay').classList.remove('hidden');
   document.getElementById('appMain').style.display='none';
@@ -709,6 +731,7 @@ async function loadProjectList(){
 }
 
 async function saveProject(){
+  if(isGuest){alert(lang==='ar'?'وضع الزائر: المشاريع لا تُحفظ. يرجى إنشاء حساب للحفظ.':'Guest mode: projects are not saved. Please create an account to save.');return;}
   let name=document.getElementById('projSelect').value;
   if(!name){name=D.fund_name||'Untitled Project';const el=document.getElementById('fund_name');if(el&&el.value) name=el.value;}
   // Sanitize Firestore doc ID (no slashes, max 1500 bytes)
@@ -753,6 +776,7 @@ async function loadProject(){
 function newProject(){document.getElementById('projSelect').value='';Object.keys(defaultD).forEach(k=>{D[k]=defaultD[k];});projects=[{name:'Project 1',strategy:'sell',land_area:204624,land_price_sqm:900,brokerage_pct:2.5,rett_pct:2,rett_refund:0,build_area:204624,dev_cost_sqm:138,dev_fee_pct:12.7,contingency_pct:5,insurance_pct:5,design_fee_mode:'fixed',design_fee:564762,design_fee_pct:2,supervision_fee_mode:'fixed',supervision_fee:0,supervision_fee_pct:0,licensing_fee:564762,con_period_months:24,sale_price_sqm:2375,sell_area:128913,wafi_pct:1,sell_exp_pct:2.5,leasable_area:0,rent_per_sqm:400,rent_escalator_pct:2,hold_period_months:36,exit_cap_rate:8,selling_cost_pct:2,occupancySchedule:[0,0,0,0,0,0,40,50,60,70,80,90],opexItems:[{name:'Property Management',nameAr:'إدارة العقار',mode:'pct_egi',value:2},{name:'Maintenance',nameAr:'الصيانة',mode:'fixed',value:100000},{name:'Utilities',nameAr:'المرافق',mode:'fixed',value:0},{name:'Insurance',nameAr:'التأمين',mode:'sqm',value:0},{name:'Major Repairs',nameAr:'إصلاحات رئيسية',mode:'fixed',value:0}],conComponents:[{name:'المساحة المطورة وسعر التطوير بنية تحتية',nameEn:'Developed Area & Infrastructure',gfa:204624,cost:120}],salesComponents:[{name:'سكني',nameEn:'Residential',area:128913,price:2375}],schBaseCon:[0,5,10,15,20,20,20,10],schDevFee:[0,5,10,15,20,20,20,10],schContingency:[0,0,0,25,0,25,25,25],schLicensing:[0,100,0,0,0,0,0,0],schDesign:[0,100,0,0,0,0,0,0],schInsurance:[0,0,0,25,0,25,25,25],schSupervision:[3,7,13,19,20,18,12,8],schMarketing:[0,100,0,0,0,0,0,0],salesSchedule:[0,0,0,0,0,5,5,90]}];activeProjectIdx=0;R=null;buildTabs();buildForm();}
 
 async function deleteProject(){
+  if(isGuest){alert(lang==='ar'?'وضع الزائر: لا توجد مشاريع محفوظة للحذف.':'Guest mode: no saved projects to delete.');return;}
   const name=document.getElementById('projSelect').value;
   if(!name){alert('No project selected');return;}
   if(!confirm('Delete "'+name+'"?')) return;
@@ -1419,7 +1443,7 @@ function buildForm(){
       ${fldProj('licensing_fee',F.licensingFee,P.licensing_fee,activeProjectIdx)}
       ${fldProj('con_period_months',F.conPeriod,P.con_period_months,activeProjectIdx)}
     </div>
-    ${String(P.strategy)==String('sell')?`<div class="sec"><div class="sec-t">${TX[lang].s[4]} - ${P.name||(lang==='ar'?'مشروع ':'Project ')+(activeProjectIdx+1)}</div>
+    ${String(P.strategy)!==String('lease')?`<div class="sec"><div class="sec-t">${TX[lang].s[4]} - ${P.name||(lang==='ar'?'مشروع ':'Project ')+(activeProjectIdx+1)}</div>
       <div class="frow frow-2"><label>${F.sellAreaAuto}</label><input type="number" id="proj_sell_area" value="${P.sell_area||0}" readonly></div>
       <div class="frow frow-2"><label>${F.salePriceAuto}</label><input type="number" id="proj_sale_price_sqm" value="${P.sale_price_sqm||0}" readonly></div>
       ${fldProj('wafi_pct',F.wafi,P.wafi_pct,activeProjectIdx)}
@@ -2046,6 +2070,7 @@ function calculate(){
     // GP In-Kind = % of mgmt fee added back as in-kind equity. Reset qIKTotal so debt sizing accounts for it.
     for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
+    // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
     for(let qi=0;qi<nq;qi++){
       qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
     }
@@ -2111,9 +2136,9 @@ function calculate(){
     qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
   }
 
+  // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
   for(let qi=0;qi<nq;qi++){
-    const allExp=qTotalFundExp[qi]+qInterest[qi];
-    qExpVAT[qi]=allExp-allExp/V;
+    qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
   }
   qVATRefundExp.fill(0);
   if(Number(A.vat_refund)){
@@ -2201,12 +2226,13 @@ function calculate(){
   const totalFundExpExPerf=totalFundExp-totalPerfFee;
   const totalIntAmt=qInterest.reduce((a,b)=>a+b,0);
   const totalVATNet=qVATNet.reduce((a,b)=>a+b,0);
+  const totalAdvisorFee=qVATAdvisor.reduce((a,b)=>a+b,0);
   const tLandExVAT=baseLand+brokerageExVAT+rettAmount;
   // Total cost: inc-VAT when no refund, ex-VAT when refund is ON
-  // No VATNet subtraction — keeps totalCost = Capital Structure = Cost Breakdown
+  // VAT Advisor fee added as an economic cost (settled via refund netting, but still a real expense)
   const _vr=Number(A.vat_refund);
-  const totalCostIncVAT=tLand+tCon+totalFundExpExPerf+totalIntAmt;
-  const totalCostExVAT=tLandExVAT+tConExVAT+totalFundExpExPerf/V+totalIntAmt;
+  const totalCostIncVAT=tLand+tCon+totalFundExpExPerf+totalIntAmt+totalAdvisorFee;
+  const totalCostExVAT=tLandExVAT+tConExVAT+totalFundExpExPerf/V+totalIntAmt+totalAdvisorFee;
   const totalCost=_vr?totalCostExVAT:totalCostIncVAT;
   const vatInCost=totalCostIncVAT-totalCostExVAT;
   const grossProfit=tRev-totalCost;
@@ -2465,7 +2491,10 @@ function renderDashboard(){
     if(currentRole==='fund_manager'){
       drawBarChart('c1',qlb,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
       {const _vr=Number(R.A.vat_refund);
-      drawPie('c2',[_vr?R.tLandExVAT:R.tLand, _vr?R.tConExVAT:R.tCon, R.totalInt, _vr?R.totalFundExpExPerf/V:R.totalFundExpExPerf],
+      // Include VAT Advisor fee in Fund Exp slice so Cost Breakdown total = Capital Structure total
+      const _advTotal=R.qVATAdvisor.reduce((a,b)=>a+b,0);
+      const _fundExpSlice=(_vr?R.totalFundExpExPerf/V:R.totalFundExpExPerf)+_advTotal;
+      drawPie('c2',[_vr?R.tLandExVAT:R.tLand, _vr?R.tConExVAT:R.tCon, R.totalInt, _fundExpSlice],
         [lang==='ar'?'الأرض':'Land',lang==='ar'?'التطوير':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],
         ['#00322d','#004b44','#775a19','#767669']);}
       drawPie('c5',[R.capCash,R.capInKind,R.capOffPlan,R.capDebt],[DH.capCash,DH.capInKind,DH.capOffPlan,DH.capDebt],['#00322d','#775a19','#1a6b3c','#004b44']);
@@ -2484,7 +2513,9 @@ function renderDashboard(){
     } else if(currentRole==='developer'){
       drawBarChart('c1',qlb,[{d:R.qNetOp,c:'#00322d'},{d:R.qNetInv,c:'#ba1a1a'},{d:R.qNetFin,c:'#1a6b3c'}],DH.chLegCF);
       {const _vr=Number(R.A.vat_refund);
-      drawPie('c2',[_vr?R.tLandExVAT:R.tLand, _vr?R.tConExVAT:R.tCon, R.totalInt, _vr?R.totalFundExpExPerf/V:R.totalFundExpExPerf],
+      const _advTotal=R.qVATAdvisor.reduce((a,b)=>a+b,0);
+      const _fundExpSlice=(_vr?R.totalFundExpExPerf/V:R.totalFundExpExPerf)+_advTotal;
+      drawPie('c2',[_vr?R.tLandExVAT:R.tLand, _vr?R.tConExVAT:R.tCon, R.totalInt, _fundExpSlice],
         [lang==='ar'?'الأرض':'Land',lang==='ar'?'التطوير':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],['#00322d','#004b44','#775a19','#767669']);}
     } else if(currentRole==='financer'){
       drawBarChart('c1',qlb,[{d:R.qDSCR,c:'#00322d'}],[DH.dscr]);
@@ -3580,11 +3611,11 @@ function dlExcel(){
    c+=greenNum('SUM(B4:'+lc+'4)',true);
    rows.push('<row>'+c+'</row>');}
 
-  // Row 5: Expense VAT Paid — Fund expenses (incl. perf fee in last Q via row 20) + Interest, then VAT portion
+  // Row 5: Expense VAT Paid — Fund expenses only. Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
   {let c=lbl('Expense VAT Paid',false);
    for(let i=0;i<nq;i++){
-     if(i===lastQ) c+=greenNum("('Fund Expenses'!"+cl(i)+"20+'Debt Schedule'!"+cl(i)+'5)*(1-1/Assumptions!$B$12)');
-     else c+=greenNum("('Fund Expenses'!"+cl(i)+"18+'Debt Schedule'!"+cl(i)+'5)*(1-1/Assumptions!$B$12)');
+     if(i===lastQ) c+=greenNum("'Fund Expenses'!"+cl(i)+"20*(1-1/Assumptions!$B$12)");
+     else c+=greenNum("'Fund Expenses'!"+cl(i)+"18*(1-1/Assumptions!$B$12)");
    }
    c+=greenNum('SUM(B5:'+lc+'5)');
    rows.push('<row>'+c+'</row>');}
@@ -3948,13 +3979,15 @@ function dlExcel(){
   rows.push('<row>'+lbl('RETT',false)+blackNum('-Assumptions!B8')+blackPct('IF(B62>0,ABS(B22)/B62,0)')+'</row>');
   rows.push('<row>'+lbl('Base Construction',true)+blackNum("IF(Assumptions!B49=1,-'Construction Cost'!"+tc+"3/Assumptions!B12,-'Construction Cost'!"+tc+"3)",true)+blackPct('IF(B62>0,ABS(B23)/B62,0)',true)+'</row>');
   rows.push('<row>'+lbl('Developer Fee',false)+blackNum("IF(Assumptions!B49=1,-'Construction Cost'!"+tc+"4/Assumptions!B12,-'Construction Cost'!"+tc+"4)")+blackPct('IF(B62>0,ABS(B24)/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('Design, Supervision & Licensing',true)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B20+Assumptions!B21+Assumptions!B22),-(Assumptions!B20+Assumptions!B21+Assumptions!B22)*Assumptions!B12)',true)+'</row>');
-  rows.push('<row>'+lbl('Fund Mgmt Fee',false)+blackNum("IF(Assumptions!B49=1,-'Fund Expenses'!"+tc+"17/Assumptions!B12,-'Fund Expenses'!"+tc+"17)")+greenPct('Assumptions!B46')+'</row>');
-  rows.push('<row>'+lbl('Marketing',true)+blackNum('IF(Assumptions!B49=1,-Assumptions!B45,-Assumptions!B45*Assumptions!B12)',true)+'</row>');
-  rows.push('<row>'+lbl('Contingency & Insurance',false)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B25+Assumptions!B26),-(Assumptions!B25+Assumptions!B26)*Assumptions!B12)')+'</row>');
-  rows.push('<row>'+lbl('Other Fund Expenses',true)+blackNum("IF(Assumptions!B49=1,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17)/Assumptions!B12,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17))",true)+'</row>');
-  rows.push('<row>'+lbl('Financing Cost',false)+greenNum("-'Debt Schedule'!"+tc+'5')+greenPct('Assumptions!B59')+'</row>');
-  rows.push('<row>'+lbl('TOTAL COSTS',false)+boldNum('-SUM(B20:B30)')+'</row>');
+  rows.push('<row>'+lbl('Design, Supervision & Licensing',true)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B20+Assumptions!B21+Assumptions!B22),-(Assumptions!B20+Assumptions!B21+Assumptions!B22)*Assumptions!B12)',true)+blackPct('IF(B62>0,ABS(B25)/B62,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Fund Mgmt Fee',false)+blackNum("IF(Assumptions!B49=1,-'Fund Expenses'!"+tc+"17/Assumptions!B12,-'Fund Expenses'!"+tc+"17)")+blackPct('IF(B62>0,ABS(B26)/B62,0)')+'</row>');
+  rows.push('<row>'+lbl('Marketing',true)+blackNum('IF(Assumptions!B49=1,-Assumptions!B45,-Assumptions!B45*Assumptions!B12)',true)+blackPct('IF(B62>0,ABS(B27)/B62,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Contingency & Insurance',false)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B25+Assumptions!B26),-(Assumptions!B25+Assumptions!B26)*Assumptions!B12)')+blackPct('IF(B62>0,ABS(B28)/B62,0)')+'</row>');
+  // Other Fund Expenses — includes VAT Advisor fee (FE row 13 memo) which is settled via VAT refund netting
+  rows.push('<row>'+lbl('Other Fund Expenses',true)+blackNum("IF(Assumptions!B49=1,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17)/Assumptions!B12-'Fund Expenses'!"+tc+"13,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17)-'Fund Expenses'!"+tc+"13)",true)+blackPct('IF(B62>0,ABS(B29)/B62,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Financing Cost',false)+greenNum("-'Debt Schedule'!"+tc+'5')+blackPct('IF(B62>0,ABS(B30)/B62,0)')+'</row>');
+  // TOTAL COSTS = Total Cost (ex VAT) at row 62 (matches Capital Structure exactly)
+  rows.push('<row>'+lbl('TOTAL COSTS',false)+boldNum('B62')+'</row>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('REVENUE & PROFITABILITY')+'</row>');
@@ -3989,8 +4022,15 @@ function dlExcel(){
   rows.push('<row>'+lbl('Total Dividends',false)+greenNum("'Cash Flow'!"+lc+'34')+'</row>');
   rows.push('<row>'+lbl('Performance Fee',true)+greenNum("'Cash Flow'!"+lc+'33',true)+tx('Last quarter only',S.lblA)+'</row>');
   rows.push('<row>'+lbl('Total Fund Expenses (incl perf)',false)+greenNum("'Fund Expenses'!"+tc+'20')+'</row>');
-  // Total Cost (ex VAT): Land(B10) + Brokerage ex-VAT (B7/B12) + RETT(B8) + Construction ex-VAT + Fund Expenses ex-VAT + Interest
-  rows.push('<row>'+lbl('Total Cost (ex VAT)',true)+blackNum("Assumptions!B10+Assumptions!B7/Assumptions!B12+Assumptions!B8+'Construction Cost'!"+tc+"10/Assumptions!B12+'Fund Expenses'!"+tc+"20/Assumptions!B12+'Debt Schedule'!"+tc+'5',true)+'</row>');
+  // Total Cost: matches platform R.totalCost exactly
+  //   vat_refund ON  (B49=1): ex-VAT — Land + Brok/V + RETT + Con/V + FundExp_noPerf/V + Interest + Advisor
+  //   vat_refund OFF (B49=0): inc-VAT — Land + Brok + RETT + Con + FundExp_noPerf + Interest + Advisor
+  // FE row 18 = TOTAL FUND EXP (EXCLUDES perf fee), FE row 13 = VAT Advisor memo, FE row 20 unused here
+  rows.push('<row>'+lbl('Total Cost (ex VAT)',true)+blackNum(
+    "IF(Assumptions!B49=1,"+
+      "Assumptions!B10+Assumptions!B7/Assumptions!B12+Assumptions!B8+'Construction Cost'!"+tc+"10/Assumptions!B12+'Fund Expenses'!"+tc+"18/Assumptions!B12+'Debt Schedule'!"+tc+"5+'Fund Expenses'!"+tc+"13,"+
+      "Assumptions!B11+'Construction Cost'!"+tc+"10+'Fund Expenses'!"+tc+"18+'Debt Schedule'!"+tc+"5+'Fund Expenses'!"+tc+"13)",
+    true)+'</row>');
 
   {let c=lbl('XIRR Dates',false);
    for(let i=0;i<nq;i++) c+=blueDate(dateSerial(qDates[i]));
@@ -4309,6 +4349,7 @@ function calcWith(overrides){
     }
     // GP In-Kind = % of mgmt fee added back as in-kind. Reset qIKTotal so debt sizing accounts for it.
     for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+    // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
     for(let qi=0;qi<nq;qi++) qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
     qVATRefundExp.fill(0);
     if(Number(A.vat_refund)){
@@ -4365,9 +4406,9 @@ function calcWith(overrides){
     else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
     qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
   }
+  // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
   for(let qi=0;qi<nq;qi++){
-    const allExp=qTotalFundExp[qi]+qInterest[qi];
-    qExpVAT[qi]=allExp-allExp/V;
+    qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
   }
   qVATRefundExp.fill(0);
   if(Number(A.vat_refund)){
@@ -4429,12 +4470,14 @@ function calcWith(overrides){
   const totalPerfFeeS=qPerfFee.reduce((a,b)=>a+b,0);
   const totalFundExpExPerfS=totalFundExpS-totalPerfFeeS;
   const totalIntS=qInterest.reduce((a,b)=>a+b,0);
+  const totalAdvisorFeeS=qVATAdvisor.reduce((a,b)=>a+b,0);
   const tLandExVATS=baseLand+brokerageExVAT+rettAmt;
   const tConIncVAT=tConExVAT*V;
   // Conditional totalCost: inc-VAT when no refund, ex-VAT when refund (matches calculate())
+  // VAT Advisor fee added as an economic cost (settled via refund netting)
   const _vr=Number(A.vat_refund);
-  const totalCostIncVAT=tLand+tConIncVAT+totalFundExpExPerfS+totalIntS;
-  const totalCostExVAT=tLandExVATS+tConExVAT+totalFundExpExPerfS/V+totalIntS;
+  const totalCostIncVAT=tLand+tConIncVAT+totalFundExpExPerfS+totalIntS+totalAdvisorFeeS;
+  const totalCostExVAT=tLandExVATS+tConExVAT+totalFundExpExPerfS/V+totalIntS+totalAdvisorFeeS;
   const totalCost=_vr?totalCostExVAT:totalCostIncVAT;
   const grossProfit=tRev-totalCost;
   const totalDiv=qDividends.reduce((a,b)=>a+b,0);
@@ -4833,6 +4876,8 @@ function toggleLang(){
   const subEl=document.getElementById('appSub');if(subEl) subEl.textContent=TX[lang].sub;
   document.querySelector('.btn-lang').textContent=TX[lang].langB;
   const rl=document.getElementById('rememberLabel');if(rl) rl.textContent=lang==='ar'?'تذكرني':'Remember me';
+  const gl=document.getElementById('guestLink');if(gl) gl.textContent=lang==='ar'?'المتابعة كزائر':'Continue as Guest';
+  const gh=document.getElementById('guestHint');if(gh) gh.textContent=lang==='ar'?'جرّب المنصة بدون حساب — لن يتم حفظ المشاريع':'Try the platform without an account — projects won\'t be saved';
   updateProjectBar();
   buildTabs();buildForm();
   if(R){renderDashboard();renderCashFlow();renderDebt();renderSensitivity();renderSummary();}
