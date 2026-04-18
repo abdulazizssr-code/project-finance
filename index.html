@@ -4238,14 +4238,54 @@ function calcWith(overrides){
       qDesignFee[qi]+=pDesignFee*((_sDn[qi]||0)/100)*V;
       qInsurance[qi]+=pInsurance*((_sIn[qi]||0)/100)*V;
       qSupervision[qi]+=pSupervisionFee*((_sSp[qi]||0)/100)*V;
-      const sSale=(_sSl[qi]||0)/100;
-      const qProjSale=pRev*sSale;
-      qGrossSales[qi]+=qProjSale;
-      qWafi[qi]+=qProjSale*pct(P.wafi_pct||0)*V;
-      qSellExp[qi]+=qProjSale*pct(P.sell_exp_pct||0)*V;
-      qIKDev[qi]+=pct(A.ik_dev_pct)*pDevFee*((_sDF[qi]||0)/100);
-      qIKCon[qi]+=pct(A.ik_con_pct)*pBaseCon*sBC;
-      qIKSell[qi]+=pct(A.ik_sell_pct)*pSellExpTotal*sSale;
+
+      if(P.strategy==='lease'){
+        // Lease: occupancy from schedule, rent with escalator, OpEx
+        const occPct=(P.occupancySchedule&&P.occupancySchedule[qi])||0;
+        if(occPct>0){
+          const yearIdx=Math.floor(qi/4);
+          const escalatedRent=(P.rent_per_sqm||0)*Math.pow(1+pct(P.rent_escalator_pct||0),yearIdx);
+          const egi=(P.leasable_area||0)*escalatedRent/4*(occPct/100);
+          let totalOpEx=0;
+          (P.opexItems||[]).forEach(item=>{
+            let amt=0;
+            if(item.mode==='pct_egi') amt=egi*pct(item.value||0);
+            else if(item.mode==='sqm') amt=(P.leasable_area||0)*(item.value||0)/4;
+            else amt=(item.value||0)/4;
+            totalOpEx+=amt;
+          });
+          qGrossSales[qi]+=egi;
+          qSellExp[qi]+=totalOpEx*V;
+        }
+        // Exit disposition in last quarter
+        if(qi===nq-1){
+          const lastOcc=(P.occupancySchedule&&P.occupancySchedule[nq-1])||0;
+          const lastYear=Math.floor((nq-1)/4);
+          const exitRent=(P.rent_per_sqm||0)*Math.pow(1+pct(P.rent_escalator_pct||0),lastYear);
+          const stabilizedEGI=(P.leasable_area||0)*exitRent*(lastOcc/100);
+          let stabilizedOpEx=0;
+          (P.opexItems||[]).forEach(item=>{
+            if(item.mode==='pct_egi') stabilizedOpEx+=stabilizedEGI*pct(item.value||0);
+            else if(item.mode==='sqm') stabilizedOpEx+=(P.leasable_area||0)*(item.value||0);
+            else stabilizedOpEx+=(item.value||0);
+          });
+          const stabilizedNOI=stabilizedEGI-stabilizedOpEx;
+          const exitVal=stabilizedNOI>0?stabilizedNOI/pct(P.exit_cap_rate||8):0;
+          const sellingCosts=exitVal*pct(P.selling_cost_pct||0);
+          qGrossSales[qi]+=exitVal;
+          qSellExp[qi]+=sellingCosts*V;
+        }
+      }else{
+        // Sell project revenue
+        const sSale=(_sSl[qi]||0)/100;
+        const qProjSale=pRev*sSale;
+        qGrossSales[qi]+=qProjSale;
+        qWafi[qi]+=qProjSale*pct(P.wafi_pct||0)*V;
+        qSellExp[qi]+=qProjSale*pct(P.sell_exp_pct||0)*V;
+        qIKDev[qi]+=pct(A.ik_dev_pct)*pDevFee*((_sDF[qi]||0)/100);
+        qIKCon[qi]+=pct(A.ik_con_pct)*pBaseCon*sBC;
+        qIKSell[qi]+=pct(A.ik_sell_pct)*pSellExpTotal*sSale;
+      }
     }
     qIKLand[0]+=pct(A.ik_land_pct)*pLand;
     qIKBrok[0]+=pct(A.ik_brok_pct)*pBrokExVAT;
