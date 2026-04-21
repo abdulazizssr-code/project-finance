@@ -1220,7 +1220,7 @@ const TX={
       costAnalysis:'Cost Breakdown',gfaEff:'GFA Efficiency',maxLandPrice:'Max Land Price',maxLandIRR:'Max Land Price (at Hurdle)',profitMargin2:'Profit Margin',capStruct:'Capital Structure',capCash:'Cash Equity',capInKind:'In-Kind',capOffPlan:'Off-Plan Sales',capDebt:'Debt Financing',
       dscr:'DSCR Over Time',ltcRatio2:'LTC Ratio',ltvRatio:'LTV Tracking',compliance:'Covenant Compliance'},
     scenarios:{title:'Scenario Comparison',saveBase:'Save as Base',saveUpside:'Save as Upside',saveDownside:'Save as Downside',
-      kpis:['IRR','Equity Multiple','Net Profit','ROI (UH)','Total Debt','Profit Margin','DSCR']},
+      kpis:['IRR','Equity Multiple','Net Profit','ROI (UH)','Total Debt','Profit Margin','DSCR'],kpisNoLease:['IRR','Equity Multiple','Net Profit','ROI (UH)','Total Debt','Profit Margin']},
     sens:{drivers:'Sensitivity Drivers',salePrice:'Sale Price / sqm',sellArea:'Sellable Area (sqm)',conCost:'Construction Cost / sqm',
       saibor:'SAIBOR %',fundPeriod:'Fund Period (months)',update:'Update Analysis',reset:'Reset to Default',
       eqMult:'Equity Multiple',netProfit:'Net Profit',roiUH:'ROI (UH)',totalRev:'Total Revenue',
@@ -1303,7 +1303,7 @@ const TX={
       costAnalysis:'توزيع التكاليف',gfaEff:'كفاءة المساحة',maxLandPrice:'أقصى سعر أرض',maxLandIRR:'أقصى سعر أرض (عند العائد المستهدف)',profitMargin2:'هامش الربح',capStruct:'هيكل رأس المال',capCash:'نقد المستثمرين',capInKind:'حصص عينية',capOffPlan:'مبيعات على الخارطة',capDebt:'تمويل بنكي',
       dscr:'نسبة التغطية',ltcRatio2:'نسبة الدين للتكلفة',ltvRatio:'نسبة الدين للقيمة',compliance:'الامتثال التعاقدي'},
     scenarios:{title:'مقارنة السيناريوهات',saveBase:'احفظ كأساسي',saveUpside:'احفظ كإيجابي',saveDownside:'احفظ كسلبي',
-      kpis:['العائد الداخلي','مضاعف الحقوق','صافي الربح','عائد المستثمرين','إجمالي الدين','هامش الربح','نسبة التغطية']},
+      kpis:['العائد الداخلي','مضاعف الحقوق','صافي الربح','عائد المستثمرين','إجمالي الدين','هامش الربح','نسبة التغطية'],kpisNoLease:['العائد الداخلي','مضاعف الحقوق','صافي الربح','عائد المستثمرين','إجمالي الدين','هامش الربح']},
     sens:{drivers:'متغيرات التحليل',salePrice:'سعر البيع / م²',sellArea:'المساحة القابلة للبيع (م²)',conCost:'تكلفة التطوير / م²',
       saibor:'سايبور %',fundPeriod:'مدة الصندوق (شهر)',update:'تحديث التحليل',reset:'إعادة تعيين',
       eqMult:'مضاعف رأس المال',netProfit:'صافي الربح',roiUH:'عائد الاستثمار',totalRev:'إجمالي الإيرادات',
@@ -2166,7 +2166,8 @@ function calculate(){
       const cashBeforePerf=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+netBorrow+qEquity[qi]+qIKTotal[qi];
       const totalEquity=A.equity+gpCash+qIKTotal.reduce((a,b)=>a+b,0);
       const totalReturn=cashBeforePerf;
-      const hurdleAmount=totalEquity*pct(A.hurdle_rate)*(A.fund_period_months/12);
+      const years=A.fund_period_months/12;
+      const hurdleAmount=totalEquity*(Math.pow(1+pct(A.hurdle_rate),years)-1);
       const profit=totalReturn-totalEquity;
       if(profit>hurdleAmount){
         const excess=profit-hurdleAmount;
@@ -2325,8 +2326,9 @@ function renderDashboard(){
         [DH.totalRev,fN(R.tRev)+' '+cur],[vatLabel,fN(R.totalCost)+' '+cur],[DH.grossProfit,fN(R.grossProfit)+' '+cur],[DH.profitMargin,fP(R.profitMargin)]]},
       {title:DH.invRet,items:[
         [DH.irr,fP(irr)],[DH.eqMult,eqMult.toFixed(2)+'x'],[DH.totalDiv,fN(R.totalDiv)+' '+cur],[DH.perfFee,fN(perfFee)+' '+cur]]},
-      {title:DH.debtFin,items:[
-        [DH.totalDebt,fN(R.totalDebt)+' '+cur],[DH.annROI,fP(R.annualROI)],[DH.ltcRatio,fP(R.ltc)],[DH.dcr,fP(dcr)]]},
+      {title:DH.debtFin,items:R.hasLeaseProjects?
+        [[DH.totalDebt,fN(R.totalDebt)+' '+cur],[DH.annROI,fP(R.annualROI)],[DH.ltcRatio,fP(R.ltc)],[DH.dcr,fP(dcr)]]:
+        [[DH.totalDebt,fN(R.totalDebt)+' '+cur],[DH.annROI,fP(R.annualROI)],[DH.ltcRatio,fP(R.ltc)]]},
       {title:DH.capStruct+' ('+fN(R.capTotal)+' '+cur+')',items:[
         [DH.capCash,fN(R.capCash)+' '+cur+' ('+fP(R.capTotal?R.capCash/R.capTotal:0)+')'],
         [DH.capInKind,fN(R.capInKind)+' '+cur+' ('+fP(R.capTotal?R.capInKind/R.capTotal:0)+')'],
@@ -2401,7 +2403,7 @@ function renderDashboard(){
     // GP/LP Waterfall Distribution — starts with cash BEFORE perf fee deduction
     const _vr=Number(R.A.vat_refund);
     const wfEquity=R.A.equity+(R.gpCash||0)+R.capInKind;
-    const wfPrefReturn=wfEquity*pct(R.A.hurdle_rate)*(R.A.fund_period_months/12);
+    const wfPrefReturn=wfEquity*(Math.pow(1+pct(R.A.hurdle_rate),R.A.fund_period_months/12)-1);
     const wfTotalCash=R.totalDiv+perfFee; // cashBeforePerf = totalDiv + perfFee(incVAT)
     const wfReturnOfCap=Math.min(wfTotalCash,wfEquity);
     const wfRemaining1=Math.max(0,wfTotalCash-wfReturnOfCap);
@@ -2465,18 +2467,18 @@ function renderDashboard(){
     const avgDSCR=R.qDSCR.reduce((a,b)=>a+b,0)/R.nq;
     const ltvRatio=R.qTotalAssets[R.nq-1]>0?R.totalDebt/R.qTotalAssets[R.nq-1]:0;
     const complianceColor=(dscr)=>dscr>=1.2?'#1a6b3c':dscr>=1.0?'#775a19':'#ba1a1a';
-    const kG=[
-      {title:DH.debtFin,items:[
-        [DH.dscr,avgDSCR.toFixed(2)+'x'],[DH.ltcRatio,fP(R.ltc)],[DH.ltvRatio,fP(ltvRatio)],[DH.totalDebt,fN(R.totalDebt)+' '+cur]]},
-    ];
+    const finItems=R.hasLeaseProjects?
+      [[DH.dscr,avgDSCR.toFixed(2)+'x'],[DH.ltcRatio,fP(R.ltc)],[DH.ltvRatio,fP(ltvRatio)],[DH.totalDebt,fN(R.totalDebt)+' '+cur]]:
+      [[DH.ltcRatio,fP(R.ltc)],[DH.ltvRatio,fP(ltvRatio)],[DH.totalDebt,fN(R.totalDebt)+' '+cur]];
+    const kG=[{title:DH.debtFin,items:finItems}];
     let kH='';
     kG.forEach(g=>{
       kH+=`<div style="margin-bottom:28px"><div style="font-family:'Noto Serif',serif;font-size:.88rem;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">${g.title}</div>
       <div class="kpi-grid" style="margin-bottom:0">${g.items.map(([l,v])=>`<div class="kpi"><div class="kpi-v">${v}</div><div class="kpi-l">${l}</div></div>`).join('')}</div></div>`;
     });
-    html+=kH+`<div class="ch-grid">
-      <div class="ch-card"><h3>${DH.dscr}</h3><canvas id="c1"></canvas></div>
-      <div class="ch-card"><h3>${DH.ltcRatio}</h3><canvas id="c2"></canvas></div>
+    html+=kH+`<div class="ch-grid">`+
+      (R.hasLeaseProjects?`<div class="ch-card"><h3>${DH.dscr}</h3><canvas id="c1"></canvas></div>`:'')+
+      `<div class="ch-card"><h3>${R.hasLeaseProjects?DH.ltcRatio:DH.chLegDebt}</h3><canvas id="c2"></canvas></div>
     </div>`;
   }
 
@@ -2518,7 +2520,7 @@ function renderDashboard(){
       drawPie('c2',[_vr?R.tLandExVAT:R.tLand, _vr?R.tConExVAT:R.tCon, R.totalInt, _fundExpSlice],
         [lang==='ar'?'الأرض':'Land',lang==='ar'?'التطوير':'Construction',lang==='ar'?'أرباح التمويل':'Debt Profit',lang==='ar'?'مصاريف الصندوق':'Fund Exp'],['#00322d','#004b44','#775a19','#767669']);}
     } else if(currentRole==='financer'){
-      drawBarChart('c1',qlb,[{d:R.qDSCR,c:'#00322d'}],[DH.dscr]);
+      if(R.hasLeaseProjects) drawBarChart('c1',qlb,[{d:R.qDSCR,c:'#00322d'}],[DH.dscr]);
       drawBarChart('c2',qlb,[{d:R.qLoanClose,c:'#00322d'},{d:R.drawdowns,c:'#004b44'}],[DH.chLegDebt[0],DH.chLegDebt[1]]);
     }
   },50);
@@ -2526,7 +2528,8 @@ function renderDashboard(){
 
 function renderScenarioComparison(){
   const SC=TX[lang].scenarios;
-  const rows=[SC.kpis[0],SC.kpis[1],SC.kpis[2],SC.kpis[3],SC.kpis[4],SC.kpis[5],SC.kpis[6]];
+  const _kpiList=R.hasLeaseProjects?SC.kpis:SC.kpisNoLease;
+  const rows=_kpiList.slice();
   let html=`<div class="scenario-wrap"><h3>${SC.title}</h3><div class="scenario-comp"><table class="scenario-tbl"><thead><tr><th>KPI</th>`;
 
   if(scenarios.base){
@@ -2932,11 +2935,13 @@ function renderSummary(){
   h+=`<div class="es-gap"></div>`;
   h+=`<div class="es-sec"><div class="es-sec-title">${L('Debt Ratios','نسب الدين')}</div></div>`;
   h+=`<table class="es-tbl" dir="${tblDir}">`;
-  [[L('LTC Ratio','نسبة الدين للتكلفة'),_fP(R.ltc)],
+  const _debtRows=[[L('LTC Ratio','نسبة الدين للتكلفة'),_fP(R.ltc)],
    [L('LTV Ratio','نسبة الدين للقيمة'),_fP(ltvEnd)],
-   [L('Debt Coverage','تغطية الدين'),dcrTotal.toFixed(2)+'x'],
-   [L('Avg DSCR','متوسط نسبة التغطية'),avgDSCR.toFixed(2)+'x']
-  ].forEach(([l,v])=>{h+=`<tr><td class="es-lbl">${l}</td><td class="es-val" dir="${numDir}">${v}</td></tr>`;});
+   [L('Debt Coverage','تغطية الدين'),dcrTotal.toFixed(2)+'x']];
+  if(R.hasLeaseProjects){
+    _debtRows.push([L('Avg DSCR','متوسط نسبة التغطية'),avgDSCR.toFixed(2)+'x']);
+  }
+  _debtRows.forEach(([l,v])=>{h+=`<tr><td class="es-lbl">${l}</td><td class="es-val" dir="${numDir}">${v}</td></tr>`;});
   h+=`</table>`;
 
   h+=`<div class="es-gap"></div>`;
@@ -3836,7 +3841,7 @@ function dlExcel(){
 
   {let c=lbl('Hurdle Amount',true);
    for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
-   c+=blackNum(lc+'29*Assumptions!$B$63*(Assumptions!$B$74/12)',true);
+   c+=blackNum(lc+'29*((1+Assumptions!$B$63)^(Assumptions!$B$74/12)-1)',true);
    rows.push('<row>'+c+'</row>');}
 
   {let c=lbl('Cash Before Performance Fee',false);
@@ -3861,7 +3866,7 @@ function dlExcel(){
    c+=blackNum('MAX(0,'+lc+'31-'+lc+'33)',true);
    rows.push('<row>'+c+'</row>');}
 
-  rows.push('<row>'+tx('* Performance Fee = (Cash Before Perf Fee \u2212 Total Equity) above Hurdle \u00d7 '+A.perf_fee_pct+'%',S.note)+'</row>');
+  rows.push('<row>'+tx('* Performance Fee = (Cash Before Perf Fee \u2212 Total Equity) above Compound Hurdle \u00d7 '+A.perf_fee_pct+'%',S.note)+'</row>');
   rows.push('<row>'+tx('* PerfFee, Dividends & Cash Balances from platform solver (circular: cash\u2192assets\u2192mgmt fee\u2192VAT refund\u2192cash)',S.note)+'</row>');
   sheets.push({name:'Cash Flow',rows,cols:colsQ(28,15)});
 
@@ -4002,9 +4007,13 @@ function dlExcel(){
 
   rows.push('<row>'+secHdr('DEBT RATIOS')+'</row>');
   rows.push('<row>'+lbl('LTC Ratio',false)+blackPct('IF(B62>0,Assumptions!B60/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('IF(B69>0,Assumptions!B60/B69,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Debt Coverage',false)+blackNum("IF(('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4)>0,Assumptions!B34/('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4),0)")+'</row>');
-  rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('B70',true)+'</row>');
+  if(R.hasLeaseProjects){
+    rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('IF(B69>0,Assumptions!B60/B69,0)',true)+'</row>');
+  }
+  rows.push('<row>'+lbl('Debt Coverage',R.hasLeaseProjects?false:true)+blackNum("IF(('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4)>0,Assumptions!B34/('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4),0)",R.hasLeaseProjects?false:true)+'</row>');
+  if(R.hasLeaseProjects){
+    rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('B70',true)+'</row>');
+  }
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('CAPITAL STRUCTURE')+ec(S.secHdr)+secHdr('% of Total')+'</row>');
@@ -4050,14 +4059,18 @@ function dlExcel(){
   rows.push('<row>'+lbl('Annual IRR',true)+blackPct('B66',true)+'</row>');
   rows.push('<row/>');
   rows.push('<row>'+lbl('Total Assets (Q8)',false)+blackNum("Assumptions!B11+'Construction Cost'!"+tc+"10+'Cash Flow'!"+cl(nq-2)+'26')+'</row>');
-  rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('AVERAGE(B71:'+lc+'71)',true)+'</row>');
+  if(R.hasLeaseProjects){
+    rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('AVERAGE(B71:'+lc+'71)',true)+'</row>');
+  }
 
-  {let c=lbl('Quarterly DSCR',false);
-   for(let i=0;i<nq;i++){
-     const cc=cl(i);
-     c+=blackNum("IF(('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6)>0,'Cash Flow'!"+cc+"9/('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6),0)");
-   }
-   rows.push('<row>'+c+'</row>');}
+  if(R.hasLeaseProjects){
+    let c=lbl('Quarterly DSCR',false);
+    for(let i=0;i<nq;i++){
+      const cc=cl(i);
+      c+=blackNum("IF(('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6)>0,'Cash Flow'!"+cc+"9/('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6),0)");
+    }
+    rows.push('<row>'+c+'</row>');
+  }
 
   sheets.push({name:'Summary',rows,cols:colsSummary()});
 
@@ -4471,7 +4484,8 @@ function calcWith(overrides){
     if(qi===nq-1){
       const cashBeforePerf=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+netBorrow+qEquity[qi]+qIKTotal[qi];
       const totalEquity=A.equity+gpCash+qIKTotal.reduce((a,b)=>a+b,0);
-      const hurdleAmount=totalEquity*pct(A.hurdle_rate)*(A.fund_period_months/12);
+      const years=A.fund_period_months/12;
+      const hurdleAmount=totalEquity*(Math.pow(1+pct(A.hurdle_rate),years)-1);
       const profit=cashBeforePerf-totalEquity;
       if(profit>hurdleAmount) qPerfFee[qi]=(profit-hurdleAmount)*pct(A.perf_fee_pct);
       const cashAfterPerf=cashBeforePerf-qPerfFee[qi];
