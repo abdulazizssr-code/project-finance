@@ -4007,13 +4007,9 @@ function dlExcel(){
 
   rows.push('<row>'+secHdr('DEBT RATIOS')+'</row>');
   rows.push('<row>'+lbl('LTC Ratio',false)+blackPct('IF(B62>0,Assumptions!B60/B62,0)')+'</row>');
-  if(R.hasLeaseProjects){
-    rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('IF(B69>0,Assumptions!B60/B69,0)',true)+'</row>');
-  }
-  rows.push('<row>'+lbl('Debt Coverage',R.hasLeaseProjects?false:true)+blackNum("IF(('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4)>0,Assumptions!B34/('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4),0)",R.hasLeaseProjects?false:true)+'</row>');
-  if(R.hasLeaseProjects){
-    rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('B70',true)+'</row>');
-  }
+  rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('IF(B69>0,Assumptions!B60/B69,0)',true)+'</row>');
+  rows.push('<row>'+lbl('Debt Coverage',false)+blackNum("IF(('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4)>0,Assumptions!B34/('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4),0)")+'</row>');
+  rows.push('<row>'+lbl('Avg DSCR',true)+(R.hasLeaseProjects?blackNum('B70',true):tx('N/A',S.lblA))+'</row>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('CAPITAL STRUCTURE')+ec(S.secHdr)+secHdr('% of Total')+'</row>');
@@ -4059,18 +4055,18 @@ function dlExcel(){
   rows.push('<row>'+lbl('Annual IRR',true)+blackPct('B66',true)+'</row>');
   rows.push('<row/>');
   rows.push('<row>'+lbl('Total Assets (Q8)',false)+blackNum("Assumptions!B11+'Construction Cost'!"+tc+"10+'Cash Flow'!"+cl(nq-2)+'26')+'</row>');
-  if(R.hasLeaseProjects){
-    rows.push('<row>'+lbl('Avg DSCR',true)+blackNum('AVERAGE(B71:'+lc+'71)',true)+'</row>');
-  }
+  rows.push('<row>'+lbl('Avg DSCR',true)+(R.hasLeaseProjects?blackNum('AVERAGE(B71:'+lc+'71)',true):tx('N/A',S.lblA))+'</row>');
 
-  if(R.hasLeaseProjects){
-    let c=lbl('Quarterly DSCR',false);
-    for(let i=0;i<nq;i++){
-      const cc=cl(i);
-      c+=blackNum("IF(('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6)>0,'Cash Flow'!"+cc+"9/('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6),0)");
-    }
-    rows.push('<row>'+c+'</row>');
-  }
+  {let c=lbl('Quarterly DSCR',false);
+   for(let i=0;i<nq;i++){
+     const cc=cl(i);
+     if(R.hasLeaseProjects){
+       c+=blackNum("IF(('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6)>0,'Cash Flow'!"+cc+"9/('Debt Schedule'!"+cc+"5+'Debt Schedule'!"+cc+"6),0)");
+     } else {
+       c+=tx('',S.lbl);
+     }
+   }
+   rows.push('<row>'+c+'</row>');}
 
   sheets.push({name:'Summary',rows,cols:colsSummary()});
 
