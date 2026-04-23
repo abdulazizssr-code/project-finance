@@ -2882,6 +2882,7 @@ function renderSummary(){
   const dsFeeExVAT=R.totalDesignFee+R.totalSupervisionFee+(R.totalLicensingFee||0);
   const contInsExVAT=contingency+insurance;
   const brokerageExVAT=R.brokerageIncVAT/V;
+  const advisorTotal=R.qVATAdvisor.reduce((a,b)=>a+b,0);
   const costItems=_vr?[
     [L('Land Cost','تكلفة الأرض'),R.baseLand],
     [L('Brokerage','السعي'),brokerageExVAT],
@@ -2892,6 +2893,7 @@ function renderSummary(){
     [L('Contingency & Insurance','الاحتياطي والتأمين'),contInsExVAT],
     [L('Fund Mgmt Fee','رسوم الإدارة'),mgmtTotal],
     [L('Other Fund Expenses','مصاريف أخرى'),otherExp],
+    [L('VAT Advisor','مستشار ضريبي'),advisorTotal],
     [L('Financing Cost','تكلفة التمويل'),R.totalInt]
   ]:[
     [L('Land Cost','تكلفة الأرض'),R.baseLand],
@@ -2903,6 +2905,7 @@ function renderSummary(){
     [L('Contingency & Insurance','الاحتياطي والتأمين'),contInsExVAT*V],
     [L('Fund Mgmt Fee','رسوم الإدارة'),mgmtTotal],
     [L('Other Fund Expenses','مصاريف أخرى'),otherExp],
+    [L('VAT Advisor','مستشار ضريبي'),advisorTotal],
     [L('Financing Cost','تكلفة التمويل'),R.totalInt]
   ];
   h+=`<table class="es-tbl es-tbl3" dir="${tblDir}">`;
@@ -3955,6 +3958,13 @@ function dlExcel(){
   // SHEET 11: SUMMARY
   // ═══════════════════════════════════════════════
   rows=[];
+  // Row counter: rn() returns current 1-based row number for the NEXT push
+  const rn=()=>rows.length+1;
+  // Store key row numbers as we build
+  let rTotalCost,rTotalRev,rNetProfit,rReturnOnProj,rTotalEquity,rTotalInvest,rTotalDiv,rXirrDates,rXirrCF,rXirr,rAnnIrr,rTotalAssets,rAvgDSCR,rQDSCR;
+  // Cost row numbers for % of Cost self-refs
+  const rCost={};
+
   rows.push('<row>'+title('FUND PERFORMANCE SUMMARY')+'</row>');
   rows.push('<row/>');
 
@@ -3973,76 +3983,101 @@ function dlExcel(){
 
   rows.push('<row>'+secHdr('BANK FINANCING')+'</row>');
   rows.push('<row>'+lbl('Financing Amount',false)+greenNum('Assumptions!B60')+'</row>');
-  rows.push('<row>'+lbl('% of Cost',true)+blackPct('IF(B62>0,Assumptions!B60/B62,0)',true)+'</row>');
+  // % of Cost uses rTotalCost (set later via deferred formula — use placeholder, fix after)
+  const rBankPct=rn();
+  rows.push('<row>'+lbl('% of Cost',true)+blackPct('__TOTALCOST_PCT__',true)+'</row>');
   rows.push('<row>'+lbl('SAIBOR + Margin',false)+greenPct('Assumptions!B59')+'</row>');
   rows.push('<row>'+lbl('Total Interest',true)+greenNum("'Debt Schedule'!"+tc+'5',true)+'</row>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('COSTS & EXPENSES')+ec(S.secHdr)+secHdr('% of Cost')+'</row>');
-  rows.push('<row>'+lbl('Land Cost',false)+blackNum('-Assumptions!B10')+blackPct('IF(B62>0,ABS(B20)/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('Brokerage',true)+blackNum('IF(Assumptions!B49=1,-Assumptions!B7/Assumptions!B12,-Assumptions!B7)',true)+blackPct('IF(B62>0,ABS(B21)/B62,0)',true)+'</row>');
-  rows.push('<row>'+lbl('RETT',false)+blackNum('-Assumptions!B8')+blackPct('IF(B62>0,ABS(B22)/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('Base Construction',true)+blackNum("IF(Assumptions!B49=1,-'Construction Cost'!"+tc+"3/Assumptions!B12,-'Construction Cost'!"+tc+"3)",true)+blackPct('IF(B62>0,ABS(B23)/B62,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Developer Fee',false)+blackNum("IF(Assumptions!B49=1,-'Construction Cost'!"+tc+"4/Assumptions!B12,-'Construction Cost'!"+tc+"4)")+blackPct('IF(B62>0,ABS(B24)/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('Design, Supervision & Licensing',true)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B20+Assumptions!B21+Assumptions!B22),-(Assumptions!B20+Assumptions!B21+Assumptions!B22)*Assumptions!B12)',true)+blackPct('IF(B62>0,ABS(B25)/B62,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Fund Mgmt Fee',false)+blackNum("IF(Assumptions!B49=1,-'Fund Expenses'!"+tc+"17/Assumptions!B12,-'Fund Expenses'!"+tc+"17)")+blackPct('IF(B62>0,ABS(B26)/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('Marketing',true)+blackNum('IF(Assumptions!B49=1,-Assumptions!B45,-Assumptions!B45*Assumptions!B12)',true)+blackPct('IF(B62>0,ABS(B27)/B62,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Contingency & Insurance',false)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B25+Assumptions!B26),-(Assumptions!B25+Assumptions!B26)*Assumptions!B12)')+blackPct('IF(B62>0,ABS(B28)/B62,0)')+'</row>');
-  // Other Fund Expenses — includes VAT Advisor fee (FE row 13 memo) which is settled via VAT refund netting
-  rows.push('<row>'+lbl('Other Fund Expenses',true)+blackNum("IF(Assumptions!B49=1,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17)/Assumptions!B12-'Fund Expenses'!"+tc+"13,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17)-'Fund Expenses'!"+tc+"13)",true)+blackPct('IF(B62>0,ABS(B29)/B62,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Financing Cost',false)+greenNum("-'Debt Schedule'!"+tc+'5')+blackPct('IF(B62>0,ABS(B30)/B62,0)')+'</row>');
-  // TOTAL COSTS = Total Cost (ex VAT) at row 62 (matches Capital Structure exactly)
-  rows.push('<row>'+lbl('TOTAL COSTS',false)+boldNum('B62')+'</row>');
+  rCost.land=rn();
+  rows.push('<row>'+lbl('Land Cost',false)+blackNum('-Assumptions!B10')+blackPct('__COST_PCT_'+rCost.land+'__')+'</row>');
+  rCost.brok=rn();
+  rows.push('<row>'+lbl('Brokerage',true)+blackNum('IF(Assumptions!B49=1,-Assumptions!B7/Assumptions!B12,-Assumptions!B7)',true)+blackPct('__COST_PCT_'+rCost.brok+'__',true)+'</row>');
+  rCost.rett=rn();
+  rows.push('<row>'+lbl('RETT',false)+blackNum('-Assumptions!B8')+blackPct('__COST_PCT_'+rCost.rett+'__')+'</row>');
+  rCost.baseCon=rn();
+  rows.push('<row>'+lbl('Base Construction',true)+blackNum("IF(Assumptions!B49=1,-'Construction Cost'!"+tc+"3/Assumptions!B12,-'Construction Cost'!"+tc+"3)",true)+blackPct('__COST_PCT_'+rCost.baseCon+'__',true)+'</row>');
+  rCost.devFee=rn();
+  rows.push('<row>'+lbl('Developer Fee',false)+blackNum("IF(Assumptions!B49=1,-'Construction Cost'!"+tc+"4/Assumptions!B12,-'Construction Cost'!"+tc+"4)")+blackPct('__COST_PCT_'+rCost.devFee+'__')+'</row>');
+  rCost.design=rn();
+  rows.push('<row>'+lbl('Design, Supervision & Licensing',true)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B20+Assumptions!B21+Assumptions!B22),-(Assumptions!B20+Assumptions!B21+Assumptions!B22)*Assumptions!B12)',true)+blackPct('__COST_PCT_'+rCost.design+'__',true)+'</row>');
+  rCost.mgmt=rn();
+  rows.push('<row>'+lbl('Fund Mgmt Fee',false)+blackNum("IF(Assumptions!B49=1,-'Fund Expenses'!"+tc+"17/Assumptions!B12,-'Fund Expenses'!"+tc+"17)")+blackPct('__COST_PCT_'+rCost.mgmt+'__')+'</row>');
+  rCost.mkt=rn();
+  rows.push('<row>'+lbl('Marketing',true)+blackNum('IF(Assumptions!B49=1,-Assumptions!B45,-Assumptions!B45*Assumptions!B12)',true)+blackPct('__COST_PCT_'+rCost.mkt+'__',true)+'</row>');
+  rCost.cont=rn();
+  rows.push('<row>'+lbl('Contingency & Insurance',false)+blackNum('IF(Assumptions!B49=1,-(Assumptions!B25+Assumptions!B26),-(Assumptions!B25+Assumptions!B26)*Assumptions!B12)')+blackPct('__COST_PCT_'+rCost.cont+'__')+'</row>');
+  // Other Fund Expenses — WITHOUT VAT Advisor (shown separately below)
+  rCost.otherFE=rn();
+  rows.push('<row>'+lbl('Other Fund Expenses',true)+blackNum("IF(Assumptions!B49=1,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17)/Assumptions!B12,-('Fund Expenses'!"+tc+"18-'Fund Expenses'!"+tc+"17))",true)+blackPct('__COST_PCT_'+rCost.otherFE+'__',true)+'</row>');
+  // VAT Advisor — separate line
+  rCost.advisor=rn();
+  rows.push('<row>'+lbl('VAT Advisor',false)+blackNum("-'Fund Expenses'!"+tc+"13")+blackPct('__COST_PCT_'+rCost.advisor+'__')+'</row>');
+  rCost.finCost=rn();
+  rows.push('<row>'+lbl('Financing Cost',true)+greenNum("-'Debt Schedule'!"+tc+'5',true)+blackPct('__COST_PCT_'+rCost.finCost+'__',true)+'</row>');
+  // TOTAL COSTS = Total Cost from COMPUTED HELPERS
+  rows.push('<row>'+lbl('TOTAL COSTS',false)+boldNum('__TOTALCOST__')+'</row>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('REVENUE & PROFITABILITY')+'</row>');
+  rTotalRev=rn();
   rows.push('<row>'+lbl('Total Revenue',false)+greenNum('Assumptions!B34')+'</row>');
-  rows.push('<row>'+lbl('Net Profit',true)+blackNum('B34-B62',true)+'</row>');
-  rows.push('<row>'+lbl('Return on Project',false)+blackPct('IF(B62>0,B35/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('ROE (Total Equity)',true)+blackPct('IF(B54>0,(B59-B54)/B54,0)',true)+'</row>');
-  rows.push('<row>'+lbl('IRR (Annual)',false)+blackPct('B67')+'</row>');
-  rows.push('<row>'+lbl('Equity Multiple',true)+blackNum('IF(B54>0,B59/B54,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Annual Return',false)+blackPct('IF(Assumptions!B73>0,B36/(Assumptions!B73/12),0)')+'</row>');
+  rNetProfit=rn();
+  rows.push('<row>'+lbl('Net Profit',true)+blackNum('__NET_PROFIT__',true)+'</row>');
+  rReturnOnProj=rn();
+  rows.push('<row>'+lbl('Return on Project',false)+blackPct('__RETURN_ON_PROJ__')+'</row>');
+  rows.push('<row>'+lbl('ROE (Total Equity)',true)+blackPct('__ROE__',true)+'</row>');
+  rows.push('<row>'+lbl('IRR (Annual)',false)+blackPct('__IRR_REF__')+'</row>');
+  rows.push('<row>'+lbl('Equity Multiple',true)+blackNum('__EQ_MULT__',true)+'</row>');
+  rows.push('<row>'+lbl('Annual Return',false)+blackPct('__ANN_RETURN__')+'</row>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('DEBT RATIOS')+'</row>');
-  rows.push('<row>'+lbl('LTC Ratio',false)+blackPct('IF(B62>0,Assumptions!B60/B62,0)')+'</row>');
-  rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('IF(B69>0,Assumptions!B60/B69,0)',true)+'</row>');
+  rows.push('<row>'+lbl('LTC Ratio',false)+blackPct('__LTC__')+'</row>');
+  rows.push('<row>'+lbl('LTV Ratio',true)+blackPct('__LTV__',true)+'</row>');
   rows.push('<row>'+lbl('Debt Coverage',false)+blackNum("IF(('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4)>0,Assumptions!B34/('Debt Schedule'!"+tc+"5+'Debt Schedule'!"+tc+"4),0)")+'</row>');
-  rows.push('<row>'+lbl('Avg DSCR',true)+(R.hasLeaseProjects?blackNum('B70',true):tx('N/A',S.lblA))+'</row>');
+  rows.push('<row>'+lbl('Avg DSCR',true)+(R.hasLeaseProjects?blackNum('__AVG_DSCR_REF__',true):tx('N/A',S.lblA))+'</row>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('CAPITAL STRUCTURE')+ec(S.secHdr)+secHdr('% of Total')+'</row>');
-  rows.push('<row>'+lbl('Equity (Cash)',false)+greenNum('Assumptions!B53')+blackPct('IF(B55>0,B49/B55,0)')+'</row>');
-  rows.push('<row>'+lbl('In-Kind',true)+greenNum("'In-Kind'!"+tc+'10',true)+blackPct('IF(B55>0,B50/B55,0)',true)+'</row>');
-  rows.push('<row>'+lbl('Off-Plan Sales',false)+blackNum('MAX(0,B62-B49-B50-Assumptions!B60)')+blackPct('IF(B55>0,B51/B55,0)')+'</row>');
-  rows.push('<row>'+lbl('Bank Debt',true)+greenNum('Assumptions!B60',true)+blackPct('IF(B55>0,B52/B55,0)',true)+'</row>');
+  const rCapEq=rn();
+  rows.push('<row>'+lbl('Equity (Cash)',false)+greenNum('Assumptions!B53')+blackPct('__CAP_EQ_PCT__')+'</row>');
+  const rCapIK=rn();
+  rows.push('<row>'+lbl('In-Kind',true)+greenNum("'In-Kind'!"+tc+'10',true)+blackPct('__CAP_IK_PCT__',true)+'</row>');
+  const rCapOP=rn();
+  rows.push('<row>'+lbl('Off-Plan Sales',false)+blackNum('__CAP_OP__')+blackPct('__CAP_OP_PCT__')+'</row>');
+  const rCapDebt=rn();
+  rows.push('<row>'+lbl('Bank Debt',true)+greenNum('Assumptions!B60',true)+blackPct('__CAP_DEBT_PCT__',true)+'</row>');
   rows.push('<row/>');
-  rows.push('<row>'+lbl('TOTAL EQUITY (Cash + In-Kind)',false)+boldNum('B49+B50')+'</row>');
-  rows.push('<row>'+lbl('TOTAL INVESTMENT',true)+boldNum('B49+B50+B51+B52')+'</row>');
+  rTotalEquity=rn();
+  rows.push('<row>'+lbl('TOTAL EQUITY (Cash + In-Kind)',false)+boldNum('B'+rCapEq+'+B'+rCapIK)+'</row>');
+  rTotalInvest=rn();
+  rows.push('<row>'+lbl('TOTAL INVESTMENT',true)+boldNum('B'+rCapEq+'+B'+rCapIK+'+B'+rCapOP+'+B'+rCapDebt)+'</row>');
   rows.push('<row/>');
   rows.push('<row/>');
 
   rows.push('<row>'+secHdr('COMPUTED HELPERS')+'</row>');
+  rTotalDiv=rn();
   rows.push('<row>'+lbl('Total Dividends',false)+greenNum("'Cash Flow'!"+lc+'34')+'</row>');
   rows.push('<row>'+lbl('Performance Fee',true)+greenNum("'Cash Flow'!"+lc+'33',true)+tx('Last quarter only',S.lblA)+'</row>');
   rows.push('<row>'+lbl('Total Fund Expenses (incl perf)',false)+greenNum("'Fund Expenses'!"+tc+'20')+'</row>');
   // Total Cost: matches platform R.totalCost exactly
-  //   vat_refund ON  (B49=1): ex-VAT — Land + Brok/V + RETT + Con/V + FundExp_noPerf/V + Interest + Advisor
-  //   vat_refund OFF (B49=0): inc-VAT — Land + Brok + RETT + Con + FundExp_noPerf + Interest + Advisor
-  // FE row 18 = TOTAL FUND EXP (EXCLUDES perf fee), FE row 13 = VAT Advisor memo, FE row 20 unused here
+  rTotalCost=rn();
   rows.push('<row>'+lbl('Total Cost (ex VAT)',true)+blackNum(
     "IF(Assumptions!B49=1,"+
       "Assumptions!B10+Assumptions!B7/Assumptions!B12+Assumptions!B8+'Construction Cost'!"+tc+"10/Assumptions!B12+'Fund Expenses'!"+tc+"18/Assumptions!B12+'Debt Schedule'!"+tc+"5+'Fund Expenses'!"+tc+"13,"+
       "Assumptions!B11+'Construction Cost'!"+tc+"10+'Fund Expenses'!"+tc+"18+'Debt Schedule'!"+tc+"5+'Fund Expenses'!"+tc+"13)",
     true)+'</row>');
 
+  rXirrDates=rn();
   {let c=lbl('XIRR Dates',false);
    for(let i=0;i<nq;i++) c+=blueDate(dateSerial(qDates[i]));
    rows.push('<row>'+c+'</row>');}
 
+  rXirrCF=rn();
   {let c=lbl('Investor Cash Flows',true);
-   // Hardcode from platform solver to guarantee XIRR consistency
    const _invCF=Array(nq).fill(0);
    _invCF[0]=-(R.A.equity+(R.gpCash||0))-R.qIKTotal[0];
    for(let i=1;i<nq;i++) _invCF[i]=-R.qIKTotal[i];
@@ -4051,12 +4086,17 @@ function dlExcel(){
    rows.push('<row>'+c+'</row>');}
 
   rows.push('<row/>');
-  rows.push('<row>'+lbl('XIRR (Annual)',false)+blackPct('XIRR(B64:'+lc+'64,B63:'+lc+'63)')+'</row>');
-  rows.push('<row>'+lbl('Annual IRR',true)+blackPct('B66',true)+'</row>');
+  rXirr=rn();
+  rows.push('<row>'+lbl('XIRR (Annual)',false)+blackPct('XIRR(B'+rXirrCF+':'+lc+rXirrCF+',B'+rXirrDates+':'+lc+rXirrDates+')')+'</row>');
+  rAnnIrr=rn();
+  rows.push('<row>'+lbl('Annual IRR',true)+blackPct('B'+rXirr,true)+'</row>');
   rows.push('<row/>');
+  rTotalAssets=rn();
   rows.push('<row>'+lbl('Total Assets (Q8)',false)+blackNum("Assumptions!B11+'Construction Cost'!"+tc+"10+'Cash Flow'!"+cl(nq-2)+'26')+'</row>');
-  rows.push('<row>'+lbl('Avg DSCR',true)+(R.hasLeaseProjects?blackNum('AVERAGE(B71:'+lc+'71)',true):tx('N/A',S.lblA))+'</row>');
+  rAvgDSCR=rn();
+  rows.push('<row>'+lbl('Avg DSCR',true)+(R.hasLeaseProjects?blackNum('__AVG_DSCR_CALC__',true):tx('N/A',S.lblA))+'</row>');
 
+  rQDSCR=rn();
   {let c=lbl('Quarterly DSCR',false);
    for(let i=0;i<nq;i++){
      const cc=cl(i);
@@ -4067,6 +4107,46 @@ function dlExcel(){
      }
    }
    rows.push('<row>'+c+'</row>');}
+
+  // ── Now resolve all placeholder formulas using captured row numbers ──
+  const _tc='B'+rTotalCost;
+  const _te='B'+rTotalEquity;
+  const _ti='B'+rTotalInvest;
+  const _td='B'+rTotalDiv;
+  const _tr='B'+rTotalRev;
+  const _np='B'+rNetProfit;
+  const _rp='B'+rReturnOnProj;
+  const _ta='B'+rTotalAssets;
+  const _ai='B'+rAnnIrr;
+  const replacements={
+    '__TOTALCOST_PCT__':'IF('+_tc+'>0,Assumptions!B60/'+_tc+',0)',
+    '__TOTALCOST__':_tc,
+    '__NET_PROFIT__':_tr+'-'+_tc,
+    '__RETURN_ON_PROJ__':'IF('+_tc+'>0,'+_np+'/'+_tc+',0)',
+    '__ROE__':'IF('+_te+'>0,('+_td+'-'+_te+')/'+_te+',0)',
+    '__IRR_REF__':_ai,
+    '__EQ_MULT__':'IF('+_te+'>0,'+_td+'/'+_te+',0)',
+    '__ANN_RETURN__':'IF(Assumptions!B73>0,'+_rp+'/(Assumptions!B73/12),0)',
+    '__LTC__':'IF('+_tc+'>0,Assumptions!B60/'+_tc+',0)',
+    '__LTV__':'IF('+_ta+'>0,Assumptions!B60/'+_ta+',0)',
+    '__AVG_DSCR_REF__':'B'+rAvgDSCR,
+    '__AVG_DSCR_CALC__':'AVERAGE(B'+rQDSCR+':'+lc+rQDSCR+')',
+    '__CAP_EQ_PCT__':'IF('+_ti+'>0,B'+rCapEq+'/'+_ti+',0)',
+    '__CAP_IK_PCT__':'IF('+_ti+'>0,B'+rCapIK+'/'+_ti+',0)',
+    '__CAP_OP__':'MAX(0,'+_tc+'-B'+rCapEq+'-B'+rCapIK+'-Assumptions!B60)',
+    '__CAP_OP_PCT__':'IF('+_ti+'>0,B'+rCapOP+'/'+_ti+',0)',
+    '__CAP_DEBT_PCT__':'IF('+_ti+'>0,B'+rCapDebt+'/'+_ti+',0)',
+  };
+  // Also resolve cost % placeholders
+  Object.values(rCost).forEach(r=>{
+    replacements['__COST_PCT_'+r+'__']='IF('+_tc+'>0,ABS(B'+r+')/'+_tc+',0)';
+  });
+  // Apply all replacements to rows
+  for(let i=0;i<rows.length;i++){
+    for(const [ph,val] of Object.entries(replacements)){
+      if(rows[i].includes(ph)) rows[i]=rows[i].split(ph).join(val);
+    }
+  }
 
   sheets.push({name:'Summary',rows,cols:colsSummary()});
 
