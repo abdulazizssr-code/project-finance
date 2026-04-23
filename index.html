@@ -29,12 +29,19 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 [dir=rtl] .login-field{text-align:right}
 [dir=rtl] .frow label{text-align:right}
 [dir=rtl] .sch-wrap h3{text-align:right}
+[dir=rtl] .sch-tbl th:first-child{text-align:right}
+[dir=rtl] .sch-tbl td:first-child{text-align:right}
 [dir=rtl] .kpi-l{font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
 [dir=rtl] .ch-card h3{text-align:right;font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
 [dir=rtl] .ds-lbl{text-align:right}
 [dir=rtl] .hdr{flex-direction:row-reverse}
 [dir=rtl] .sec-hd{text-align:right;font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
 [dir=rtl] .role-tabs{direction:rtl}
+[dir=rtl] .es-tbl .es-val{text-align:left}
+[dir=rtl] .es-tbl .es-pct{text-align:left}
+[dir=rtl] .es-tbl3 td:nth-child(2),[dir=rtl] .es-tbl3 td:nth-child(3){text-align:left}
+[dir=rtl] .es-sales th:first-child{text-align:right}
+[dir=rtl] .es-sales .es-row-lbl{text-align:right;padding-right:2.5mm;padding-left:0}
 
 
 /* ── LOGIN SCREEN ── */
@@ -1226,7 +1233,8 @@ const TX={
       eqMult:'Equity Multiple',netProfit:'Net Profit',roiUH:'ROI (UH)',totalRev:'Total Revenue',
       cfQuarter:'Cash Flow by Quarter',irrHeatmap:'IRR Sensitivity Heatmap',
       hmDesc:'Sale Price × Sellable Area (±20%)',hmXLabel:'Sale Price / sqm',hmYLabel:'Sellable Area (sqm)'},
-    f:{fundName:'Fund Name',projectLocation:'Project Location',projectType:'Project Type',
+    f:{numProjects:'Number of Projects',projName:'Project Name',
+      fundName:'Fund Name',projectLocation:'Project Location',projectType:'Project Type',
       ptResidential:'Residential',ptCommercial:'Commercial',ptMixed:'Mixed-Use',ptHospitality:'Hospitality',ptIndustrial:'Industrial',ptInfra:'Infrastructure',
       fundPeriod:'Fund Period (Months)',startDate:'Start Date',
       landArea:'Land Area (sqm)',pricePerSqm:'Price per sqm (SAR)',brokerage:'Brokerage %',
@@ -1309,7 +1317,8 @@ const TX={
       eqMult:'مضاعف رأس المال',netProfit:'صافي الربح',roiUH:'عائد الاستثمار',totalRev:'إجمالي الإيرادات',
       cfQuarter:'التدفق النقدي',irrHeatmap:'خريطة حرارية للعائد',
       hmDesc:'سعر البيع × المساحة القابلة للبيع (±20%)',hmXLabel:'سعر البيع / م²',hmYLabel:'المساحة القابلة للبيع (م²)'},
-    f:{fundName:'اسم الصندوق',projectLocation:'موقع المشروع',projectType:'نوع المشروع',
+    f:{numProjects:'عدد المشاريع',projName:'اسم المشروع',
+      fundName:'اسم الصندوق',projectLocation:'موقع المشروع',projectType:'نوع المشروع',
       ptResidential:'سكني',ptCommercial:'تجاري',ptMixed:'متعدد الاستخدامات',ptHospitality:'ضيافة',ptIndustrial:'صناعي',ptInfra:'بنية تحتية',
       fundPeriod:'مدة الصندوق (شهر)',startDate:'تاريخ البداية',
       landArea:'مساحة الأرض (م²)',pricePerSqm:'سعر المتر (ريال)',brokerage:'نسبة السعي %',
@@ -1408,7 +1417,7 @@ function buildForm(){
     ${fld('fund_period_months',F.fundPeriod,D.fund_period_months)}
     ${fld('start_date',F.startDate,D.start_date,'date')}
     ${fld('vat_refund',F.vatRefund,D.vat_refund,'select',[[0,F.no],[1,F.yes]])}
-    ${fld('num_projects',F.numProjects||'Number of Projects',D.num_projects)}
+    ${fld('num_projects',F.numProjects,D.num_projects)}
   </div>`;
 
   // Build project tabs
@@ -1419,7 +1428,7 @@ function buildForm(){
     <div class="proj-sub-tabs">${projTabs}</div>
     <div class="form-grid">
     <div class="sec"><div class="sec-t">${TX[lang].s[1]} - ${P.name||(lang==='ar'?'مشروع ':'Project ')+( activeProjectIdx+1)}</div>
-      <div class="frow frow-2"><label>${F.projName||'Project Name'}</label><input type="text" id="proj_name" value="${P.name||''}" onchange="projects[${activeProjectIdx}].name=this.value;buildForm()"></div>
+      <div class="frow frow-2"><label>${F.projName}</label><input type="text" id="proj_name" value="${P.name||''}" onchange="projects[${activeProjectIdx}].name=this.value;buildForm()"></div>
       ${fldProj('strategy',F.strategy,P.strategy,activeProjectIdx,'select',[['sell',F.stratSell],['lease',F.stratLease]])}
       ${fldProj('land_area',F.landArea,P.land_area,activeProjectIdx)}
       ${fldProj('land_price_sqm',F.pricePerSqm,P.land_price_sqm,activeProjectIdx)}
@@ -2847,7 +2856,7 @@ function renderSummary(){
   h+=`<div>`;
   h+=`<div class="es-sec"><div class="es-sec-title">${L('Key Assumptions & Project Info','الافتراضات الرئيسية')}</div></div>`;
   h+=`<table class="es-tbl" dir="${tblDir}">`;
-  [[L('Fund Name','اسم الصندوق'),AA.fund_name||D.fund_name],[L('Project Type','نوع المشروع'),ptype],[L('Location','الموقع'),loc],[L('Fund Period','مدة الصندوق'),(isAr?'<bdi>'+yrP+'</bdi> سنة / <bdi>'+nq+'</bdi> أرباع':yrP+' yrs / '+nq+' Q')],
+  [[L('Fund Name','اسم الصندوق'),AA.fund_name||D.fund_name],[L('Project Type','نوع المشروع'),ptype],[L('Location','الموقع'),loc],[L('Fund Period','مدة الصندوق'),(isAr?'<bdi>'+yrP+'</bdi> '+(parseFloat(yrP)>=3&&parseFloat(yrP)<=10?'سنوات':'سنة')+' / <bdi>'+nq+'</bdi> '+(nq>=3&&nq<=10?'أرباع':'ربع'):yrP+' yrs / '+nq+' Q')],
    [L('Land Area','مساحة الأرض'),fU(fmt(R.totalLandArea),sqm)],[L('Land Price','سعر المتر'),fUr(fmt(R.avgLandPriceSqm||0),cur,sqm)],
    [L('Total GFA','المساحة المبنية'),fU(fmt(R.totalBuildArea),sqm)],[L('Hurdle Rate','معدل العائد المستهدف'),AA.hurdle_rate+'%'],[L('Performance Fee','رسوم الأداء'),AA.perf_fee_pct+'%']
   ].forEach(([l,v])=>{
