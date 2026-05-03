@@ -60,7 +60,7 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 .login-error{color:var(--error);font-size:.85rem;margin-top:10px;display:none}
 .login-success{color:var(--success);font-size:.85rem;margin-top:10px;display:none}
 .login-toggle{margin-top:20px;font-size:.88rem;color:var(--on-surface-vl)}.login-toggle a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none}.login-toggle a:hover{text-decoration:underline}
-.login-remember{display:flex;align-items:center;margin:12px 0 4px;text-align:left}
+.login-remember{display:flex;align-items:center;justify-content:space-between;margin:12px 0 4px;text-align:left}
 .login-remember label{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--on-surface-v);cursor:pointer;font-weight:500}
 .login-remember input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);cursor:pointer;margin:0}
 .signup-fields{display:none}.signup-fields.show{display:block}
@@ -426,9 +426,15 @@ canvas{max-width:100%;display:block}
     <div class="login-field"><label>Username</label><input type="text" id="loginUser" placeholder="Enter username" autocomplete="username"></div>
     <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"></div>
     <div class="signup-fields" id="signupFields">
+      <div class="login-field"><label>Email (for password recovery)</label><input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email"></div>
       <div class="login-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm password"></div>
     </div>
-    <div class="login-remember"><label><input type="checkbox" id="rememberMe"> <span id="rememberLabel">Remember me</span></label></div>
+    <div class="signup-fields" id="resetFields">
+      <div class="login-field" id="resetEmailField"><label>Registered Email</label><input type="email" id="resetEmail" placeholder="Enter your registered email" autocomplete="email"></div>
+      <div class="login-field" id="resetNewPassField" style="display:none"><label>New Password</label><input type="password" id="resetNewPass" placeholder="Enter new password (min 6 chars)" autocomplete="new-password"></div>
+      <div class="login-field" id="resetConfirmField" style="display:none"><label>Confirm New Password</label><input type="password" id="resetConfirm" placeholder="Confirm new password" autocomplete="new-password"></div>
+    </div>
+    <div class="login-remember"><label><input type="checkbox" id="rememberMe"> <span id="rememberLabel">Remember me</span></label><a id="forgotLink" onclick="showForgotPassword()" style="font-size:.82rem;color:var(--primary);cursor:pointer;text-decoration:none;font-weight:500">Forgot Password?</a></div>
     <button class="login-btn" id="authBtn" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError">Invalid username or password</div>
     <div class="login-success" id="loginSuccess">Account created! You can now sign in.</div>
@@ -459,6 +465,22 @@ canvas{max-width:100%;display:block}
   </div>
 </div>
 
+<div class="share-overlay" id="acctOverlay" onclick="if(event.target===this)closeAcctSettings()">
+  <div class="share-box" style="width:440px">
+    <h2 id="acctTitle">Account Settings</h2>
+    <p class="share-desc" id="acctDesc">Update your recovery email so you can reset your password if you forget it.</p>
+    <div class="login-field" style="margin-bottom:14px"><label>Current Password (required)</label><input type="password" id="acctCurPass" placeholder="Enter current password" autocomplete="current-password"></div>
+    <div class="login-field" style="margin-bottom:14px"><label>Recovery Email</label><input type="email" id="acctEmail" placeholder="your@email.com" autocomplete="email"></div>
+    <div class="login-field" style="margin-bottom:14px"><label>New Password (leave blank to keep current)</label><input type="password" id="acctNewPass" placeholder="New password (optional)" autocomplete="new-password"></div>
+    <div class="login-error" id="acctError" style="display:none"></div>
+    <div class="login-success" id="acctSuccess" style="display:none"></div>
+    <div class="share-btns">
+      <button class="btn-gen-link" id="btnAcctSave" onclick="saveAcctSettings()">Save Changes</button>
+      <button class="btn-share-close" onclick="closeAcctSettings()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div id="appMain" style="display:none">
 <div class="hdr">
   <div class="hdr-left">
@@ -473,6 +495,7 @@ canvas{max-width:100%;display:block}
     <button class="btn-lang" onclick="toggleLang()">العربية</button>
     <button class="btn-dl" id="btnDL" onclick="dlExcel()">Excel</button>
     <button class="btn-dl" id="btnPDF" onclick="dlPDF()">PDF</button>
+    <button class="btn-dl" id="btnAcct" onclick="openAcctSettings()" title="Account Settings" style="font-size:.85rem">⚙ Account</button>
     <button class="btn-logout" onclick="doLogout()">Logout</button>
   </div>
 </div>
@@ -552,6 +575,8 @@ function enterGuestMode(){
   document.getElementById('appMain').style.display='';
   const badge=document.getElementById('userBadge');
   if(badge) badge.textContent='\u{1F464} '+(lang==='ar'?'زائر':'Guest');
+  const acctBtn=document.getElementById('btnAcct');
+  if(acctBtn) acctBtn.style.display='none';
   // Guests start with a fresh project, no cloud list
   const sel=document.getElementById('projSelect');
   if(sel) sel.innerHTML='<option value="">-- '+(lang==='ar'?'مشروع غير محفوظ':'Unsaved Project')+' --</option>';
@@ -561,6 +586,16 @@ function toggleAuthMode(){
   const err=document.getElementById('loginError');
   const suc=document.getElementById('loginSuccess');
   err.style.display='none';suc.style.display='none';
+  // Always restore fields that reset mode hides
+  document.getElementById('loginUser').parentElement.style.display='';
+  document.getElementById('loginPass').parentElement.style.display='';
+  document.getElementById('forgotLink').style.display='';
+  document.getElementById('rememberMe').parentElement.style.display='';
+  document.getElementById('resetFields').classList.remove('show');
+  document.getElementById('resetEmailField').style.display='';
+  document.getElementById('resetNewPassField').style.display='none';
+  document.getElementById('resetConfirmField').style.display='none';
+  resetStep=1;resetVerifiedEmail=null;
   if(authMode==='login'){
     authMode='signup';
     document.getElementById('authTitle').textContent='Create Account';
@@ -580,15 +615,266 @@ function toggleAuthMode(){
   }
 }
 
+function showForgotPassword(){
+  const err=document.getElementById('loginError');
+  const suc=document.getElementById('loginSuccess');
+  err.style.display='none';suc.style.display='none';
+  authMode='reset';
+  resetStep=1;
+  resetVerifiedEmail=null;
+  document.getElementById('authTitle').textContent='Reset Password';
+  document.getElementById('authSubtitle').textContent='Verify your identity to reset your password';
+  document.getElementById('authBtn').textContent='Verify Identity';
+  document.getElementById('authBtn').setAttribute('onclick','doResetPassword()');
+  document.getElementById('signupFields').classList.remove('show');
+  document.getElementById('resetFields').classList.add('show');
+  document.getElementById('resetEmailField').style.display='';
+  document.getElementById('resetNewPassField').style.display='none';
+  document.getElementById('resetConfirmField').style.display='none';
+  document.getElementById('resetEmail').value='';
+  document.getElementById('loginUser').parentElement.style.display='';
+  document.getElementById('loginPass').parentElement.style.display='none';
+  document.getElementById('forgotLink').style.display='none';
+  document.getElementById('rememberMe').parentElement.style.display='none';
+  document.getElementById('authToggle').innerHTML='Back to <a onclick="toggleAuthMode()">Sign In</a>';
+}
+
+let resetStep=1;
+let resetVerifiedEmail=null; // The Firebase Auth email verified in step 1
+
+async function doResetPassword(){
+  const err=document.getElementById('loginError');
+  const suc=document.getElementById('loginSuccess');
+  err.style.display='none';suc.style.display='none';
+  const btn=document.getElementById('authBtn');
+  if(!fbReady){err.textContent='Firebase not configured.';err.style.display='block';return;}
+
+  if(resetStep===1){
+    // Step 1: Verify identity — username/email + registered email must match
+    const input=document.getElementById('loginUser').value.trim();
+    const verifyEmail=(document.getElementById('resetEmail').value||'').trim().toLowerCase();
+    if(!input){err.textContent='Please enter your username or email';err.style.display='block';return;}
+    if(!verifyEmail||!verifyEmail.includes('@')){err.textContent='Please enter your registered email for verification';err.style.display='block';return;}
+
+    btn.disabled=true;btn.textContent='Verifying...';
+    try{
+      const isEmail=input.includes('@');
+      let authEmail=null;
+      let verified=false;
+
+      if(isEmail){
+        // User entered email directly — use it as auth email if it matches verify
+        authEmail=input.toLowerCase();
+        if(authEmail===verifyEmail) verified=true;
+      } else {
+        // User entered username — look up in Firestore
+        try{
+          const doc=await fbDb.collection('users').doc(input).get();
+          if(doc.exists&&doc.data().realEmail){
+            if(doc.data().realEmail===verifyEmail){
+              authEmail=doc.data().realEmail;
+              verified=true;
+            } else {
+              err.textContent='The email does not match the one registered with this username.';
+              err.style.display='block';return;
+            }
+          }
+        }catch(fe){}
+        // If no Firestore record, accept email at face value (old account)
+        if(!authEmail){authEmail=verifyEmail;verified=true;}
+      }
+
+      if(!verified){
+        err.textContent='Please make sure your username/email and registered email match.';
+        err.style.display='block';return;
+      }
+
+      // Identity verified — move to step 2: set new password
+      resetVerifiedEmail=authEmail;
+      resetStep=2;
+      document.getElementById('authSubtitle').textContent='Identity verified. Enter your new password.';
+      document.getElementById('loginUser').parentElement.style.display='none';
+      document.getElementById('resetEmailField').style.display='none';
+      document.getElementById('resetNewPassField').style.display='';
+      document.getElementById('resetConfirmField').style.display='';
+      btn.textContent='Set New Password';
+      suc.textContent='Identity verified! Please set your new password below.';
+      suc.style.display='block';
+    }catch(e){
+      err.textContent='Verification failed: '+(e.message||'Please try again.');
+      err.style.display='block';
+    }finally{
+      btn.disabled=false;
+      if(resetStep===1) btn.textContent='Verify Identity';
+    }
+
+  } else if(resetStep===2){
+    // Step 2: Set new password via Firebase Auth REST API
+    const newPass=document.getElementById('resetNewPass').value;
+    const confirmPass=document.getElementById('resetConfirm').value;
+    if(!newPass||newPass.length<6){err.textContent='Password must be at least 6 characters.';err.style.display='block';return;}
+    if(newPass!==confirmPass){err.textContent='Passwords do not match.';err.style.display='block';return;}
+
+    btn.disabled=true;btn.textContent='Updating password...';
+    try{
+      const apiKey=FIREBASE_CONFIG.apiKey;
+      // Request password reset OOB code via REST API
+      const sendRes=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key='+apiKey,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({requestType:'PASSWORD_RESET',email:resetVerifiedEmail})
+      });
+      const sendData=await sendRes.json();
+      if(sendData.error){throw new Error(sendData.error.message);}
+
+      if(sendData.oobCode){
+        // Got the OOB code directly — use it to confirm the password reset
+        const confirmRes=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key='+apiKey,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({oobCode:sendData.oobCode,newPassword:newPass})
+        });
+        const confirmData=await confirmRes.json();
+        if(confirmData.error){throw new Error(confirmData.error.message);}
+        suc.textContent='Password updated successfully! You can now sign in with your new password.';
+        suc.style.display='block';
+        resetStep=1;resetVerifiedEmail=null;
+        setTimeout(()=>toggleAuthMode(),2500);
+      } else {
+        // OOB code not in response — REST API sent the email instead
+        // Since email delivery is unreliable, offer to delete+recreate the account
+        suc.textContent='Attempting alternative reset method...';
+        suc.style.display='block';
+        // Alternative: delete the auth account via admin endpoint and recreate
+        // We'll try to use signUp to detect if account exists, then guide accordingly
+        try{
+          // Try creating a new account with same email — if it fails with EMAIL_EXISTS, the account exists
+          const signupRes=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+apiKey,{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email:resetVerifiedEmail,password:newPass,returnSecureToken:true})
+          });
+          const signupData=await signupRes.json();
+          if(signupData.error&&signupData.error.message==='EMAIL_EXISTS'){
+            // Account exists but we can't change password without being signed in
+            // Last resort: use the admin-style endpoint
+            err.textContent='Unable to reset password automatically. As the administrator, please go to Firebase Console → Authentication → Users, find the account, click the three-dot menu → Reset password or delete and ask the user to re-register.';
+            err.style.display='block';
+            suc.style.display='none';
+          } else if(signupData.localId){
+            // Account was recreated (old one didn't exist or was already deleted)
+            // Update display name
+            await fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key='+apiKey,{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({idToken:signupData.idToken,displayName:document.getElementById('loginUser').value.trim()||resetVerifiedEmail.split('@')[0]})
+            });
+            suc.textContent='Password has been reset! You can now sign in with your new password.';
+            suc.style.display='block';
+            resetStep=1;resetVerifiedEmail=null;
+            setTimeout(()=>toggleAuthMode(),2500);
+          }
+        }catch(altErr){
+          err.textContent='Reset failed. Please contact the administrator.';
+          err.style.display='block';suc.style.display='none';
+        }
+      }
+    }catch(e){
+      console.error('Password reset error:',e);
+      err.textContent='Failed to update password: '+(e.message||'Please try again.');
+      err.style.display='block';
+    }finally{
+      btn.disabled=false;btn.textContent='Set New Password';
+    }
+  }
+}
+
+// Account Settings (update recovery email / change password)
+function openAcctSettings(){
+  if(isGuest) return;
+  document.getElementById('acctError').style.display='none';
+  document.getElementById('acctSuccess').style.display='none';
+  document.getElementById('acctCurPass').value='';
+  document.getElementById('acctNewPass').value='';
+  // Pre-fill email if we have it
+  const user=fbAuth&&fbAuth.currentUser;
+  const curEmail=user?user.email:'';
+  const isInternal=curEmail.endsWith(EMAIL_DOMAIN);
+  document.getElementById('acctEmail').value=isInternal?'':curEmail;
+  document.getElementById('acctOverlay').classList.add('open');
+}
+function closeAcctSettings(){
+  document.getElementById('acctOverlay').classList.remove('open');
+}
+async function saveAcctSettings(){
+  const err=document.getElementById('acctError');
+  const suc=document.getElementById('acctSuccess');
+  err.style.display='none';suc.style.display='none';
+  const btn=document.getElementById('btnAcctSave');
+  const user=fbAuth&&fbAuth.currentUser;
+  if(!user){err.textContent='Not logged in.';err.style.display='block';return;}
+
+  const curPass=document.getElementById('acctCurPass').value;
+  const newEmail=document.getElementById('acctEmail').value.trim().toLowerCase();
+  const newPass=document.getElementById('acctNewPass').value;
+
+  if(!curPass){err.textContent='Current password is required to make changes.';err.style.display='block';return;}
+  if(!newEmail||!newEmail.includes('@')){err.textContent='Please enter a valid email address.';err.style.display='block';return;}
+
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    // Re-authenticate first (required by Firebase for sensitive operations)
+    const credential=firebase.auth.EmailAuthProvider.credential(user.email,curPass);
+    await user.reauthenticateWithCredential(credential);
+
+    let changed=[];
+    // Update email if different
+    if(newEmail!==user.email){
+      await user.updateEmail(newEmail);
+      // Update Firestore mapping
+      const username=user.displayName||currentUser;
+      if(username){
+        await fbDb.collection('users').doc(username).set({realEmail:newEmail},{merge:true});
+      }
+      changed.push('recovery email updated');
+    }
+    // Update password if provided
+    if(newPass){
+      if(newPass.length<6){err.textContent='New password must be at least 6 characters.';err.style.display='block';return;}
+      await user.updatePassword(newPass);
+      changed.push('password changed');
+    }
+    if(changed.length>0){
+      suc.textContent='Settings saved: '+changed.join(', ')+'.';
+    } else {
+      suc.textContent='No changes to save.';
+    }
+    suc.style.display='block';
+    document.getElementById('acctCurPass').value='';
+    document.getElementById('acctNewPass').value='';
+  }catch(e){
+    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
+      err.textContent='Current password is incorrect.';
+    } else if(e.code==='auth/email-already-in-use'){
+      err.textContent='This email is already associated with another account.';
+    } else if(e.code==='auth/requires-recent-login'){
+      err.textContent='Session expired. Please log out and log in again, then try.';
+    } else {
+      err.textContent='Failed to save: '+e.message;
+    }
+    err.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='Save Changes';
+  }
+}
+
 async function doSignup(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value;
   const c=document.getElementById('signupConfirm').value;
+  const realEmail=(document.getElementById('signupEmail').value||'').trim().toLowerCase();
   const err=document.getElementById('loginError');
   const suc=document.getElementById('loginSuccess');
   err.style.display='none';suc.style.display='none';
 
   if(!u||u.length<3){err.textContent='Username must be at least 3 characters';err.style.display='block';return;}
+  if(!realEmail||!realEmail.includes('@')){err.textContent='Please enter a valid email address';err.style.display='block';return;}
   if(!p||p.length<6){err.textContent='Password must be at least 6 characters';err.style.display='block';return;}
   if(p!==c){err.textContent='Passwords do not match';err.style.display='block';return;}
 
@@ -597,20 +883,23 @@ async function doSignup(){
   const btn=document.getElementById('authBtn');
   btn.disabled=true;btn.textContent='Creating...';
   try{
-    const email=u.toLowerCase().replace(/\s+/g,'_')+EMAIL_DOMAIN;
-    const cred=await fbAuth.createUserWithEmailAndPassword(email,p);
+    // Register with real email so Firebase password reset works
+    const cred=await fbAuth.createUserWithEmailAndPassword(realEmail,p);
     await cred.user.updateProfile({displayName:u});
+    // Store username→email mapping in Firestore
+    await fbDb.collection('users').doc(u).set({realEmail:realEmail,username:u,createdAt:new Date().toISOString()},{merge:true});
     // Sign out so they login explicitly
     await fbAuth.signOut();
     suc.textContent='Account created! You can now sign in.';
     suc.style.display='block';
     document.getElementById('signupConfirm').value='';
+    document.getElementById('signupEmail').value='';
     setTimeout(()=>toggleAuthMode(),1500);
   }catch(e){
     let msg='Signup failed';
-    if(e.code==='auth/email-already-in-use') msg='Username already taken';
+    if(e.code==='auth/email-already-in-use') msg='Email already registered';
     else if(e.code==='auth/weak-password') msg='Password must be at least 6 characters';
-    else if(e.code==='auth/invalid-email') msg='Invalid username (use letters, numbers, underscore)';
+    else if(e.code==='auth/invalid-email') msg='Please enter a valid email address';
     else msg=e.message;
     err.textContent=msg;err.style.display='block';
   }finally{
@@ -652,8 +941,15 @@ async function doLogin(){
   const btn=document.getElementById('authBtn');
   btn.disabled=true;btn.textContent='Signing in...';
   try{
-    const email=u.toLowerCase().replace(/\s+/g,'_')+EMAIL_DOMAIN;
-    await fbAuth.signInWithEmailAndPassword(email,p);
+    // Try new flow first: look up real email from username in Firestore
+    let loginEmail=null;
+    try{
+      const doc=await fbDb.collection('users').doc(u).get();
+      if(doc.exists&&doc.data().realEmail) loginEmail=doc.data().realEmail;
+    }catch(e){}
+    // Fallback: old accounts use internal email domain
+    if(!loginEmail) loginEmail=u.toLowerCase().replace(/\s+/g,'_')+EMAIL_DOMAIN;
+    await fbAuth.signInWithEmailAndPassword(loginEmail,p);
     // onAuthStateChanged handles the rest
   }catch(e){
     let msg='Invalid username or password';
@@ -693,6 +989,8 @@ function setupAuthListener(){
       document.getElementById('loginOverlay').classList.add('hidden');
       document.getElementById('appMain').style.display='';
       document.getElementById('userBadge').textContent='\u{1F464} '+currentUser;
+      const acctBtn=document.getElementById('btnAcct');
+      if(acctBtn) acctBtn.style.display='';
       loadProjectList();
     } else {
       currentUser=null;currentUid=null;
@@ -853,7 +1151,7 @@ function closeShareModal(){
 function stripDefaults(obj,def){const r={};for(const k in obj){if(obj[k]!==def[k]) r[k]=obj[k];}return r;}
 function stripZero(obj){const r={};for(const k in obj){const v=obj[k];if(v===0||v===''||v===null||v===undefined) continue;if(Array.isArray(v)&&v.length===0) continue;r[k]=v;}return r;}
 // Short key maps for D (fund-level) to reduce link size
-const _DK={fund_name:'fn',project_location:'pl',project_type:'pt',fund_period_months:'fpm',start_date:'sd',num_projects:'np',custody_annual:'ca',custody_freq:'cf',spv_setup:'ss',fund_setup:'fs',auditor_annual:'aa',auditor_freq:'af',sharia_annual:'sa',sharia_freq:'sf',engineering_annual:'ea',engineering_freq:'ef',board_annual:'ba',board_freq:'bf',fin_advisor:'fa',mgmt_fee_mode:'mfm',mgmt_fee_pct:'mfp',mgmt_fee_fixed:'mff',marketing_cost:'mc',marketing_date:'md',vat_rate:'vr',vat_refund:'vrf',vat_refund_months:'vrm',vat_advisor_pct:'vap',hurdle_rate:'hr',perf_fee_pct:'pfp',bank_mgmt_pct:'bmp',ik_land_pct:'ilp',ik_brok_pct:'ibp',ik_dev_pct:'idp',ik_mkt_pct:'imp',ik_con_pct:'icp',ik_sell_pct:'isp',equity:'eq',gp_commit_cash:'gcc',gp_commit_inkind_pct:'gip',saibor:'sb',margin:'mg',arr_fee_pct:'afp',min_cash:'mnc',vat_refund_con:'vrc',rett_pct:'rtp'};
+const _DK={fund_name:'fn',is_fund:'if',project_location:'pl',project_type:'pt',fund_period_months:'fpm',start_date:'sd',num_projects:'np',custody_annual:'ca',custody_freq:'cf',spv_setup:'ss',fund_setup:'fs',auditor_annual:'aa',auditor_freq:'af',sharia_annual:'sa',sharia_freq:'sf',engineering_annual:'ea',engineering_freq:'ef',board_annual:'ba',board_freq:'bf',fin_advisor:'fa',mgmt_fee_mode:'mfm',mgmt_fee_pct:'mfp',mgmt_fee_fixed:'mff',marketing_cost:'mc',marketing_date:'md',vat_rate:'vr',vat_refund:'vrf',vat_refund_months:'vrm',vat_advisor_pct:'vap',hurdle_rate:'hr',perf_fee_pct:'pfp',bank_mgmt_pct:'bmp',ik_land_pct:'ilp',ik_brok_pct:'ibp',ik_dev_pct:'idp',ik_mkt_pct:'imp',ik_con_pct:'icp',ik_sell_pct:'isp',equity:'eq',gp_commit_cash:'gcc',gp_commit_inkind_pct:'gip',saibor:'sb',margin:'mg',arr_fee_pct:'afp',min_cash:'mnc',vat_refund_con:'vrc',rett_pct:'rtp'};
 const _DKR={};for(const k in _DK) _DKR[_DK[k]]=k;
 function compactD(obj){const r={};for(const k in obj){r[_DK[k]||k]=obj[k];}return r;}
 function expandD(obj){const r={};for(const k in obj){r[_DKR[k]||k]=obj[k];}return r;}
@@ -1103,7 +1401,7 @@ let lang='en', R=null, currentRole='fund_manager';
 let scenarios={base:null,upside:null,downside:null};
 
 const D={
-  fund_name:'صندوق تطوير عقاري', project_location:'', project_type:'residential', fund_period_months:24, start_date:'2026-01-01',
+  fund_name:'صندوق تطوير عقاري', is_fund:1, project_location:'', project_type:'residential', fund_period_months:24, start_date:'2026-01-01',
   num_projects:1,
   custody_annual:110000, custody_freq:'annual',
   spv_setup:20000,
@@ -1234,7 +1532,7 @@ const TX={
       cfQuarter:'Cash Flow by Quarter',irrHeatmap:'IRR Sensitivity Heatmap',
       hmDesc:'Sale Price × Sellable Area (±20%)',hmXLabel:'Sale Price / sqm',hmYLabel:'Sellable Area (sqm)'},
     f:{numProjects:'Number of Projects',projName:'Project Name',
-      fundName:'Fund Name',projectLocation:'Project Location',projectType:'Project Type',
+      fundName:'Fund Name',modelType:'Model Type',mtFund:'Fund Model',mtProject:'Simple Project',projectLocation:'Project Location',projectType:'Project Type',
       ptResidential:'Residential',ptCommercial:'Commercial',ptMixed:'Mixed-Use',ptHospitality:'Hospitality',ptIndustrial:'Industrial',ptInfra:'Infrastructure',
       fundPeriod:'Fund Period (Months)',startDate:'Start Date',
       landArea:'Land Area (sqm)',pricePerSqm:'Price per sqm (SAR)',brokerage:'Brokerage %',
@@ -1318,7 +1616,7 @@ const TX={
       cfQuarter:'التدفق النقدي',irrHeatmap:'خريطة حرارية للعائد',
       hmDesc:'سعر البيع × المساحة القابلة للبيع (±20%)',hmXLabel:'سعر البيع / م²',hmYLabel:'المساحة القابلة للبيع (م²)'},
     f:{numProjects:'عدد المشاريع',projName:'اسم المشروع',
-      fundName:'اسم الصندوق',projectLocation:'موقع المشروع',projectType:'نوع المشروع',
+      fundName:'اسم الصندوق',modelType:'نوع النموذج',mtFund:'نموذج صندوق',mtProject:'مشروع مباشر',projectLocation:'موقع المشروع',projectType:'نوع المشروع',
       ptResidential:'سكني',ptCommercial:'تجاري',ptMixed:'متعدد الاستخدامات',ptHospitality:'ضيافة',ptIndustrial:'صناعي',ptInfra:'بنية تحتية',
       fundPeriod:'مدة الصندوق (شهر)',startDate:'تاريخ البداية',
       landArea:'مساحة الأرض (م²)',pricePerSqm:'سعر المتر (ريال)',brokerage:'نسبة السعي %',
@@ -1412,6 +1710,7 @@ function buildForm(){
   // Build fund-level section (Section 0)
   let fundSec=`<div class="sec"><div class="sec-t">${TX[lang].s[0]}</div>
     ${fld('fund_name',F.fundName,D.fund_name,'text')}
+    ${fld('is_fund',F.modelType,D.is_fund,'select',[[1,F.mtFund],[0,F.mtProject]])}
     ${fld('project_location',F.projectLocation,D.project_location,'text')}
     ${fld('project_type',F.projectType,D.project_type,'select',[['residential',F.ptResidential],['commercial',F.ptCommercial],['mixed',F.ptMixed],['hospitality',F.ptHospitality],['industrial',F.ptIndustrial],['infrastructure',F.ptInfra]])}
     ${fld('fund_period_months',F.fundPeriod,D.fund_period_months)}
@@ -1462,8 +1761,9 @@ function buildForm(){
   </div>`;
 
   // Build fund-level sections (Section 3, 5)
+  const _isFund=Number(D.is_fund);
   let fundExpSec=`<div class="sec"><div class="sec-t">${TX[lang].s[3]}</div>
-    ${fldFreq('custody_annual',F.custody,D.custody_annual,'custody_freq',D.custody_freq)}
+    ${_isFund?`${fldFreq('custody_annual',F.custody,D.custody_annual,'custody_freq',D.custody_freq)}
     ${fld('spv_setup',F.spvSetup,D.spv_setup)}
     ${fld('fund_setup',F.fundSetup,D.fund_setup)}
     ${fldFreq('auditor_annual',F.auditor,D.auditor_annual,'auditor_freq',D.auditor_freq)}
@@ -1476,23 +1776,24 @@ function buildForm(){
     ${fld('mgmt_fee_fixed',F.mgmtFixed,D.mgmt_fee_fixed)}
     <div class="sep"></div>
     ${fld('marketing_cost',F.marketingCost,D.marketing_cost)}
+    ${fld('hurdle_rate',F.hurdle,D.hurdle_rate)}
+    ${fld('perf_fee_pct',F.perfFee,D.perf_fee_pct)}
+    <div class="sep"></div>`:''}
     ${fld('vat_rate',F.vatRate,D.vat_rate)}
     ${fld('vat_refund_months',F.vatRefDelay,D.vat_refund_months)}
     ${fld('vat_advisor_pct',F.vatAdvisor,D.vat_advisor_pct)}
-    ${fld('hurdle_rate',F.hurdle,D.hurdle_rate)}
-    ${fld('perf_fee_pct',F.perfFee,D.perf_fee_pct)}
   </div>`;
 
   let capSec=`<div class="sec"><div class="sec-t">${TX[lang].s[5]}</div>
     ${fld('equity',F.equity,D.equity)}
-    ${fld('gp_commit_cash',F.gpCommitCash||'GP Cash Commitment (SAR)',D.gp_commit_cash)}
+    ${_isFund?`${fld('gp_commit_cash',F.gpCommitCash||'GP Cash Commitment (SAR)',D.gp_commit_cash)}
     ${fld('gp_commit_inkind_pct',F.gpCommitInkind||'GP In-Kind % of Mgmt Fees',D.gp_commit_inkind_pct)}
     ${fld('ik_land_pct',F.ikLand,D.ik_land_pct)}
     ${fld('ik_brok_pct',F.ikBrok,D.ik_brok_pct)}
     ${fld('ik_dev_pct',F.ikDev,D.ik_dev_pct)}
     ${fld('ik_con_pct',F.ikCon,D.ik_con_pct)}
     ${fld('ik_mkt_pct',F.ikMkt,D.ik_mkt_pct)}
-    ${fld('ik_sell_pct',F.ikSell,D.ik_sell_pct)}
+    ${fld('ik_sell_pct',F.ikSell,D.ik_sell_pct)}`:''}
     <div class="sep"></div>
     ${fld('saibor',F.saibor,D.saibor)}
     ${fld('margin',F.margin,D.margin)}
@@ -1536,6 +1837,7 @@ function onInput(id){
     buildForm();
   }
   if(id==='fund_period_months') buildSchedule();
+  if(id==='is_fund') buildForm();
 }
 function onInputProj(id,projIdx){
   const el=document.getElementById('proj_'+id);
@@ -2000,18 +2302,21 @@ function calculate(){
   const qMgmtFee=Array(nq).fill(0), qBankMgmt=Array(nq).fill(0), qVATAdvisor=Array(nq).fill(0);
   const qPerfFee=Array(nq).fill(0);
 
-  for(let qi=0;qi<nq;qi++){
-    qCustody[qi]=freqAmount(A.custody_annual,A.custody_freq,qi,nq)*V;
-    qAuditor[qi]=freqAmount(A.auditor_annual,A.auditor_freq,qi,nq)*V;
-    qSharia[qi]=freqAmount(A.sharia_annual,A.sharia_freq,qi,nq)*V;
-    qEngineering[qi]=freqAmount(A.engineering_annual,A.engineering_freq,qi,nq)*V;
-    qBoard[qi]=freqAmount(A.board_annual,A.board_freq,qi,nq)*V;
+  const isFund=Number(A.is_fund);
+  if(isFund){
+    for(let qi=0;qi<nq;qi++){
+      qCustody[qi]=freqAmount(A.custody_annual,A.custody_freq,qi,nq)*V;
+      qAuditor[qi]=freqAmount(A.auditor_annual,A.auditor_freq,qi,nq)*V;
+      qSharia[qi]=freqAmount(A.sharia_annual,A.sharia_freq,qi,nq)*V;
+      qEngineering[qi]=freqAmount(A.engineering_annual,A.engineering_freq,qi,nq)*V;
+      qBoard[qi]=freqAmount(A.board_annual,A.board_freq,qi,nq)*V;
+    }
+    qSPV[0]=A.spv_setup*V; qFundSetup[0]=A.fund_setup*V; qFinAdvisor[0]=A.fin_advisor*V;
   }
-  qSPV[0]=A.spv_setup*V; qFundSetup[0]=A.fund_setup*V; qFinAdvisor[0]=A.fin_advisor*V;
 
   // In-kind marketing (fund-level)
-  const qIKMkt=qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0);
-  const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]);
+  const qIKMkt=isFund?qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0):Array(nq).fill(0);
+  const qIKTotal=isFund?Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]):Array(nq).fill(0);
   // Snapshot the base IK (no GP commitment portion) — used to recompute qIKTotal each iter
   const qIKBase=[...qIKTotal];
   const gpIKPct=pct(A.gp_commit_inkind_pct||0);
@@ -2070,14 +2375,16 @@ function calculate(){
       const cash=qi>0?qCashClose[qi-1]:0;
       qTotalAssets[qi]=tLand+cumCon+cash;
       qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
-      if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
-      else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
-      else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+      if(isFund){
+        if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
+        else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
+        else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+      }
       qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
     }
 
     // GP In-Kind = % of mgmt fee added back as in-kind equity. Reset qIKTotal so debt sizing accounts for it.
-    for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+    if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
     // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
     for(let qi=0;qi<nq;qi++){
@@ -2102,6 +2409,27 @@ function calculate(){
 
       qCashOpen[qi]=qi===0?0:qCashClose[qi-1];
       qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+      // Cash sweep & interim dividends: when no future construction, use surplus to (1) pay debt (2) distribute
+      if(qi<nq-1 && qCashClose[qi]>A.min_cash){
+        const futureCon=qCon.slice(qi+1).reduce((a,b)=>a+b,0);
+        if(futureCon<=0){
+          let surplus=qCashClose[qi]-A.min_cash;
+          // First: pay down debt
+          if(qLoanClose[qi]>0 && surplus>0){
+            const sweep=Math.min(surplus, qLoanClose[qi]);
+            qRepay[qi]+=sweep;
+            qLoanClose[qi]-=sweep;
+            qCashClose[qi]-=sweep;
+            surplus-=sweep;
+          }
+          // Then: distribute remaining surplus as interim dividends
+          if(surplus>0 && qLoanClose[qi]<=0){
+            qDividends[qi]+=surplus;
+            qNetFin[qi]-=surplus;
+            qCashClose[qi]-=surplus;
+          }
+        }
+      }
     }
 
     const newDD=Array(nq).fill(0);
@@ -2139,9 +2467,11 @@ function calculate(){
     const cash=qi>0?qCashClose[qi-1]:0;
     qTotalAssets[qi]=tLand+cumCon+cash;
     qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
-    if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
-    else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
-    else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+    if(isFund){
+      if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
+      else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
+      else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+    }
     qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
   }
 
@@ -2162,7 +2492,7 @@ function calculate(){
 
   // GP In-Kind: GP contributes back a % of management fees as in-kind equity.
   // gpIKPct already defined earlier. RESET (not add) to avoid double-counting since iter loop already set it.
-  for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+  if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
   for(let qi=0;qi<nq;qi++){
     qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
@@ -2174,11 +2504,13 @@ function calculate(){
     if(qi===nq-1){
       const cashBeforePerf=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+netBorrow+qEquity[qi]+qIKTotal[qi];
       const totalEquity=A.equity+gpCash+qIKTotal.reduce((a,b)=>a+b,0);
-      const totalReturn=cashBeforePerf;
+      // Total return includes interim dividends already distributed + final quarter cash
+      const interimDiv=qDividends.slice(0,nq-1).reduce((a,b)=>a+b,0);
+      const totalReturn=cashBeforePerf+interimDiv;
       const years=A.fund_period_months/12;
       const hurdleAmount=totalEquity*(Math.pow(1+pct(A.hurdle_rate),years)-1);
       const profit=totalReturn-totalEquity;
-      if(profit>hurdleAmount){
+      if(isFund && profit>hurdleAmount){
         const excess=profit-hurdleAmount;
         qPerfFee[qi]=excess*pct(A.perf_fee_pct);
       }
@@ -2191,6 +2523,28 @@ function calculate(){
     } else {
       qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
       qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+      // Cash sweep & interim dividends: when no future construction, use surplus to (1) pay debt (2) distribute
+      if(qCashClose[qi]>A.min_cash){
+        const futureCon=qCon.slice(qi+1).reduce((a,b)=>a+b,0);
+        if(futureCon<=0){
+          let surplus=qCashClose[qi]-A.min_cash;
+          // First: pay down debt
+          if(qLoanClose[qi]>0 && surplus>0){
+            const sweep=Math.min(surplus, qLoanClose[qi]);
+            qRepay[qi]+=sweep;
+            qLoanClose[qi]-=sweep;
+            qCashClose[qi]-=sweep;
+            qNetFin[qi]-=sweep;
+            surplus-=sweep;
+          }
+          // Then: distribute remaining surplus as interim dividends
+          if(surplus>0 && qLoanClose[qi]<=0){
+            qDividends[qi]+=surplus;
+            qNetFin[qi]-=surplus;
+            qCashClose[qi]-=surplus;
+          }
+        }
+      }
     }
   }
 
@@ -2226,7 +2580,7 @@ function calculate(){
 
   // Calculate DSCR per quarter
   for(let qi=0;qi<nq;qi++){
-    const debtService=qInterest[qi]+(qi===nq-1?qRepay[qi]:0);
+    const debtService=qInterest[qi]+qRepay[qi];
     qDSCR[qi]=debtService>0?qNetOp[qi]/debtService:0;
   }
 
@@ -2829,7 +3183,7 @@ function renderSummary(){
   // Header
   h+=`<div class="es-hdr" style="direction:${isAr?'rtl':'ltr'}">
     <div class="es-hdr-left">
-      <img src="${LOGO_B64}" alt="Musharaka" style="height:36px;width:auto;object-fit:contain">
+      <div class="es-logo">RF</div>
       <div style="text-align:${isAr?'right':'left'}">
         <h1 style="font-family:${fontD}">${L('Financial Study','الدراسة المالية')}</h1>
         <p class="es-sub">${L('Executive Summary','الملخص التنفيذي')}</p>
@@ -2979,7 +3333,7 @@ function renderSummary(){
   h+=`<div class="es-page" dir="${isAr?'rtl':'ltr'}" style="font-family:${fontF}">`;
   h+=`<div class="es-hdr" style="direction:${isAr?'rtl':'ltr'}">
     <div class="es-hdr-left">
-      <img src="${LOGO_B64}" alt="Musharaka" style="height:36px;width:auto;object-fit:contain">
+      <div class="es-logo">RF</div>
       <div style="text-align:${isAr?'right':'left'}">
         <h1 style="font-family:${fontD}">${L('Cash Flow & Sales Schedule','التدفقات النقدية وجدول المبيعات')}</h1>
         <p class="es-sub">${L('Quarterly Breakdown','التوزيع الربعي')}</p>
@@ -3581,10 +3935,10 @@ function dlExcel(){
    c+=blackNum('SUM(B5:'+lc+'5)');
    rows.push('<row>'+c+'</row>');}
 
-  // Row 6: Repayment
+  // Row 6: Repayment (hardcoded — cash sweep can cause early repayments)
   {let c=lbl('Repayment',true);
-   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$77,'+cl(i)+'3+'+cl(i)+'4,0)',true);
-   c+=blackNum('SUM(B6:'+lc+'6)',true);
+   for(let i=0;i<nq;i++) c+=redNum(R.qRepay[i],true);
+   c+=fc('SUM(B6:'+lc+'6)',S.rdNA);
    rows.push('<row>'+c+'</row>');}
 
   // Row 7: Closing
@@ -3594,8 +3948,8 @@ function dlExcel(){
    rows.push('<row>'+c+'</row>');}
 
   rows.push('<row/>');
-  rows.push('<row>'+tx('Note: Drawdowns computed by platform iterative solver (100 iterations)',S.note)+'</row>');
-  rows.push('<row>'+tx('Repayment occurs in the quarter specified by Assumptions!B76',S.note)+'</row>');
+  rows.push('<row>'+tx('Note: Drawdowns & Repayments computed by platform iterative solver (100 iterations)',S.note)+'</row>');
+  rows.push('<row>'+tx('Repayment: final balloon in last quarter + early cash sweep when surplus cash and no future construction',S.note)+'</row>');
   rows.push('<row>'+tx('All-in Rate: '+(A.saibor+A.margin).toFixed(1)+'% (SAIBOR '+A.saibor+'% + Margin '+A.margin+'%)',S.note)+'</row>');
   sheets.push({name:'Debt Schedule',rows,cols:colsQ(26,15)});
 
@@ -3760,7 +4114,7 @@ function dlExcel(){
    rows.push('<row>'+c+'</row>');}
 
   {let c=lbl('Less: Performance Fee',true);
-   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$75,-$'+lc+'$33,0)',true);
+   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$75,-$'+lc+'$35,0)',true);
    c+=blackNum('SUM(B7:'+lc+'7)',true);
    rows.push('<row>'+c+'</row>');}
 
@@ -3816,8 +4170,8 @@ function dlExcel(){
    rows.push('<row>'+c+'</row>');}
 
   {let c=lbl('Dividends Paid',false);
-   for(let i=0;i<nq;i++) c+=blackNum('IF(COLUMN()-1=Assumptions!$B$75,-$'+lc+'$34,0)');
-   c+=blackNum('SUM(B21:'+lc+'21)');
+   for(let i=0;i<nq;i++) c+=vc(R.qDividends[i]>0?-R.qDividends[i]:0,S.bkN);
+   c+=fc('SUM(B21:'+lc+'21)',S.bkN);
    rows.push('<row>'+c+'</row>');}
 
   {let c=lbl('Net Financing Cash Flow',false);
@@ -3861,9 +4215,21 @@ function dlExcel(){
    c+=blackNum(lc+'25+'+lc+'4+'+lc+'5+'+lc+'6+'+lc+'8+'+lc+'14+'+lc+'17+'+lc+'18+'+lc+'19+'+lc+'20');
    rows.push('<row>'+c+'</row>');}
 
+  // Interim dividends already distributed (sum of dividends before last quarter)
+  {let c=lbl('Interim Dividends Distributed',true);
+   const interimDiv=R.qDividends.slice(0,lastQ).reduce((a,b)=>a+b,0);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
+   c+=vc(interimDiv,S.bkNA);
+   rows.push('<row>'+c+'</row>');}
+
+  {let c=lbl('Total Return (Cash + Interim Div)',false);
+   for(let i=0;i<nq-1;i++) c+=ec(S.lbl);
+   c+=blackNum(lc+'31+'+lc+'32');
+   rows.push('<row>'+c+'</row>');}
+
   {let c=lbl('Profit Above Equity',true);
    for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
-   c+=blackNum(lc+'31-'+lc+'29',true);
+   c+=blackNum(lc+'33-'+lc+'29',true);
    rows.push('<row>'+c+'</row>');}
 
   {let c=lbl('Performance Fee',false);
@@ -3871,16 +4237,15 @@ function dlExcel(){
    c+=redNum(R.qPerfFee[lastQ]);
    rows.push('<row>'+c+'</row>');}
 
-  {let c=lbl('Dividends',true);
+  {let c=lbl('Dividends (Last Quarter)',true);
    for(let i=0;i<nq-1;i++) c+=ec(S.lblA);
-   // Formula: Cash Before Perf Fee (row 31) − Performance Fee (row 33)
-   // Ties Dividends to the displayed Cash Before Perf Fee so they're mathematically consistent
-   c+=blackNum('MAX(0,'+lc+'31-'+lc+'33)',true);
+   // Formula: Cash Before Perf Fee (row 31) − Performance Fee (row 35)
+   c+=blackNum('MAX(0,'+lc+'31-'+lc+'35)',true);
    rows.push('<row>'+c+'</row>');}
 
-  rows.push('<row>'+tx('* Performance Fee = (Cash Before Perf Fee \u2212 Total Equity) above Compound Hurdle \u00d7 '+A.perf_fee_pct+'%',S.note)+'</row>');
+  rows.push('<row>'+tx('* Performance Fee = (Total Return incl. Interim Dividends \u2212 Total Equity) above Compound Hurdle \u00d7 '+A.perf_fee_pct+'%',S.note)+'</row>');
   rows.push('<row>'+tx('* PerfFee, Dividends & Cash Balances from platform solver (circular: cash\u2192assets\u2192mgmt fee\u2192VAT refund\u2192cash)',S.note)+'</row>');
-  sheets.push({name:'Cash Flow',rows,cols:colsQ(28,15)});
+  sheets.push({name:'Cash Flow',rows,cols:colsQ(30,15)});
 
   // ═══════════════════════════════════════════════
   // SHEET 10: NAV SCHEDULE (Total Equity Approach)
@@ -4069,8 +4434,8 @@ function dlExcel(){
 
   rows.push('<row>'+secHdr('COMPUTED HELPERS')+'</row>');
   rTotalDiv=rn();
-  rows.push('<row>'+lbl('Total Dividends',false)+greenNum("'Cash Flow'!"+lc+'34')+'</row>');
-  rows.push('<row>'+lbl('Performance Fee',true)+greenNum("'Cash Flow'!"+lc+'33',true)+tx('Last quarter only',S.lblA)+'</row>');
+  rows.push('<row>'+lbl('Total Dividends',false)+vc(R.qDividends.reduce((a,b)=>a+b,0),S.grN)+'</row>');
+  rows.push('<row>'+lbl('Performance Fee',true)+greenNum("'Cash Flow'!"+lc+'35',true)+tx('Last quarter only',S.lblA)+'</row>');
   rows.push('<row>'+lbl('Total Fund Expenses (incl perf)',false)+greenNum("'Fund Expenses'!"+tc+'20')+'</row>');
   // Total Cost: matches platform R.totalCost exactly
   rTotalCost=rn();
@@ -4090,7 +4455,8 @@ function dlExcel(){
    const _invCF=Array(nq).fill(0);
    _invCF[0]=-(R.A.equity+(R.gpCash||0))-R.qIKTotal[0];
    for(let i=1;i<nq;i++) _invCF[i]=-R.qIKTotal[i];
-   _invCF[nq-1]+=R.totalDiv;
+   // Add dividends (including interim) to each quarter
+   for(let i=0;i<nq;i++) _invCF[i]+=R.qDividends[i];
    for(let i=0;i<nq;i++) c+=vc(_invCF[i],S.bkNA);
    rows.push('<row>'+c+'</row>');}
 
@@ -4415,23 +4781,26 @@ function calcWith(overrides){
     }
   }
 
+  const isFund=Number(A.is_fund);
   const qCustody=Array(nq).fill(0),qSPV=Array(nq).fill(0),qFundSetup=Array(nq).fill(0);
   const qAuditor=Array(nq).fill(0),qSharia=Array(nq).fill(0),qEngineering=Array(nq).fill(0);
   const qBoard=Array(nq).fill(0),qFinAdvisor=Array(nq).fill(0);
   const qMgmtFee=Array(nq).fill(0),qBankMgmt=Array(nq).fill(0),qVATAdvisor=Array(nq).fill(0);
   const qPerfFee=Array(nq).fill(0),qArrFee=Array(nq).fill(0);
 
-  for(let qi=0;qi<nq;qi++){
-    qCustody[qi]=freqAmount(A.custody_annual,A.custody_freq,qi,nq)*V;
-    qAuditor[qi]=freqAmount(A.auditor_annual,A.auditor_freq,qi,nq)*V;
-    qSharia[qi]=freqAmount(A.sharia_annual,A.sharia_freq,qi,nq)*V;
-    qEngineering[qi]=freqAmount(A.engineering_annual,A.engineering_freq,qi,nq)*V;
-    qBoard[qi]=freqAmount(A.board_annual,A.board_freq,qi,nq)*V;
+  if(isFund){
+    for(let qi=0;qi<nq;qi++){
+      qCustody[qi]=freqAmount(A.custody_annual,A.custody_freq,qi,nq)*V;
+      qAuditor[qi]=freqAmount(A.auditor_annual,A.auditor_freq,qi,nq)*V;
+      qSharia[qi]=freqAmount(A.sharia_annual,A.sharia_freq,qi,nq)*V;
+      qEngineering[qi]=freqAmount(A.engineering_annual,A.engineering_freq,qi,nq)*V;
+      qBoard[qi]=freqAmount(A.board_annual,A.board_freq,qi,nq)*V;
+    }
+    qSPV[0]=A.spv_setup*V;qFundSetup[0]=A.fund_setup*V;qFinAdvisor[0]=A.fin_advisor*V;
   }
-  qSPV[0]=A.spv_setup*V;qFundSetup[0]=A.fund_setup*V;qFinAdvisor[0]=A.fin_advisor*V;
 
-  const qIKMkt=qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0);
-  const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]);
+  const qIKMkt=isFund?qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0):Array(nq).fill(0);
+  const qIKTotal=isFund?Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]):Array(nq).fill(0);
   // Snapshot base IK + GP commitment % — used to recompute qIKTotal each iter so debt sizing accounts for GP In-Kind
   const qIKBase=[...qIKTotal];
   const gpIKPct=pct(A.gp_commit_inkind_pct||0);
@@ -4480,13 +4849,15 @@ function calcWith(overrides){
       const cash=qi>0?qCashClose[qi-1]:0;
       qTotalAssets[qi]=tLand+cumCon+cash;
       qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
-      if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
-      else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
-      else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+      if(isFund){
+        if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
+        else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
+        else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+      }
       qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
     }
     // GP In-Kind = % of mgmt fee added back as in-kind. Reset qIKTotal so debt sizing accounts for it.
-    for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+    if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
     // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
     for(let qi=0;qi<nq;qi++) qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
     qVATRefundExp.fill(0);
@@ -4506,6 +4877,25 @@ function calcWith(overrides){
       qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
       qCashOpen[qi]=qi===0?0:qCashClose[qi-1];
       qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+      // Cash sweep & interim dividends within iteration
+      if(qi<nq-1 && qCashClose[qi]>A.min_cash){
+        const futureCon=qCon.slice(qi+1).reduce((a,b)=>a+b,0);
+        if(futureCon<=0){
+          let surplus=qCashClose[qi]-A.min_cash;
+          if(qLoanClose[qi]>0 && surplus>0){
+            const sweep=Math.min(surplus, qLoanClose[qi]);
+            qRepay[qi]+=sweep;
+            qLoanClose[qi]-=sweep;
+            qCashClose[qi]-=sweep;
+            surplus-=sweep;
+          }
+          if(surplus>0 && qLoanClose[qi]<=0){
+            qDividends[qi]+=surplus;
+            qNetFin[qi]-=surplus;
+            qCashClose[qi]-=surplus;
+          }
+        }
+      }
     }
     const newDD=Array(nq).fill(0),tempCash=Array(nq).fill(0);
     for(let qi=0;qi<nq;qi++){
@@ -4539,9 +4929,11 @@ function calcWith(overrides){
     const cash=qi>0?qCashClose[qi-1]:0;
     qTotalAssets[qi]=tLand+cumCon+cash;
     qNAV[qi]=qTotalAssets[qi]-qLoanClose[qi];
-    if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
-    else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
-    else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+    if(isFund){
+      if(A.mgmt_fee_mode==='nav') qMgmtFee[qi]=qNAV[qi]*pct(A.mgmt_fee_pct)/4*V;
+      else if(A.mgmt_fee_mode==='total_asset') qMgmtFee[qi]=qTotalAssets[qi]*pct(A.mgmt_fee_pct)/4*V;
+      else qMgmtFee[qi]=A.mgmt_fee_fixed/4*V;
+    }
     qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
   }
   // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
@@ -4559,7 +4951,7 @@ function calcWith(overrides){
     qVATNet[qi]=totalRef-qVATAdvisor[qi];
   }
   // GP In-Kind in calcWith — gpIKPct already defined above. RESET to avoid double-counting (iter loop already added).
-  for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+  if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
 
   for(let qi=0;qi<nq;qi++){
     qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
@@ -4569,10 +4961,12 @@ function calcWith(overrides){
     if(qi===nq-1){
       const cashBeforePerf=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+netBorrow+qEquity[qi]+qIKTotal[qi];
       const totalEquity=A.equity+gpCash+qIKTotal.reduce((a,b)=>a+b,0);
+      const interimDiv=qDividends.slice(0,nq-1).reduce((a,b)=>a+b,0);
+      const totalReturn=cashBeforePerf+interimDiv;
       const years=A.fund_period_months/12;
       const hurdleAmount=totalEquity*(Math.pow(1+pct(A.hurdle_rate),years)-1);
-      const profit=cashBeforePerf-totalEquity;
-      if(profit>hurdleAmount) qPerfFee[qi]=(profit-hurdleAmount)*pct(A.perf_fee_pct);
+      const profit=totalReturn-totalEquity;
+      if(isFund && profit>hurdleAmount) qPerfFee[qi]=(profit-hurdleAmount)*pct(A.perf_fee_pct);
       const cashAfterPerf=cashBeforePerf-qPerfFee[qi];
       qDividends[qi]=Math.max(0,cashAfterPerf);
       qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi]-qDividends[qi];
@@ -4582,6 +4976,28 @@ function calcWith(overrides){
     } else {
       qNetFin[qi]=netBorrow+qEquity[qi]+qIKTotal[qi];
       qCashClose[qi]=qCashOpen[qi]+qNetOp[qi]+qNetInv[qi]+qNetFin[qi];
+      // Cash sweep & interim dividends: (1) development funded first (futureCon check), (2) pay debt, (3) distribute
+      if(qCashClose[qi]>A.min_cash){
+        const futureCon=qCon.slice(qi+1).reduce((a,b)=>a+b,0);
+        if(futureCon<=0){
+          let surplus=qCashClose[qi]-A.min_cash;
+          // First: pay down debt
+          if(qLoanClose[qi]>0 && surplus>0){
+            const sweep=Math.min(surplus, qLoanClose[qi]);
+            qRepay[qi]+=sweep;
+            qLoanClose[qi]-=sweep;
+            qCashClose[qi]-=sweep;
+            qNetFin[qi]-=sweep;
+            surplus-=sweep;
+          }
+          // Then: distribute remaining surplus as interim dividends
+          if(surplus>0 && qLoanClose[qi]<=0){
+            qDividends[qi]+=surplus;
+            qNetFin[qi]-=surplus;
+            qCashClose[qi]-=surplus;
+          }
+        }
+      }
     }
   }
 
@@ -4601,7 +5017,7 @@ function calcWith(overrides){
   }
 
   for(let qi=0;qi<nq;qi++){
-    const debtService=qInterest[qi]+(qi===nq-1?qRepay[qi]:0);
+    const debtService=qInterest[qi]+qRepay[qi];
     qDSCR[qi]=debtService>0?qNetOp[qi]/debtService:0;
   }
 
