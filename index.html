@@ -2314,9 +2314,9 @@ function calculate(){
     qSPV[0]=A.spv_setup*V; qFundSetup[0]=A.fund_setup*V; qFinAdvisor[0]=A.fin_advisor*V;
   }
 
-  // In-kind marketing (fund-level)
-  const qIKMkt=isFund?qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0):Array(nq).fill(0);
-  const qIKTotal=isFund?Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]):Array(nq).fill(0);
+  // In-kind marketing
+  const qIKMkt=qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0);
+  const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]);
   // Snapshot the base IK (no GP commitment portion) — used to recompute qIKTotal each iter
   const qIKBase=[...qIKTotal];
   const gpIKPct=pct(A.gp_commit_inkind_pct||0);
@@ -2384,7 +2384,7 @@ function calculate(){
     }
 
     // GP In-Kind = % of mgmt fee added back as in-kind equity. Reset qIKTotal so debt sizing accounts for it.
-    if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+    for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+(isFund?qMgmtFee[qi]*gpIKPct:0);
 
     // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
     for(let qi=0;qi<nq;qi++){
@@ -2492,7 +2492,7 @@ function calculate(){
 
   // GP In-Kind: GP contributes back a % of management fees as in-kind equity.
   // gpIKPct already defined earlier. RESET (not add) to avoid double-counting since iter loop already set it.
-  if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+  for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+(isFund?qMgmtFee[qi]*gpIKPct:0);
 
   for(let qi=0;qi<nq;qi++){
     qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
@@ -4799,8 +4799,8 @@ function calcWith(overrides){
     qSPV[0]=A.spv_setup*V;qFundSetup[0]=A.fund_setup*V;qFinAdvisor[0]=A.fin_advisor*V;
   }
 
-  const qIKMkt=isFund?qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0):Array(nq).fill(0);
-  const qIKTotal=isFund?Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]):Array(nq).fill(0);
+  const qIKMkt=qMkt.map(v=>v>0?pct(A.ik_mkt_pct)*v/V:0);
+  const qIKTotal=Array.from({length:nq},(_,i)=>qIKLand[i]+qIKBrok[i]+qIKDev[i]+qIKCon[i]+qIKMkt[i]+qIKSell[i]);
   // Snapshot base IK + GP commitment % — used to recompute qIKTotal each iter so debt sizing accounts for GP In-Kind
   const qIKBase=[...qIKTotal];
   const gpIKPct=pct(A.gp_commit_inkind_pct||0);
@@ -4857,7 +4857,7 @@ function calcWith(overrides){
       qTotalFundExp[qi]=baseExp+qMgmtFee[qi];
     }
     // GP In-Kind = % of mgmt fee added back as in-kind. Reset qIKTotal so debt sizing accounts for it.
-    if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+    for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+(isFund?qMgmtFee[qi]*gpIKPct:0);
     // Expense VAT — Interest EXCLUDED (bank loan interest is VAT-exempt in KSA)
     for(let qi=0;qi<nq;qi++) qExpVAT[qi]=qTotalFundExp[qi]-qTotalFundExp[qi]/V;
     qVATRefundExp.fill(0);
@@ -4951,7 +4951,7 @@ function calcWith(overrides){
     qVATNet[qi]=totalRef-qVATAdvisor[qi];
   }
   // GP In-Kind in calcWith — gpIKPct already defined above. RESET to avoid double-counting (iter loop already added).
-  if(isFund) for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+qMgmtFee[qi]*gpIKPct;
+  for(let qi=0;qi<nq;qi++) qIKTotal[qi]=qIKBase[qi]+(isFund?qMgmtFee[qi]*gpIKPct:0);
 
   for(let qi=0;qi<nq;qi++){
     qNetOp[qi]=qGrossSales[qi]+qVATNet[qi]-qTotalFundExp[qi]-qInterest[qi];
