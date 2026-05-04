@@ -1775,10 +1775,10 @@ function buildForm(){
     ${fld('mgmt_fee_pct',F.mgmtPct,D.mgmt_fee_pct)}
     ${fld('mgmt_fee_fixed',F.mgmtFixed,D.mgmt_fee_fixed)}
     <div class="sep"></div>
-    ${fld('marketing_cost',F.marketingCost,D.marketing_cost)}
     ${fld('hurdle_rate',F.hurdle,D.hurdle_rate)}
     ${fld('perf_fee_pct',F.perfFee,D.perf_fee_pct)}
     <div class="sep"></div>`:''}
+    ${fld('marketing_cost',F.marketingCost,D.marketing_cost)}
     ${fld('vat_rate',F.vatRate,D.vat_rate)}
     ${fld('vat_refund_months',F.vatRefDelay,D.vat_refund_months)}
     ${fld('vat_advisor_pct',F.vatAdvisor,D.vat_advisor_pct)}
@@ -1787,13 +1787,13 @@ function buildForm(){
   let capSec=`<div class="sec"><div class="sec-t">${TX[lang].s[5]}</div>
     ${fld('equity',F.equity,D.equity)}
     ${_isFund?`${fld('gp_commit_cash',F.gpCommitCash||'GP Cash Commitment (SAR)',D.gp_commit_cash)}
-    ${fld('gp_commit_inkind_pct',F.gpCommitInkind||'GP In-Kind % of Mgmt Fees',D.gp_commit_inkind_pct)}
+    ${fld('gp_commit_inkind_pct',F.gpCommitInkind||'GP In-Kind % of Mgmt Fees',D.gp_commit_inkind_pct)}`:''}
     ${fld('ik_land_pct',F.ikLand,D.ik_land_pct)}
     ${fld('ik_brok_pct',F.ikBrok,D.ik_brok_pct)}
     ${fld('ik_dev_pct',F.ikDev,D.ik_dev_pct)}
     ${fld('ik_con_pct',F.ikCon,D.ik_con_pct)}
     ${fld('ik_mkt_pct',F.ikMkt,D.ik_mkt_pct)}
-    ${fld('ik_sell_pct',F.ikSell,D.ik_sell_pct)}`:''}
+    ${fld('ik_sell_pct',F.ikSell,D.ik_sell_pct)}
     <div class="sep"></div>
     ${fld('saibor',F.saibor,D.saibor)}
     ${fld('margin',F.margin,D.margin)}
