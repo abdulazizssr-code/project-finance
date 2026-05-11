@@ -230,6 +230,97 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 .footer{text-align:center;padding:32px 40px;color:var(--on-surface-vl);font-size:.85rem;margin-top:48px;background:var(--surface-cl)}
 .footer span{color:var(--secondary);font-weight:600}
 
+/* ── ACTUALS TAB ── */
+.act-section{margin-bottom:32px}
+.act-section h2{font-family:'Noto Serif',serif;font-size:1.15rem;color:var(--primary);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--outline)}
+.act-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;background:var(--surface-cl);padding:20px;border-radius:var(--radius);margin-bottom:16px}
+.act-form label{font-size:.78rem;font-weight:600;color:var(--on-surface-v);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block}
+.act-form input,.act-form select,.act-form textarea{width:100%;padding:10px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.9rem;font-family:inherit;background:var(--surface-cw);transition:var(--t)}
+.act-form input:focus,.act-form select:focus,.act-form textarea:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(0,50,45,.08)}
+.act-form textarea{resize:vertical;min-height:40px}
+.act-form .act-full{grid-column:1/-1}
+.act-form .act-btn-row{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+.act-btn{padding:10px 24px;border:none;border-radius:var(--radius-s);font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:var(--t)}
+.act-btn-add{background:var(--primary);color:#fff}.act-btn-add:hover{background:var(--primary-c)}
+.act-btn-cancel{background:var(--surface-ch);color:var(--on-surface-v)}.act-btn-cancel:hover{background:var(--outline)}
+.act-btn-del{background:var(--error);color:#fff;padding:6px 12px;font-size:.8rem}.act-btn-del:hover{opacity:.85}
+.act-btn-edit{background:var(--secondary);color:#fff;padding:6px 12px;font-size:.8rem}.act-btn-edit:hover{opacity:.85}
+.act-btn-open{background:var(--primary);color:#fff;padding:8px 20px;font-size:.88rem;display:inline-flex;align-items:center;gap:6px}
+.act-bva{width:100%;overflow-x:auto;margin-bottom:24px}
+.act-bva table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:800px}
+.act-bva th,.act-bva td{padding:8px 10px;border:1px solid var(--outline);text-align:right;white-space:nowrap}
+.act-bva th{background:var(--primary);color:#fff;font-weight:600;font-size:.78rem;position:sticky;top:0}
+.act-bva th:first-child{text-align:left;min-width:160px}
+[dir=rtl] .act-bva th:first-child{text-align:right}
+.act-bva .act-cat-hd{background:var(--surface-cl);font-weight:700;color:var(--primary);text-align:left;font-size:.85rem}
+[dir=rtl] .act-bva .act-cat-hd{text-align:right}
+.act-bva .act-row-bgt{background:var(--surface-cw);color:var(--on-surface-v)}
+.act-bva .act-row-act{background:var(--surface-cw);font-weight:600}
+.act-bva .act-row-var{background:var(--surface-cl)}
+.act-bva .act-over{color:var(--error);font-weight:700}
+.act-bva .act-under{color:var(--success);font-weight:700}
+.act-bva .act-total-col{background:rgba(0,50,45,.06);font-weight:700}
+.act-bva .act-sect-total{background:var(--surface-ch);font-weight:700;border-top:2px solid var(--primary)}
+.act-log table{width:100%;border-collapse:collapse;font-size:.84rem}
+.act-log th,.act-log td{padding:10px 12px;border-bottom:1px solid var(--outline);text-align:left}
+[dir=rtl] .act-log th,[dir=rtl] .act-log td{text-align:right}
+.act-log th{background:var(--surface-cl);font-weight:600;color:var(--on-surface-v);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}
+.act-log tr:hover{background:rgba(0,50,45,.02)}
+.act-log .act-amt{font-family:'Work Sans',monospace;font-weight:600}
+.act-log .act-actions{display:flex;gap:6px}
+.act-empty{text-align:center;padding:40px;color:var(--on-surface-vl);font-size:.95rem}
+.act-filters{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.act-filters select,.act-filters input{padding:8px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.85rem;font-family:inherit;background:var(--surface-cw)}
+.act-summary-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.act-sum-card{background:var(--surface-cw);border:1.5px solid var(--outline);border-radius:var(--radius);padding:16px;text-align:center}
+.act-sum-card .act-sum-label{font-size:.78rem;font-weight:600;color:var(--on-surface-vl);text-transform:uppercase;letter-spacing:.04em}
+.act-sum-card .act-sum-val{font-size:1.3rem;font-weight:800;color:var(--primary);margin-top:4px;font-family:'Work Sans',monospace}
+.act-sum-card .act-sum-sub{font-size:.78rem;color:var(--on-surface-vl);margin-top:2px}
+
+/* ── IMPORT ── */
+.import-methods{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px}
+.import-method{background:var(--surface-cl);padding:20px;border-radius:var(--radius);border:1.5px solid var(--outline)}
+.import-method h4{margin:0 0 12px;font-size:.95rem;color:var(--primary)}
+.import-method input[type=file]{width:100%;padding:10px;border:2px dashed var(--outline);border-radius:var(--radius-s);background:var(--surface-cw);cursor:pointer}
+.import-method textarea{width:100%;padding:10px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.84rem;font-family:monospace;resize:vertical;background:var(--surface-cw)}
+.import-hint{font-size:.78rem;color:var(--on-surface-vl);margin-top:6px}
+.import-review{width:100%;overflow-x:auto;margin-bottom:16px}
+.import-review table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:900px}
+.import-review th,.import-review td{padding:8px 10px;border:1px solid var(--outline);text-align:right}
+[dir=rtl] .import-review th,[dir=rtl] .import-review td{text-align:left}
+.import-review th{background:var(--primary);color:#fff;font-weight:600;font-size:.78rem;position:sticky;top:0}
+.import-review select{padding:4px 8px;font-size:.8rem;border:1px solid var(--outline);border-radius:var(--radius-s);background:var(--surface-cw);min-width:130px}
+.import-review .import-excluded{opacity:.4}
+.import-desc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.import-summary{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 0;border-top:2px solid var(--outline)}
+.import-summary span{font-size:.9rem;color:var(--on-surface-v)}
+.import-summary b{color:var(--primary)}
+@media(max-width:768px){.import-methods{grid-template-columns:1fr}}
+
+/* ── REFORECAST ── */
+.rfcs-banner{background:linear-gradient(135deg,#0d6efd,#0b5ed7);color:#fff;padding:14px 24px;border-radius:var(--radius);margin-bottom:16px;display:flex;align-items:center;gap:12px;font-size:.9rem;flex-wrap:wrap}
+.rfcs-badge{background:#fff;color:#0d6efd;font-weight:800;padding:4px 14px;border-radius:20px;font-size:.78rem;letter-spacing:.06em}
+.rfcs-hdr-actual{background:#0d6efd!important;color:#fff!important}
+.rfcs-actual{background:rgba(13,110,253,.06)!important}
+.rfcs-panel{background:var(--surface-cw);border:2px solid #0d6efd;border-radius:var(--radius);padding:24px;margin:0 40px 24px}
+.rfcs-panel h3{color:#0d6efd;font-family:'Noto Serif',serif;font-size:1.1rem;margin-bottom:16px}
+.rfcs-panel h4{color:var(--on-surface-v);font-size:.95rem;margin:20px 0 12px;padding-top:16px;border-top:1px solid var(--outline)}
+.rfcs-info{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;font-size:.88rem;color:var(--on-surface-v)}
+.rfcs-info b{color:#0d6efd}
+.rfcs-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
+.rfcs-field label{display:block;font-size:.78rem;font-weight:600;color:var(--on-surface-vl);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.rfcs-field select,.rfcs-field input{width:100%;padding:10px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.88rem;font-family:inherit;background:var(--surface-cw)}
+.rfcs-field select:focus,.rfcs-field input:focus{border-color:#0d6efd;outline:none;box-shadow:0 0 0 3px rgba(13,110,253,.12)}
+.rfcs-tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+.rfcs-tbl th,.rfcs-tbl td{padding:10px 12px;border:1px solid var(--outline);text-align:right}
+[dir=rtl] .rfcs-tbl th,[dir=rtl] .rfcs-tbl td{text-align:left}
+.rfcs-tbl th{background:#0d6efd;color:#fff;font-size:.78rem;font-weight:600}
+.rfcs-tbl tr:nth-child(even){background:var(--surface-cl)}
+.rfcs-num{font-family:'Work Sans',monospace;font-weight:500}
+.rfcs-input{width:100%;padding:8px 10px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.84rem;font-family:inherit;background:var(--surface-cw);text-align:right}
+.rfcs-input:focus{border-color:#0d6efd;outline:none}
+@media(max-width:768px){.rfcs-panel{margin:0 16px 16px;padding:16px}.rfcs-row{grid-template-columns:1fr}}
+
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){.sens-layout{grid-template-columns:1fr}.sens-sidebar{position:static}.sens-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){
@@ -503,7 +594,7 @@ canvas{max-width:100%;display:block}
   <div class="sb-info"><span class="sb-badge" id="sharedBadge">SHARED VIEW</span><span id="sharedMsg">You are viewing shared projects</span></div>
   <button class="sb-close" id="sharedExitBtn" onclick="exitSharedView()">Exit Shared View</button>
 </div>
-<div class="project-bar" id="projectBar"><label id="projLbl">Project:</label><select id="projSelect" onchange="loadProject()"></select><button class="proj-save" id="btnProjSave" onclick="saveProject()">💾 Save</button><button class="proj-new" id="btnProjNew" onclick="newProject()">+ New</button><button class="proj-del" id="btnProjDel" onclick="deleteProject()">🗑 Delete</button><button class="proj-share" id="btnProjShare" onclick="openShareModal()">🔗 Share</button><button class="btn-calc" id="btnCalcTop" onclick="calculate()">Calculate</button></div>
+<div class="project-bar" id="projectBar"><label id="projLbl">Project:</label><select id="projSelect" onchange="loadProject()"></select><button class="proj-save" id="btnProjSave" onclick="saveProject()">💾 Save</button><button class="proj-new" id="btnProjNew" onclick="newProject()">+ New</button><button class="proj-del" id="btnProjDel" onclick="deleteProject()">🗑 Delete</button><button class="proj-share" id="btnProjShare" onclick="openShareModal()">🔗 Share</button><button class="btn-calc" id="btnCalcTop" onclick="calculate()">Calculate</button><button class="btn-calc" id="btnReforecast" onclick="toggleReforecast()" style="background:#0d6efd;display:none">🔄 Reforecast</button></div>
 <nav class="tabs" id="tabNav"></nav>
 <main class="main">
   <div class="pnl act" id="p-assumptions"></div>
@@ -513,6 +604,8 @@ canvas{max-width:100%;display:block}
   <div class="pnl" id="p-debt"></div>
   <div class="pnl" id="p-sensitivity"></div>
   <div class="pnl" id="p-summary"></div>
+  <div class="pnl" id="p-actuals"></div>
+  <div id="reforecastPanel" style="display:none"></div>
 </main>
 <div class="footer">Built for <span>Real Estate Fund Managers</span> in the Kingdom of Saudi Arabia &middot; All calculations are estimates for planning purposes only</div>
 </div><!-- end appMain -->
@@ -1048,6 +1141,8 @@ async function saveProject(){
       D:JSON.parse(JSON.stringify(D)),
       projects:JSON.parse(JSON.stringify(projects)),
       activeProjectIdx,
+      actuals:JSON.parse(JSON.stringify(actuals)),
+      reforecastSettings:JSON.parse(JSON.stringify(reforecastSettings)),
       savedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     await loadProjectList();
@@ -1072,13 +1167,17 @@ async function loadProject(){
     if(!('vat_refund' in D)&&'vat_refund_con' in D) D.vat_refund=D.vat_refund_con;
     if(p.projects){projects=JSON.parse(JSON.stringify(p.projects));}
     if(typeof p.activeProjectIdx==='number'){activeProjectIdx=p.activeProjectIdx;}
+    actuals=Array.isArray(p.actuals)?JSON.parse(JSON.stringify(p.actuals)):[];
+    if(p.reforecastSettings) reforecastSettings=JSON.parse(JSON.stringify(p.reforecastSettings));
+    else reforecastSettings={redistMode:'proportional',actualLoanBalance:null,budgetOverrides:{},manualRedist:{}};
+    reforecastMode=false;R2=null;
     R=null;buildTabs();buildForm();
   }catch(e){
     alert('Error loading: '+e.message);
   }
 }
 
-function newProject(){document.getElementById('projSelect').value='';Object.keys(defaultD).forEach(k=>{D[k]=defaultD[k];});projects=[{name:'Project 1',strategy:'sell',land_area:204624,land_price_sqm:900,brokerage_pct:2.5,rett_pct:2,rett_refund:0,build_area:204624,dev_cost_sqm:138,dev_fee_pct:12.7,contingency_pct:5,insurance_pct:5,design_fee_mode:'fixed',design_fee:564762,design_fee_pct:2,supervision_fee_mode:'fixed',supervision_fee:0,supervision_fee_pct:0,licensing_fee:564762,con_period_months:24,sale_price_sqm:2375,sell_area:128913,wafi_pct:1,sell_exp_pct:2.5,leasable_area:0,rent_per_sqm:400,rent_escalator_pct:2,hold_period_months:36,exit_cap_rate:8,selling_cost_pct:2,occupancySchedule:[0,0,0,0,0,0,40,50,60,70,80,90],opexItems:[{name:'Property Management',nameAr:'إدارة العقار',mode:'pct_egi',value:2},{name:'Maintenance',nameAr:'الصيانة',mode:'fixed',value:100000},{name:'Utilities',nameAr:'المرافق',mode:'fixed',value:0},{name:'Insurance',nameAr:'التأمين',mode:'sqm',value:0},{name:'Major Repairs',nameAr:'إصلاحات رئيسية',mode:'fixed',value:0}],conComponents:[{name:'المساحة المطورة وسعر التطوير بنية تحتية',nameEn:'Developed Area & Infrastructure',gfa:204624,cost:120}],salesComponents:[{name:'سكني',nameEn:'Residential',area:128913,price:2375}],schBaseCon:[0,5,10,15,20,20,20,10],schDevFee:[0,5,10,15,20,20,20,10],schContingency:[0,0,0,25,0,25,25,25],schLicensing:[0,100,0,0,0,0,0,0],schDesign:[0,100,0,0,0,0,0,0],schInsurance:[0,0,0,25,0,25,25,25],schSupervision:[3,7,13,19,20,18,12,8],schMarketing:[0,100,0,0,0,0,0,0],salesSchedule:[0,0,0,0,0,5,5,90]}];activeProjectIdx=0;R=null;buildTabs();buildForm();}
+function newProject(){document.getElementById('projSelect').value='';Object.keys(defaultD).forEach(k=>{D[k]=defaultD[k];});actuals=[];reforecastSettings={redistMode:'proportional',actualLoanBalance:null,budgetOverrides:{},manualRedist:{}};reforecastMode=false;R2=null;projects=[{name:'Project 1',strategy:'sell',land_area:204624,land_price_sqm:900,brokerage_pct:2.5,rett_pct:2,rett_refund:0,build_area:204624,dev_cost_sqm:138,dev_fee_pct:12.7,contingency_pct:5,insurance_pct:5,design_fee_mode:'fixed',design_fee:564762,design_fee_pct:2,supervision_fee_mode:'fixed',supervision_fee:0,supervision_fee_pct:0,licensing_fee:564762,con_period_months:24,sale_price_sqm:2375,sell_area:128913,wafi_pct:1,sell_exp_pct:2.5,leasable_area:0,rent_per_sqm:400,rent_escalator_pct:2,hold_period_months:36,exit_cap_rate:8,selling_cost_pct:2,occupancySchedule:[0,0,0,0,0,0,40,50,60,70,80,90],opexItems:[{name:'Property Management',nameAr:'إدارة العقار',mode:'pct_egi',value:2},{name:'Maintenance',nameAr:'الصيانة',mode:'fixed',value:100000},{name:'Utilities',nameAr:'المرافق',mode:'fixed',value:0},{name:'Insurance',nameAr:'التأمين',mode:'sqm',value:0},{name:'Major Repairs',nameAr:'إصلاحات رئيسية',mode:'fixed',value:0}],conComponents:[{name:'المساحة المطورة وسعر التطوير بنية تحتية',nameEn:'Developed Area & Infrastructure',gfa:204624,cost:120}],salesComponents:[{name:'سكني',nameEn:'Residential',area:128913,price:2375}],schBaseCon:[0,5,10,15,20,20,20,10],schDevFee:[0,5,10,15,20,20,20,10],schContingency:[0,0,0,25,0,25,25,25],schLicensing:[0,100,0,0,0,0,0,0],schDesign:[0,100,0,0,0,0,0,0],schInsurance:[0,0,0,25,0,25,25,25],schSupervision:[3,7,13,19,20,18,12,8],schMarketing:[0,100,0,0,0,0,0,0],salesSchedule:[0,0,0,0,0,5,5,90]}];activeProjectIdx=0;R=null;buildTabs();buildForm();}
 
 async function deleteProject(){
   if(isGuest){alert(lang==='ar'?'وضع الزائر: لا توجد مشاريع محفوظة للحذف.':'Guest mode: no saved projects to delete.');return;}
@@ -1271,6 +1370,10 @@ function loadProjectData(proj){
   if(!('vat_refund' in D)&&'vat_refund_con' in D) D.vat_refund=D.vat_refund_con;
   if(proj.projects){projects=JSON.parse(JSON.stringify(proj.projects));}
   if(typeof proj.activeProjectIdx==='number') activeProjectIdx=proj.activeProjectIdx;
+  actuals=Array.isArray(proj.actuals)?JSON.parse(JSON.stringify(proj.actuals)):[];
+  if(proj.reforecastSettings) reforecastSettings=JSON.parse(JSON.stringify(proj.reforecastSettings));
+  else reforecastSettings={redistMode:'proportional',actualLoanBalance:null,budgetOverrides:{},manualRedist:{}};
+  reforecastMode=false;R2=null;
 }
 
 function applySharedPayload(payload){
@@ -1448,6 +1551,15 @@ let projects=[{
 }];
 
 let activeProjectIdx=0;
+let actuals=[];  // Payment records for budget vs actual tracking
+let reforecastMode=false;  // Whether reforecast view is active
+let R2=null;  // Reforecast result object (same shape as R)
+let reforecastSettings={
+  redistMode:'proportional', // 'proportional' | 'next_quarter' | 'manual'
+  actualLoanBalance:null,    // User-entered loan balance at cutoff (null = auto)
+  budgetOverrides:{},        // {category_key: newTotalBudget} for adjusted budgets
+  manualRedist:{}            // {category_key: [q1,q2,...]} for manual redistribution
+};
 
 const defaultD=JSON.parse(JSON.stringify(D));
 const LOGO_B64='data:image/png;base64,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';
@@ -1479,12 +1591,12 @@ function compLabel(comp){
 // =============================================
 // i18n
 // =============================================
-const tabIcons=['⚙','📅','📊','💰','🏦','🔬','📋'];
+const tabIcons=['⚙','📅','📊','💰','🏦','🔬','📋','✅'];
 const TX={
   en:{title:'Real Estate Fund Financial Study',sub:'Professional Fund Modeling Platform',calc:'Calculate',dl:'Excel',langB:'العربية',
     projLbl:'Project:',projSave:'💾 Save',projNew:'+ New',projDel:'🗑 Delete',projShare:'🔗 Share',pdf:'PDF',
     shareTitle:'Share Projects',shareDesc:'Select one or more projects to share via a unique link. Recipients can view the financial model.',shareProjHead:'Select Projects',shareToggle:'Allow recipient to modify assumptions',shareGenLink:'Generate Link',shareCopyLink:'Copy Link',shareClose:'Close',shareNoProj:'No saved projects to share. Save a project first.',shareCopied:'Link copied!',shareShortening:'Shortening link...',shareViewBadge:'SHARED VIEW',shareViewMsg:'You are viewing shared projects',shareViewMsgRO:' (read-only assumptions)',shareExit:'Exit Shared View',
-    tabs:['Assumptions','Schedule','Dashboard','Cash Flow','Debt','Sensitivity','Summary'],
+    tabs:['Assumptions','Schedule','Dashboard','Cash Flow','Debt','Sensitivity','Summary','Actuals'],
     roles:['Fund Manager','Developer','Financer'],
     roleKeys:['fund_manager','developer','financer'],
     roleAr:['مدير الصندوق','المطور','الممول'],
@@ -1568,7 +1680,7 @@ const TX={
   ar:{title:'الدراسة المالية للصندوق العقاري',sub:'منصة النمذجة المالية للصناديق',calc:'احسب',dl:'إكسل',langB:'English',
     projLbl:'المشروع:',projSave:'💾 حفظ',projNew:'+ جديد',projDel:'🗑 حذف',projShare:'🔗 مشاركة',pdf:'PDF',
     shareTitle:'مشاركة المشاريع',shareDesc:'اختر مشروعًا أو أكثر لمشاركته عبر رابط فريد. يمكن للمستلمين عرض النموذج المالي.',shareProjHead:'اختر المشاريع',shareToggle:'السماح للمستلم بتعديل الافتراضات',shareGenLink:'إنشاء رابط',shareCopyLink:'نسخ الرابط',shareClose:'إغلاق',shareNoProj:'لا توجد مشاريع محفوظة للمشاركة. احفظ مشروعًا أولًا.',shareCopied:'تم نسخ الرابط!',shareShortening:'جارٍ اختصار الرابط...',shareViewBadge:'عرض مشترك',shareViewMsg:'أنت تشاهد مشاريع مشتركة',shareViewMsgRO:' (الافتراضات للقراءة فقط)',shareExit:'خروج من العرض المشترك',
-    tabs:['الافتراضات','الجدول الزمني','لوحة المعلومات','التدفقات النقدية','هيكلة الدين','تحليل الحساسية','الملخص التنفيذي'],
+    tabs:['الافتراضات','الجدول الزمني','لوحة المعلومات','التدفقات النقدية','هيكلة الدين','تحليل الحساسية','الملخص التنفيذي','الفعلي'],
     roles:['مدير الصندوق','المطور','الممول'],
     roleKeys:['fund_manager','developer','financer'],
     roleAr:['مدير الصندوق','المطور','الممول'],
@@ -1654,10 +1766,10 @@ const TX={
 // =============================================
 // TAB NAVIGATION
 // =============================================
-const tabKeys=['assumptions','schedule','dashboard','cashflow','debt','sensitivity','summary'];
+const tabKeys=['assumptions','schedule','dashboard','cashflow','debt','sensitivity','summary','actuals'];
 function buildTabs(){
   const t=TX[lang],nav=document.getElementById('tabNav');
-  nav.innerHTML=tabKeys.map((k,i)=>`<button class="tab${i===0?' act':''}" onclick="showTab('${k}')"${i>1&&!R?' disabled':''}><span class="tab-icon">${tabIcons[i]}</span>${t.tabs[i]}</button>`).join('');
+  nav.innerHTML=tabKeys.map((k,i)=>`<button class="tab${i===0?' act':''}" onclick="showTab('${k}')"${i>1&&i<7&&!R?' disabled':''}><span class="tab-icon">${tabIcons[i]}</span>${t.tabs[i]}</button>`).join('');
 }
 function setRole(role){
   currentRole=role;
@@ -1667,6 +1779,7 @@ function showTab(k){
   document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('act'));
   document.getElementById('p-'+k).classList.add('act');
   document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('act',tabKeys[i]===k);});
+  if(k==='actuals') buildActualsTab();
 }
 
 // =============================================
@@ -2640,6 +2753,12 @@ function calculate(){
   document.querySelectorAll('.tab').forEach(t=>t.disabled=false);
   document.getElementById('btnDL').classList.add('show');
   document.getElementById('btnPDF').classList.add('show');
+  document.getElementById('btnReforecast').style.display='inline-block';
+  // Reset reforecast mode on new calculate
+  reforecastMode=false;R2=null;
+  document.getElementById('btnReforecast').style.background='#0d6efd';
+  document.getElementById('btnReforecast').textContent='🔄 Reforecast';
+  document.getElementById('reforecastPanel').style.display='none';
 
   renderDashboard();
   renderCashFlow();
@@ -2919,23 +3038,29 @@ function renderScenarioComparison(){
 // CASH FLOW TABLE
 // =============================================
 function renderCashFlow(){
-  const r=R, nq=r.nq;
+  const r=(reforecastMode&&R2)?R2:R, nq=r.nq;
+  const cutoffQ=r._cutoffQ||0;
+  const isRF=reforecastMode&&R2;
   const lb=lang==='ar'?r.labels.map(q=>q.replace('Q','ربع ')):r.labels;
   function tr(label,data,cls){
     const tot=data.reduce((a,b)=>a+b,0);
     const neg=v=>v<0?'neg':'';
-    return `<tr class="${cls||''}"><td class="rl">${label}</td>${data.map(v=>`<td class="${neg(v)}">${fN(v)}</td>`).join('')}<td class="${neg(tot)}">${fN(tot)}</td></tr>`;
+    return `<tr class="${cls||''}"><td class="rl">${label}</td>${data.map((v,i)=>`<td class="${neg(v)}${isRF&&i<cutoffQ?' rfcs-actual':''}">${fN(v)}</td>`).join('')}<td class="${neg(tot)}">${fN(tot)}</td></tr>`;
   }
   function sep(){return `<tr class="sep"><td colspan="${nq+2}"></td></tr>`;}
   function sub(label,data){return tr(label,data,'sub');}
 
   const L=TX[lang].cf;
   const sliderLabel=lang==='ar'?'انتقل إلى الربع':'Scroll to Quarter';
-  let h=`<div class="sld-group" style="margin-bottom:20px;max-width:500px">
+  let h='';
+  if(isRF){
+    h+=`<div class="rfcs-banner"><span class="rfcs-badge">${lang==='ar'?'وضع إعادة التوقع':'REFORECAST MODE'}</span> <span>${lang==='ar'?'الأرباع الفعلية':'Actual Quarters'}: Q1–Q${cutoffQ} | ${lang==='ar'?'التوقع':'Forecast'}: Q${cutoffQ+1}–Q${nq}</span></div>`;
+  }
+  h+=`<div class="sld-group" style="margin-bottom:20px;max-width:500px">
     <label><span>${sliderLabel}</span> <b id="cfScrollVal">Q1</b></label>
     <input type="range" id="cfScrollSlider" min="1" max="${nq}" value="1" step="1">
   </div>`;
-  h+=`<div class="tbl-wrap" id="cfTableWrap"><table class="dt"><thead><tr><th class="rl">${L.hdr}</th>${lb.map(q=>`<th>${q}</th>`).join('')}<th>${lang==='ar'?'المجموع':'Total'}</th></tr></thead><tbody>`;
+  h+=`<div class="tbl-wrap" id="cfTableWrap"><table class="dt"><thead><tr><th class="rl">${L.hdr}</th>${lb.map((q,i)=>`<th class="${isRF&&i<cutoffQ?'rfcs-hdr-actual':''}">${q}${isRF?(i<cutoffQ?' ✓':' ⟶'):''}</th>`).join('')}<th>${lang==='ar'?'المجموع':'Total'}</th></tr></thead><tbody>`;
 
   h+=tr(L.grossSales,r.qGrossSales);
   h+=tr(L.wafi,r.qWafi.map(v=>-v));
@@ -2989,6 +3114,17 @@ function renderCashFlow(){
   const qChange=Array.from({length:nq},(_,i)=>r.qCashClose[i]-r.qCashOpen[i]);
   h+=tr(L.changeCash,qChange);
   h+=tr(L.closeCash,r.qCashClose,'bld');
+
+  // In reforecast mode, show actual-only income/expense lines if they have data
+  if(isRF){
+    const aoInc=r._actualOnlyIncome||Array(nq).fill(0);
+    const aoExp=r._actualOnlyExpense||Array(nq).fill(0);
+    if(aoInc.some(v=>v>0)||aoExp.some(v=>v>0)){
+      h+=sep();
+      h+=tr(lang==='ar'?'دخل المرابحات وأخرى':'Murabaha & Other Income',aoInc);
+      h+=tr(lang==='ar'?'مصاريف أخرى':'Other Expenses',aoExp.map(v=>-v));
+    }
+  }
 
   h+=`</tbody></table></div>`;
   document.getElementById('p-cashflow').innerHTML=h;
@@ -3480,6 +3616,929 @@ function dlPDF(){
   renderSummary();
   showTab('summary');
   setTimeout(()=>window.print(),400);
+}
+
+// =============================================
+// ACTUALS — BUDGET vs ACTUAL TRACKING
+// =============================================
+const ACT_CATS=[
+  // Costs with per-quarter budget
+  {key:'land',        en:'Land Cost',          ar:'تكلفة الأرض',        group:'cost', getQ:(R,i)=>i===0?R.baseLand:0},
+  {key:'brokerage',   en:'Brokerage',          ar:'السعاية',            group:'cost', getQ:(R,i)=>i===0?R.brokerageIncVAT:0},
+  {key:'rett',        en:'RETT',               ar:'رسوم نقل الملكية',   group:'cost', getQ:(R,i)=>i===0?R.rettAmount:0},
+  {key:'base_con',    en:'Base Construction',   ar:'تكاليف البناء',      group:'cost', getQ:(R,i)=>R.qBaseCon[i]},
+  {key:'dev_fee',     en:'Development Fee',     ar:'رسوم التطوير',       group:'cost', getQ:(R,i)=>R.qDevFee[i]},
+  {key:'contingency', en:'Contingency',         ar:'احتياطي طوارئ',      group:'cost', getQ:(R,i)=>R.qContingency[i]},
+  {key:'licensing',   en:'Licensing',           ar:'رسوم الترخيص',       group:'cost', getQ:(R,i)=>R.qLicensing[i]},
+  {key:'design',      en:'Design Fee',          ar:'رسوم التصميم',       group:'cost', getQ:(R,i)=>R.qDesignFee[i]},
+  {key:'insurance',   en:'Insurance',           ar:'التأمين',            group:'cost', getQ:(R,i)=>R.qInsurance[i]},
+  {key:'supervision', en:'Supervision',         ar:'رسوم الإشراف',       group:'cost', getQ:(R,i)=>R.qSupervision[i]},
+  {key:'marketing',   en:'Marketing',           ar:'التسويق',            group:'cost', getQ:(R,i)=>R.qMkt[i]},
+  {key:'selling',     en:'Selling / Commission',ar:'عمولات البيع',       group:'cost', getQ:(R,i)=>(R.qSellExp[i]||0)+(R.qWafi[i]||0)},
+  {key:'fund_setup',  en:'Fund Setup',           ar:'تأسيس الصندوق',      group:'cost', getQ:(R,i)=>(R.qFundSetup||[])[i]||0, fundOnly:true},
+  {key:'mgmt_fee',    en:'Management Fee',       ar:'رسوم الإدارة',        group:'cost', getQ:(R,i)=>(R.qMgmtFee||[])[i]||0, fundOnly:true},
+  {key:'custody',     en:'Custody',              ar:'رسوم الحفظ',          group:'cost', getQ:(R,i)=>(R.qCustody||[])[i]||0, fundOnly:true},
+  {key:'spv',         en:'SPV Setup',            ar:'تأسيس الشركة',        group:'cost', getQ:(R,i)=>(R.qSPV||[])[i]||0, fundOnly:true},
+  {key:'auditor',     en:'Auditor',              ar:'المراجع الخارجي',     group:'cost', getQ:(R,i)=>(R.qAuditor||[])[i]||0, fundOnly:true},
+  {key:'sharia',      en:'Sharia Committee',     ar:'اللجنة الشرعية',      group:'cost', getQ:(R,i)=>(R.qSharia||[])[i]||0, fundOnly:true},
+  {key:'engineering', en:'Engineering Consultant',ar:'الاستشاري الهندسي',   group:'cost', getQ:(R,i)=>(R.qEngineering||[])[i]||0, fundOnly:true},
+  {key:'board',       en:'Board Compensation',   ar:'مكافأة مجلس الإدارة', group:'cost', getQ:(R,i)=>(R.qBoard||[])[i]||0, fundOnly:true},
+  {key:'fin_advisor', en:'Financial Advisor',    ar:'المستشار المالي',     group:'cost', getQ:(R,i)=>(R.qFinAdvisor||[])[i]||0, fundOnly:true},
+  {key:'arr_fee',     en:'Arrangement Fee',      ar:'رسوم ترتيب التمويل',  group:'cost', getQ:(R,i)=>(R.qArrFee||[])[i]||0, fundOnly:true},
+  {key:'bank_mgmt',   en:'Bank Management',      ar:'رسوم إدارة البنك',    group:'cost', getQ:(R,i)=>(R.qBankMgmt||[])[i]||0, fundOnly:true},
+  {key:'perf_fee',    en:'Performance Fee',      ar:'رسوم الأداء',         group:'cost', getQ:(R,i)=>(R.qPerfFee||[])[i]||0, fundOnly:true},
+  {key:'interest',    en:'Interest',            ar:'تكاليف التمويل',     group:'cost', getQ:(R,i)=>R.qInterest[i]},
+  // Revenue with per-quarter budget
+  {key:'revenue',     en:'Revenue',             ar:'الإيرادات',          group:'revenue', getQ:(R,i)=>R.qGrossSales[i]},
+  // Actual-only categories (no budget)
+  {key:'murabaha',    en:'Murabaha Income',     ar:'دخل المرابحات',      group:'revenue', actualOnly:true, getQ:()=>0},
+  {key:'other_inc',   en:'Other Income',        ar:'دخل آخر',            group:'revenue', actualOnly:true, getQ:()=>0},
+  {key:'other_exp',   en:'Other Expense',       ar:'مصاريف أخرى',        group:'cost',    actualOnly:true, getQ:()=>0},
+];
+
+let _actEditId=null; // id of payment being edited
+
+function _actGenId(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5);}
+
+function _actCatLabel(key){
+  const c=ACT_CATS.find(x=>x.key===key);
+  if(!c) return key;
+  return lang==='ar'?c.ar:c.en;
+}
+
+function _actFmt(v){
+  if(v===0||v===undefined||v===null) return '—';
+  return v.toLocaleString(lang==='ar'?'ar-SA':'en-SA',{maximumFractionDigits:0});
+}
+
+function _actFmtVar(v,isRev){
+  if(v===0||v===undefined||v===null) return '—';
+  // For costs: negative variance = over budget (bad), positive = under budget (good)
+  // For revenue: positive variance = above target (good), negative = below target (bad)
+  const cls=isRev?(v>=0?'act-under':'act-over'):(v>=0?'act-under':'act-over');
+  return `<span class="${cls}">${(v>0?'+':'')+_actFmt(v)}</span>`;
+}
+
+function buildActualsTab(){
+  const pnl=document.getElementById('p-actuals');
+  const t=lang==='ar';
+  const isFund=Number(D.is_fund);
+  const nq=R?R.nq:Math.ceil(D.fund_period_months/3);
+  const labels=R?R.labels:Array.from({length:nq},(_,i)=>'Q'+(i+1));
+
+  // Filter categories based on fund mode
+  const cats=ACT_CATS.filter(c=>!c.fundOnly||isFund);
+
+  // Build quarter options
+  const qOpts=labels.map((l,i)=>`<option value="${i}">${l}</option>`).join('');
+  const catOpts=cats.map(c=>`<option value="${c.key}">${t?c.ar:c.en}</option>`).join('');
+
+  // Summary cards
+  let totalBudgetCost=0,totalActualCost=0,totalBudgetRev=0,totalActualRev=0,totalMurabaha=0;
+  for(const c of cats){
+    if(c.actualOnly&&c.key!=='murabaha'&&c.key!=='other_inc') continue;
+    let bgt=0,act=0;
+    for(let i=0;i<nq;i++){
+      if(R&&!c.actualOnly) bgt+=c.getQ(R,i);
+      act+=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+    }
+    if(c.key==='murabaha'||c.key==='other_inc'){totalMurabaha+=act;}
+    else if(c.group==='cost'){totalBudgetCost+=bgt;totalActualCost+=act;}
+    else{totalBudgetRev+=bgt;totalActualRev+=act;}
+  }
+
+  let html=`<div id="importSection"></div>
+  <div class="act-section" style="display:flex;justify-content:flex-end;margin-bottom:0;border:none;padding-bottom:0">
+    <button class="act-btn act-btn-open" onclick="_importShowUI()">📥 ${t?'استيراد مدفوعات':'Import Payments'}</button>
+  </div>
+  <div class="act-section">
+    <h2>${t?'ملخص الميزانية مقابل الفعلي':'Budget vs Actual Summary'}</h2>
+    <div class="act-summary-cards">
+      <div class="act-sum-card"><div class="act-sum-label">${t?'إجمالي التكاليف (الميزانية)':'Total Costs (Budget)'}</div><div class="act-sum-val">${R?_actFmt(totalBudgetCost):'—'}</div></div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'إجمالي التكاليف (الفعلي)':'Total Costs (Actual)'}</div><div class="act-sum-val">${_actFmt(totalActualCost)}</div>
+        ${R?`<div class="act-sum-sub">${_actFmtVar(totalBudgetCost-totalActualCost,false)}</div>`:''}</div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'إجمالي الإيرادات (الميزانية)':'Total Revenue (Budget)'}</div><div class="act-sum-val">${R?_actFmt(totalBudgetRev):'—'}</div></div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'إجمالي الإيرادات (الفعلي)':'Total Revenue (Actual)'}</div><div class="act-sum-val">${_actFmt(totalActualRev)}</div>
+        ${R?`<div class="act-sum-sub">${_actFmtVar(totalActualRev-totalBudgetRev,true)}</div>`:''}</div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'دخل المرابحات وأخرى':'Murabaha & Other Income'}</div><div class="act-sum-val">${_actFmt(totalMurabaha)}</div></div>
+    </div>
+  </div>`;
+
+  // Budget vs Actual comparison table
+  html+=`<div class="act-section">
+    <h2>${t?'مقارنة الميزانية مقابل الفعلي':'Budget vs Actual Comparison'}</h2>
+    <div class="act-bva"><table>
+      <thead><tr><th>${t?'البند':'Category'}</th>
+        <th>${t?'النوع':'Type'}</th>`;
+  for(let i=0;i<nq;i++) html+=`<th>${labels[i]}</th>`;
+  html+=`<th class="act-total-col">${t?'الإجمالي':'Total'}</th></tr></thead><tbody>`;
+
+  for(const c of cats){
+    const isRev=c.group==='revenue';
+    // Category header
+    html+=`<tr class="act-cat-hd"><td colspan="${nq+3}">${t?c.ar:c.en}${c.actualOnly?' ★':''}</td></tr>`;
+
+    // Budget row
+    let budgetTotal=0;
+    html+=`<tr class="act-row-bgt"><td></td><td>${t?'الميزانية':'Budget'}</td>`;
+    for(let i=0;i<nq;i++){
+      const b=R&&!c.actualOnly?c.getQ(R,i):0;
+      budgetTotal+=b;
+      html+=`<td>${R&&!c.actualOnly?_actFmt(b):'—'}</td>`;
+    }
+    html+=`<td class="act-total-col">${R&&!c.actualOnly?_actFmt(budgetTotal):'—'}</td></tr>`;
+
+    // Actual row
+    let actualTotal=0;
+    html+=`<tr class="act-row-act"><td></td><td>${t?'الفعلي':'Actual'}</td>`;
+    for(let i=0;i<nq;i++){
+      const a=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+      actualTotal+=a;
+      html+=`<td>${a?_actFmt(a):'—'}</td>`;
+    }
+    html+=`<td class="act-total-col">${actualTotal?_actFmt(actualTotal):'—'}</td></tr>`;
+
+    // Variance row
+    if(R&&!c.actualOnly){
+      html+=`<tr class="act-row-var"><td></td><td>${t?'الفرق':'Variance'}</td>`;
+      let varTotal=0;
+      for(let i=0;i<nq;i++){
+        const b=c.getQ(R,i);
+        const a=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+        const v=isRev?(a-b):(b-a);
+        varTotal+=v;
+        html+=`<td>${_actFmtVar(v,isRev)}</td>`;
+      }
+      html+=`<td class="act-total-col">${_actFmtVar(varTotal,isRev)}</td></tr>`;
+    }
+  }
+  html+=`</tbody></table></div></div>`;
+
+  // Payment entry form
+  html+=`<div class="act-section">
+    <h2>${t?'إضافة / تعديل دفعة':'Add / Edit Payment'}</h2>
+    <div class="act-form" id="actForm">
+      <div><label>${t?'الربع':'Quarter'}</label><select id="act_quarter">${qOpts}</select></div>
+      <div><label>${t?'البند':'Category'}</label><select id="act_category">${catOpts}</select></div>
+      <div><label>${t?'المستفيد':'Payee'}</label><input type="text" id="act_payee" placeholder="${t?'اسم المستفيد':'Payee name'}"></div>
+      <div><label>${t?'المبلغ (ريال)':'Amount (SAR)'}</label><input type="number" id="act_amount" step="any" placeholder="0"></div>
+      <div><label>${t?'التاريخ':'Date'}</label><input type="date" id="act_date" onchange="_actAutoQ()"></div>
+      <div><label>${t?'مرجع الفاتورة':'Invoice Ref'}</label><input type="text" id="act_invoice" placeholder="${t?'رقم الفاتورة':'INV-001'}"></div>
+      <div class="act-full"><label>${t?'ملاحظات':'Notes'}</label><textarea id="act_notes" rows="2" placeholder="${t?'ملاحظات إضافية':'Additional notes'}"></textarea></div>
+      <div class="act-btn-row">
+        <button class="act-btn act-btn-cancel" onclick="_actCancelEdit()" id="actCancelBtn" style="display:none">${t?'إلغاء':'Cancel'}</button>
+        <button class="act-btn act-btn-add" onclick="_actSave()" id="actSaveBtn">${t?'+ إضافة دفعة':'+ Add Payment'}</button>
+      </div>
+    </div>
+  </div>`;
+
+  // Payment log
+  html+=`<div class="act-section">
+    <h2>${t?'سجل المدفوعات':'Payment Log'}</h2>
+    <div class="act-filters">
+      <select id="actFilterCat" onchange="buildActualsTab()"><option value="">${t?'جميع البنود':'All Categories'}</option>${catOpts}</select>
+      <select id="actFilterQ" onchange="buildActualsTab()"><option value="">${t?'جميع الأرباع':'All Quarters'}</option>${qOpts}</select>
+      <input type="text" id="actFilterPayee" placeholder="${t?'بحث بالمستفيد':'Search payee'}" oninput="buildActualsTab()">
+    </div>`;
+
+  // Filter actuals
+  const fCat=document.getElementById('actFilterCat')?.value||'';
+  const fQ=document.getElementById('actFilterQ')?.value??'';
+  const fPayee=(document.getElementById('actFilterPayee')?.value||'').toLowerCase();
+  let filtered=[...actuals];
+  if(fCat) filtered=filtered.filter(p=>p.category===fCat);
+  if(fQ!=='') filtered=filtered.filter(p=>p.quarter===Number(fQ));
+  if(fPayee) filtered=filtered.filter(p=>(p.payee||'').toLowerCase().includes(fPayee));
+  // Sort by date desc
+  filtered.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+  if(filtered.length===0){
+    html+=`<div class="act-empty">${t?'لا توجد مدفوعات مسجلة':'No payments recorded yet'}</div>`;
+  }else{
+    html+=`<div class="act-log"><table>
+      <thead><tr>
+        <th>${t?'التاريخ':'Date'}</th>
+        <th>${t?'الربع':'Quarter'}</th>
+        <th>${t?'البند':'Category'}</th>
+        <th>${t?'المستفيد':'Payee'}</th>
+        <th>${t?'المبلغ':'Amount'}</th>
+        <th>${t?'مرجع الفاتورة':'Invoice'}</th>
+        <th>${t?'ملاحظات':'Notes'}</th>
+        <th>${t?'إجراءات':'Actions'}</th>
+      </tr></thead><tbody>`;
+    for(const p of filtered){
+      html+=`<tr>
+        <td>${p.date||'—'}</td>
+        <td>${labels[p.quarter]||'Q'+(p.quarter+1)}</td>
+        <td>${_actCatLabel(p.category)}</td>
+        <td>${p.payee||'—'}</td>
+        <td class="act-amt">${_actFmt(p.amount)}</td>
+        <td>${p.invoiceRef||'—'}</td>
+        <td>${p.notes||'—'}</td>
+        <td class="act-actions">
+          <button class="act-btn act-btn-edit" onclick="_actEdit('${p.id}')">✎</button>
+          <button class="act-btn act-btn-del" onclick="_actDelete('${p.id}')">✕</button>
+        </td>
+      </tr>`;
+    }
+    html+=`</tbody></table></div>`;
+  }
+  html+=`</div>`;
+
+  pnl.innerHTML=html;
+
+  // Restore filter values (since innerHTML was replaced)
+  if(fCat) document.getElementById('actFilterCat').value=fCat;
+  if(fQ!=='') document.getElementById('actFilterQ').value=fQ;
+  if(fPayee) document.getElementById('actFilterPayee').value=fPayee;
+
+  // If editing, populate form
+  if(_actEditId){
+    const ep=actuals.find(p=>p.id===_actEditId);
+    if(ep){
+      document.getElementById('act_quarter').value=ep.quarter;
+      document.getElementById('act_category').value=ep.category;
+      document.getElementById('act_payee').value=ep.payee||'';
+      document.getElementById('act_amount').value=ep.amount||'';
+      document.getElementById('act_date').value=ep.date||'';
+      document.getElementById('act_invoice').value=ep.invoiceRef||'';
+      document.getElementById('act_notes').value=ep.notes||'';
+      document.getElementById('actSaveBtn').textContent=lang==='ar'?'✓ تحديث':'✓ Update';
+      document.getElementById('actCancelBtn').style.display='';
+    }
+  }
+}
+
+function _actAutoQ(){
+  // Auto-detect quarter from date when date changes
+  const dateEl=document.getElementById('act_date');
+  const qEl=document.getElementById('act_quarter');
+  if(dateEl&&dateEl.value&&qEl){
+    const qi=dateToQuarterIdx(dateEl.value,D.start_date);
+    const nq=R?R.nq:Math.ceil(D.fund_period_months/3);
+    if(qi>=0&&qi<nq) qEl.value=qi;
+  }
+}
+
+function _actSave(){
+  const quarter=Number(document.getElementById('act_quarter').value);
+  const category=document.getElementById('act_category').value;
+  const payee=document.getElementById('act_payee').value.trim();
+  const amount=Number(document.getElementById('act_amount').value);
+  const date=document.getElementById('act_date').value;
+  const invoiceRef=document.getElementById('act_invoice').value.trim();
+  const notes=document.getElementById('act_notes').value.trim();
+
+  if(!category){alert(lang==='ar'?'يرجى اختيار البند':'Please select a category');return;}
+  if(!amount||amount<=0){alert(lang==='ar'?'يرجى إدخال المبلغ':'Please enter an amount');return;}
+  if(!payee){alert(lang==='ar'?'يرجى إدخال اسم المستفيد':'Please enter a payee name');return;}
+
+  if(_actEditId){
+    // Update existing
+    const idx=actuals.findIndex(p=>p.id===_actEditId);
+    if(idx>=0){
+      actuals[idx]={...actuals[idx],quarter,category,payee,amount,date,invoiceRef,notes};
+    }
+    _actEditId=null;
+  }else{
+    // Add new
+    actuals.push({id:_actGenId(),quarter,category,payee,amount,date,invoiceRef,notes});
+  }
+  buildActualsTab();
+}
+
+function _actEdit(id){
+  _actEditId=id;
+  buildActualsTab();
+  // Scroll to form
+  document.getElementById('actForm').scrollIntoView({behavior:'smooth'});
+}
+
+function _actCancelEdit(){
+  _actEditId=null;
+  buildActualsTab();
+}
+
+function _actDelete(id){
+  if(!confirm(lang==='ar'?'هل أنت متأكد من حذف هذه الدفعة؟':'Delete this payment?')) return;
+  actuals=actuals.filter(p=>p.id!==id);
+  buildActualsTab();
+}
+
+// =============================================
+// IMPORT ENGINE — Excel Upload & Paste
+// =============================================
+
+// Arabic keyword → category mapping rules
+const IMPORT_RULES=[
+  // High-priority specific matches first
+  {keywords:['رسوم الإدارة','رسوم إدارة','management fee'],cat:'mgmt_fee'},
+  {keywords:['أمين الحفظ','حفظ','custody'],cat:'custody'},
+  {keywords:['ترتيب التمويل','اتعاب ترتيب','الرسوم الإدارية للتمويل','arrangement'],cat:'arr_fee'},
+  {keywords:['أرباح القروض','أرباح التمويل','فوائد','interest','profit on loan'],cat:'interest'},
+  {keywords:['مخططات معمارية','المعمارية','architectural'],cat:'design'},
+  {keywords:['فحص التربة','geotechnical','soil test'],cat:'supervision'},
+  {keywords:['تأسيس','هيكلة','تأسيس الصندوق','structuring'],cat:'fund_setup'},
+  {keywords:['جدوى','feasibility','استشار','consulting','قانون'],cat:'fund_setup'},
+  {keywords:['تسجيل الصندوق','مؤهل للاسترداد'],cat:'fund_setup'},
+  {keywords:['رخصة','ترخيص','وافي','حكومية','رسوم حكومية','منصة قوى','رخصة البناء','تأهيل مطور','سجل تجاري'],cat:'licensing'},
+  {keywords:['تسويق','marketing','إعلان'],cat:'marketing'},
+  {keywords:['تقييم','تثمين','appraisal','valuation'],cat:'other_exp'},
+  {keywords:['مراجع','audit'],cat:'auditor'},
+  {keywords:['شرعية','sharia'],cat:'sharia'},
+  {keywords:['هندس','engineering'],cat:'engineering'},
+  {keywords:['إشراف','supervision'],cat:'supervision'},
+  {keywords:['مجلس الإدارة','board'],cat:'board'},
+  {keywords:['مستشار مالي','financial advisor'],cat:'fin_advisor'},
+  {keywords:['إدارة البنك','bank management'],cat:'bank_mgmt'},
+  {keywords:['أداء','performance'],cat:'perf_fee'},
+  {keywords:['تأمين','insurance'],cat:'insurance'},
+  {keywords:['تصميم','design'],cat:'design'},
+  {keywords:['مقاول','بناء','construction','تطوير بنية'],cat:'base_con'},
+  {keywords:['بيع','عمولة','سعي','commission','selling'],cat:'selling'},
+  {keywords:['إيراد','revenue','بيع وحد'],cat:'revenue'},
+  {keywords:['مرابح','murabaha','deposit'],cat:'murabaha'},
+  {keywords:['SPV','شركة ذات غرض'],cat:'spv'},
+];
+
+function _importGuessCategory(desc,payee){
+  const text=((desc||'')+'|'+(payee||'')).toLowerCase();
+  for(const rule of IMPORT_RULES){
+    for(const kw of rule.keywords){
+      if(text.includes(kw.toLowerCase()||kw)) return rule.cat;
+    }
+  }
+  return 'other_exp'; // fallback
+}
+
+// State for import review
+let _importPending=[];  // Array of {date,amount,payee,description,category,include}
+
+function _importShowUI(){
+  const t=lang==='ar';
+  const isFund=Number(D.is_fund);
+  const cats=ACT_CATS.filter(c=>!c.fundOnly||isFund);
+  const catOpts=cats.map(c=>`<option value="${c.key}">${t?c.ar:c.en}</option>`).join('');
+  const nq=R?R.nq:Math.ceil(D.fund_period_months/3);
+
+  let html=`<div class="act-section">
+    <h2>${t?'📥 استيراد المدفوعات':'📥 Import Payments'}</h2>
+    <div class="import-methods">
+      <div class="import-method">
+        <h4>${t?'رفع ملف Excel':'Upload Excel File'}</h4>
+        <input type="file" id="importFileInput" accept=".xlsx,.xlsm,.xls,.csv" onchange="_importFile(this)">
+        <p class="import-hint">${t?'يدعم .xlsx و .xlsm و .csv':'Supports .xlsx, .xlsm, and .csv'}</p>
+      </div>
+      <div class="import-method">
+        <h4>${t?'لصق من Excel':'Paste from Excel'}</h4>
+        <textarea id="importPasteArea" rows="5" placeholder="${t?'الصق البيانات هنا (تاريخ\\tمبلغ\\tمستفيد\\tوصف)':'Paste data here (date\\tamount\\tpayee\\tdescription)'}"></textarea>
+        <button class="act-btn act-btn-add" onclick="_importPaste()" style="margin-top:8px">${t?'تحليل البيانات':'Parse Data'}</button>
+      </div>
+    </div>
+  </div>`;
+
+  // Review table (shown when _importPending has data)
+  if(_importPending.length>0){
+    html+=`<div class="act-section">
+      <h2>${t?'مراجعة وتصنيف':'Review & Categorize'} (${_importPending.length} ${t?'عملية':'entries'})</h2>
+      <div class="import-review"><table>
+        <thead><tr>
+          <th><input type="checkbox" checked onchange="_importToggleAll(this.checked)"></th>
+          <th>${t?'التاريخ':'Date'}</th>
+          <th>${t?'المبلغ':'Amount'}</th>
+          <th>${t?'المستفيد':'Payee'}</th>
+          <th>${t?'الوصف':'Description'}</th>
+          <th>${t?'التصنيف':'Category'}</th>
+          <th>${t?'الربع':'Quarter'}</th>
+        </tr></thead><tbody>`;
+    _importPending.forEach((r,idx)=>{
+      const qi=dateToQuarterIdx(r.date,D.start_date);
+      const qLabel=qi<nq?'Q'+(qi+1):'—';
+      html+=`<tr class="${r.include?'':'import-excluded'}">
+        <td><input type="checkbox" ${r.include?'checked':''} onchange="_importPending[${idx}].include=this.checked;_importRefreshReview()"></td>
+        <td>${r.date||'—'}</td>
+        <td class="rfcs-num">${_actFmt(r.amount)}</td>
+        <td>${r.payee||'—'}</td>
+        <td class="import-desc">${(r.description||'').substring(0,60)}</td>
+        <td><select onchange="_importPending[${idx}].category=this.value">${catOpts.replace('value="'+r.category+'"','value="'+r.category+'" selected')}</select></td>
+        <td>${qLabel}</td>
+      </tr>`;
+    });
+    const totalAmt=_importPending.filter(r=>r.include).reduce((s,r)=>s+r.amount,0);
+    html+=`</tbody></table></div>
+      <div class="import-summary">
+        <span>${t?'الإجمالي المحدد':'Selected Total'}: <b>${_actFmt(totalAmt)} SAR</b> (${_importPending.filter(r=>r.include).length} ${t?'عملية':'entries'})</span>
+        <button class="act-btn act-btn-add" onclick="_importConfirm()">${t?'✓ استيراد المحدد':'✓ Import Selected'}</button>
+        <button class="act-btn act-btn-cancel" onclick="_importPending=[];_importShowUI()">${t?'إلغاء':'Cancel'}</button>
+      </div>
+    </div>`;
+  }
+
+  // Insert into actuals panel at the top
+  const pnl=document.getElementById('p-actuals');
+  const existing=pnl.innerHTML;
+  // Find insertion point — after the payment form, before payment log
+  const importDiv=document.getElementById('importSection');
+  if(importDiv) importDiv.innerHTML=html;
+  else{
+    const wrap=document.createElement('div');
+    wrap.id='importSection';
+    wrap.innerHTML=html;
+    pnl.insertBefore(wrap,pnl.firstChild);
+  }
+}
+
+function _importToggleAll(checked){
+  _importPending.forEach(r=>r.include=checked);
+  _importRefreshReview();
+}
+
+function _importRefreshReview(){
+  _importShowUI();
+}
+
+// Parse Excel file using SheetJS (loaded from CDN)
+function _importFile(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    _importLoadSheetJS(()=>{
+      const data=new Uint8Array(e.target.result);
+      const wb=XLSX.read(data,{type:'array',cellDates:true});
+      const sheet=wb.Sheets[wb.SheetNames[0]];
+      const json=XLSX.utils.sheet_to_json(sheet,{header:1,raw:true,cellDates:true});
+      _importParseRows(json);
+    });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Parse pasted tab-separated data
+function _importPaste(){
+  const text=document.getElementById('importPasteArea').value.trim();
+  if(!text){alert(lang==='ar'?'لا توجد بيانات':'No data to parse');return;}
+  const rows=text.split('\n').map(line=>line.split('\t'));
+  _importParseRows(rows);
+}
+
+// Common row parser — detect columns and build pending list
+function _importParseRows(rows){
+  if(rows.length<2){alert(lang==='ar'?'لا توجد بيانات كافية':'Not enough data');return;}
+
+  // Detect header row — look for keywords
+  let headerIdx=0;
+  const dateKW=['تاريخ','date','التاريخ'];
+  const amtKW=['مبلغ','amount','المبلغ'];
+  const payeeKW=['مستفيد','payee','المستفيد','beneficiary'];
+  const descKW=['وصف','description','الوصف','details','البيان'];
+
+  for(let i=0;i<Math.min(3,rows.length);i++){
+    const row=rows[i].map(c=>String(c||'').toLowerCase().trim());
+    if(row.some(c=>dateKW.some(k=>c.includes(k)))){headerIdx=i;break;}
+  }
+
+  const header=rows[headerIdx].map(c=>String(c||'').toLowerCase().trim());
+
+  // Find column indices
+  let dateCol=-1,amtCol=-1,payeeCol=-1,descCol=-1;
+  header.forEach((h,i)=>{
+    if(dateCol<0&&dateKW.some(k=>h.includes(k))) dateCol=i;
+    if(amtCol<0&&amtKW.some(k=>h.includes(k))) amtCol=i;
+    if(payeeCol<0&&payeeKW.some(k=>h.includes(k))) payeeCol=i;
+    if(descCol<0&&descKW.some(k=>h.includes(k))) descCol=i;
+  });
+
+  // Fallback: if no header detected, assume columns 1=date, 2=amount, 4=payee, 5=description (based on sample)
+  if(dateCol<0) dateCol=1;
+  if(amtCol<0) amtCol=2;
+  if(payeeCol<0) payeeCol=4;
+  if(descCol<0) descCol=5;
+
+  // Parse data rows
+  _importPending=[];
+  const nq=R?R.nq:Math.ceil(D.fund_period_months/3);
+
+  for(let i=headerIdx+1;i<rows.length;i++){
+    const row=rows[i];
+    if(!row||row.length<3) continue;
+
+    const rawAmt=row[amtCol];
+    let amount=0;
+    if(typeof rawAmt==='number'){amount=rawAmt;}
+    else{
+      // Strip currency symbols (ر.س., SAR, $), spaces, commas — extract number
+      const m=String(rawAmt||'').match(/([\d,]+\.?\d*)/);
+      amount=m?parseFloat(m[1].replace(/,/g,'')):0;
+    }
+    if(amount<=0) continue;
+
+    let rawDate=row[dateCol];
+    let date='';
+    if(rawDate){
+      if(rawDate instanceof Date){
+        // raw:true with cellDates:true returns Date objects
+        date=rawDate.toISOString().substring(0,10);
+      }else{
+        const ds=String(rawDate).trim();
+        if(ds.match(/^\d{4}-\d{2}-\d{2}/)) date=ds.substring(0,10);
+        else if(ds.match(/^\d{2}\/\d{2}\/\d{4}/)){
+          const p=ds.split('/');date=p[2]+'-'+p[1]+'-'+p[0];
+        }else if(ds.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)){
+          const p=ds.split('/');date=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
+        }else{
+          const d=new Date(ds);
+          if(!isNaN(d)) date=d.toISOString().substring(0,10);
+        }
+      }
+    }
+
+    const payee=String(row[payeeCol]||'').trim();
+    const description=String(row[descCol]||'').trim();
+
+    if(!payee&&!description) continue;
+
+    const category=_importGuessCategory(description,payee);
+    const qi=dateToQuarterIdx(date,D.start_date);
+
+    _importPending.push({date,amount,payee,description,category,include:qi<nq});
+  }
+
+  if(_importPending.length===0){
+    alert(lang==='ar'?'لم يتم العثور على بيانات صالحة':'No valid data found');
+    return;
+  }
+
+  _importShowUI();
+}
+
+// Confirm import — add selected entries to actuals
+function _importConfirm(){
+  const nq=R?R.nq:Math.ceil(D.fund_period_months/3);
+  const selected=_importPending.filter(r=>r.include);
+  if(selected.length===0){alert(lang==='ar'?'لم يتم تحديد أي عمليات':'No entries selected');return;}
+
+  let imported=0;
+  for(const r of selected){
+    const qi=dateToQuarterIdx(r.date,D.start_date);
+    if(qi>=nq) continue; // skip entries beyond fund period
+    actuals.push({
+      id:_actGenId(),
+      quarter:qi,
+      category:r.category,
+      payee:r.payee,
+      amount:r.amount,
+      date:r.date,
+      invoiceRef:'',
+      notes:r.description
+    });
+    imported++;
+  }
+
+  _importPending=[];
+  alert((lang==='ar'?'تم استيراد ':'Imported ')+imported+(lang==='ar'?' عملية بنجاح':' payments successfully'));
+  buildActualsTab();
+}
+
+// Load SheetJS from CDN if not already loaded
+function _importLoadSheetJS(cb){
+  if(window.XLSX){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb;
+  s.onerror=()=>alert('Failed to load Excel parser. Check internet connection.');
+  document.head.appendChild(s);
+}
+
+// =============================================
+// REFORECAST ENGINE
+// =============================================
+
+// Helper: get number of fully completed quarters from fund start date to today
+function getActualCutoffQ(startDateStr){
+  const sd=new Date(startDateStr||'2026-01-01');
+  const today=new Date();
+  if(today<=sd) return 0;
+  // Each quarter = 3 months from start
+  let completedQ=0;
+  let qEnd=new Date(sd);
+  while(true){
+    qEnd=new Date(sd);
+    qEnd.setMonth(sd.getMonth()+(completedQ+1)*3);
+    if(qEnd<=today) completedQ++;
+    else break;
+  }
+  return completedQ;
+}
+
+// Helper: map a date string (YYYY-MM-DD) to its quarter index (0-based)
+function dateToQuarterIdx(dateStr,startDateStr){
+  if(!dateStr) return 0;
+  const sd=new Date(startDateStr||'2026-01-01');
+  const d=new Date(dateStr);
+  if(d<sd) return 0;
+  const diffMs=d-sd;
+  const diffMonths=(d.getFullYear()-sd.getFullYear())*12+(d.getMonth()-sd.getMonth());
+  return Math.floor(diffMonths/3);
+}
+
+// Toggle reforecast mode
+function toggleReforecast(){
+  if(!R){alert('Please Calculate first');return;}
+  if(actuals.length===0){alert(lang==='ar'?'لا توجد مدفوعات فعلية. يرجى إضافة مدفوعات في تبويب الفعلي أولاً.':'No actual payments found. Please add payments in the Actuals tab first.');return;}
+  reforecastMode=!reforecastMode;
+  const btn=document.getElementById('btnReforecast');
+  if(reforecastMode){
+    btn.style.background='#dc3545';
+    btn.textContent='✕ Exit Reforecast';
+    runReforecast();
+  }else{
+    btn.style.background='#0d6efd';
+    btn.textContent='🔄 Reforecast';
+    R2=null;
+    document.getElementById('reforecastPanel').style.display='none';
+    renderCashFlow(); // revert to original
+  }
+}
+
+// Build reforecast settings UI
+function buildReforecastUI(){
+  if(!R) return;
+  const t=lang==='ar';
+  const nq=R.nq;
+  const cutoffQ=getActualCutoffQ(R.A.start_date);
+  const isFund=Number(R.A.is_fund);
+  const cats=ACT_CATS.filter(c=>!c.fundOnly||isFund).filter(c=>!c.actualOnly);
+  const labels=R.labels;
+
+  let html=`<div class="rfcs-panel">
+    <h3>${t?'إعدادات إعادة التوقع':'Reforecast Settings'}</h3>
+    <div class="rfcs-info">
+      <span>${t?'الأرباع الفعلية المكتملة':'Completed Actual Quarters'}: <b>${cutoffQ}</b> (Q1–Q${cutoffQ})</span>
+      <span>${t?'أرباع التوقع':'Forecast Quarters'}: <b>${nq-cutoffQ}</b> (Q${cutoffQ+1}–Q${nq})</span>
+    </div>
+
+    <div class="rfcs-row">
+      <div class="rfcs-field">
+        <label>${t?'طريقة إعادة التوزيع':'Redistribution Mode'}</label>
+        <select id="rfcsRedistMode" onchange="reforecastSettings.redistMode=this.value;runReforecast()">
+          <option value="proportional"${reforecastSettings.redistMode==='proportional'?' selected':''}>${t?'نسبي (إعادة توزيع حسب الأوزان الأصلية)':'Proportional (renormalize original weights)'}</option>
+          <option value="next_quarter"${reforecastSettings.redistMode==='next_quarter'?' selected':''}>${t?'الربع التالي فقط':'Next Quarter Only'}</option>
+        </select>
+      </div>
+      <div class="rfcs-field">
+        <label>${t?'رصيد القرض الفعلي عند نهاية':'Actual Loan Balance at end of'} Q${cutoffQ} (${t?'اتركه فارغاً للتلقائي':'leave blank for auto'})</label>
+        <input type="number" id="rfcsLoanBal" placeholder="${t?'تلقائي':'Auto'}" value="${reforecastSettings.actualLoanBalance!==null?reforecastSettings.actualLoanBalance:''}" onchange="reforecastSettings.actualLoanBalance=this.value?Number(this.value):null;runReforecast()">
+      </div>
+    </div>
+
+    <h4>${t?'تعديل الميزانية حسب البند':'Budget Adjustments by Category'}</h4>
+    <div class="rfcs-budgets">
+      <table class="rfcs-tbl">
+        <thead><tr>
+          <th>${t?'البند':'Category'}</th>
+          <th>${t?'الميزانية الأصلية':'Original Budget'}</th>
+          <th>${t?'الفعلي (المكتمل)':'Actual (Completed)'}</th>
+          <th>${t?'المتبقي':'Remaining'}</th>
+          <th>${t?'ميزانية معدلة':'Adjusted Budget'}</th>
+        </tr></thead><tbody>`;
+
+  for(const c of cats){
+    let origBudget=0, actualSpent=0;
+    for(let i=0;i<nq;i++) origBudget+=c.getQ(R,i);
+    for(let i=0;i<cutoffQ;i++){
+      actualSpent+=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+    }
+    const remaining=origBudget-actualSpent;
+    const overrideVal=reforecastSettings.budgetOverrides[c.key];
+    html+=`<tr>
+      <td>${t?c.ar:c.en}</td>
+      <td class="rfcs-num">${_actFmt(origBudget)}</td>
+      <td class="rfcs-num">${_actFmt(actualSpent)}</td>
+      <td class="rfcs-num ${remaining<0?'act-over':''}">${_actFmt(remaining)}</td>
+      <td><input type="number" class="rfcs-input" placeholder="${_actFmt(origBudget)}" value="${overrideVal!==undefined?overrideVal:''}" data-cat="${c.key}" onchange="if(this.value)reforecastSettings.budgetOverrides['${c.key}']=Number(this.value);else delete reforecastSettings.budgetOverrides['${c.key}'];runReforecast()"></td>
+    </tr>`;
+  }
+
+  html+=`</tbody></table></div>
+    <button class="act-btn act-btn-add" onclick="runReforecast()" style="margin-top:12px">${t?'🔄 إعادة حساب التوقع':'🔄 Recalculate Reforecast'}</button>
+  </div>`;
+
+  const panel=document.getElementById('reforecastPanel');
+  panel.innerHTML=html;
+  panel.style.display='block';
+}
+
+// Main reforecast solver
+function runReforecast(){
+  if(!R){return;}
+  const nq=R.nq;
+  const cutoffQ=getActualCutoffQ(R.A.start_date);
+  if(cutoffQ<1){
+    alert(lang==='ar'?'لا توجد أرباع فعلية مكتملة بعد':'No completed actual quarters yet');
+    reforecastMode=false;
+    document.getElementById('btnReforecast').style.background='#0d6efd';
+    document.getElementById('btnReforecast').textContent='🔄 Reforecast';
+    document.getElementById('reforecastPanel').style.display='none';
+    return;
+  }
+
+  const isFund=Number(R.A.is_fund);
+  const cats=ACT_CATS.filter(c=>!c.fundOnly||isFund).filter(c=>!c.actualOnly);
+  const redistMode=reforecastSettings.redistMode||'proportional';
+
+  // Phase 1: Build actual quarterly arrays for each category (Q0..cutoffQ-1)
+  // Phase 2: Redistribute remaining budget across forecast quarters (cutoffQ..nq-1)
+  const catArrays={}; // {key: Array(nq)} — blended actual+forecast per quarter
+
+  for(const c of cats){
+    const arr=Array(nq).fill(0);
+    // Original budget per quarter
+    const origQ=Array(nq).fill(0);
+    let origTotal=0;
+    for(let i=0;i<nq;i++){origQ[i]=c.getQ(R,i);origTotal+=origQ[i];}
+
+    // Override total budget if user adjusted
+    const adjTotal=reforecastSettings.budgetOverrides[c.key]!==undefined?reforecastSettings.budgetOverrides[c.key]:origTotal;
+
+    // Phase 1: Actual quarters — use actual payment data
+    let actualSpent=0;
+    for(let i=0;i<cutoffQ&&i<nq;i++){
+      const qActual=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+      arr[i]=qActual;
+      actualSpent+=qActual;
+    }
+
+    // Phase 2: Remaining budget to distribute across forecast quarters
+    const remaining=Math.max(0,adjTotal-actualSpent);
+    const forecastQs=nq-cutoffQ;
+
+    if(forecastQs>0&&remaining>0){
+      if(redistMode==='next_quarter'){
+        // Dump all remaining into the first forecast quarter
+        arr[cutoffQ]+=remaining;
+      }else{
+        // Proportional: renormalize based on original weights of forecast quarters
+        let forecastOrigSum=0;
+        for(let i=cutoffQ;i<nq;i++) forecastOrigSum+=origQ[i];
+
+        if(forecastOrigSum>0){
+          for(let i=cutoffQ;i<nq;i++){
+            arr[i]=remaining*(origQ[i]/forecastOrigSum);
+          }
+        }else{
+          // If no original weights for forecast, distribute evenly
+          for(let i=cutoffQ;i<nq;i++){
+            arr[i]=remaining/forecastQs;
+          }
+        }
+      }
+    }
+
+    catArrays[c.key]=arr;
+  }
+
+  // Also handle actual-only categories (murabaha, other_inc, other_exp)
+  const actualOnlyCats=ACT_CATS.filter(c=>c.actualOnly);
+  for(const c of actualOnlyCats){
+    const arr=Array(nq).fill(0);
+    for(let i=0;i<nq;i++){
+      arr[i]=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+    }
+    catArrays[c.key]=arr;
+  }
+
+  // Build R2 — clone R and override quarterly arrays with reforecast values
+  R2=JSON.parse(JSON.stringify(R));
+
+  // Map category arrays back to R2 arrays
+  if(catArrays.land) R2.qLandCF=catArrays.land.map((v,i)=>i===0?-v:0); // land is negative in CF
+  // For land, brokerage, rett — they're bundled in qLandCF in original
+  // Reforecast: rebuild qLandCF from individual actuals
+  const rfLand=catArrays.land||Array(nq).fill(0);
+  const rfBrok=catArrays.brokerage||Array(nq).fill(0);
+  const rfRett=catArrays.rett||Array(nq).fill(0);
+  R2.qLandCF=Array.from({length:nq},(_,i)=>-(rfLand[i]+rfBrok[i]+rfRett[i]));
+  R2.baseLand=rfLand.reduce((a,b)=>a+b,0);
+  R2.brokerageIncVAT=rfBrok.reduce((a,b)=>a+b,0);
+  R2.rettAmount=rfRett.reduce((a,b)=>a+b,0);
+  R2.tLand=R2.baseLand+R2.brokerageIncVAT+R2.rettAmount;
+
+  if(catArrays.base_con) R2.qBaseCon=catArrays.base_con;
+  if(catArrays.dev_fee) R2.qDevFee=catArrays.dev_fee;
+  if(catArrays.contingency) R2.qContingency=catArrays.contingency;
+  if(catArrays.licensing) R2.qLicensing=catArrays.licensing;
+  if(catArrays.design) R2.qDesignFee=catArrays.design;
+  if(catArrays.insurance) R2.qInsurance=catArrays.insurance;
+  if(catArrays.supervision) R2.qSupervision=catArrays.supervision;
+  if(catArrays.marketing) R2.qMkt=catArrays.marketing;
+
+  // Selling — split back into qSellExp (commission) + qWafi
+  if(catArrays.selling){
+    // Original ratio of sellExp vs wafi in each quarter
+    for(let i=0;i<nq;i++){
+      const origSell=(R.qSellExp[i]||0)+(R.qWafi[i]||0);
+      if(origSell>0){
+        const sellRatio=R.qSellExp[i]/origSell;
+        R2.qSellExp[i]=catArrays.selling[i]*sellRatio;
+        R2.qWafi[i]=catArrays.selling[i]*(1-sellRatio);
+      }else if(catArrays.selling[i]>0){
+        R2.qSellExp[i]=catArrays.selling[i];
+        R2.qWafi[i]=0;
+      }else{
+        R2.qSellExp[i]=0;
+        R2.qWafi[i]=0;
+      }
+    }
+  }
+
+  // Revenue
+  if(catArrays.revenue) R2.qGrossSales=catArrays.revenue;
+  // Recalculate qSales = qGrossSales - qWafi
+  R2.qSales=R2.qGrossSales.map((v,i)=>v-R2.qWafi[i]);
+  R2.tRev=R2.qGrossSales.reduce((a,b)=>a+b,0);
+
+  // Fund expenses — map each sub-category individually
+  if(isFund){
+    if(catArrays.fund_setup) R2.qFundSetup=catArrays.fund_setup;
+    if(catArrays.mgmt_fee) R2.qMgmtFee=catArrays.mgmt_fee;
+    if(catArrays.custody) R2.qCustody=catArrays.custody;
+    if(catArrays.spv) R2.qSPV=catArrays.spv;
+    if(catArrays.auditor) R2.qAuditor=catArrays.auditor;
+    if(catArrays.sharia) R2.qSharia=catArrays.sharia;
+    if(catArrays.engineering) R2.qEngineering=catArrays.engineering;
+    if(catArrays.board) R2.qBoard=catArrays.board;
+    if(catArrays.fin_advisor) R2.qFinAdvisor=catArrays.fin_advisor;
+    if(catArrays.arr_fee) R2.qArrFee=catArrays.arr_fee;
+    if(catArrays.bank_mgmt) R2.qBankMgmt=catArrays.bank_mgmt;
+    if(catArrays.perf_fee) R2.qPerfFee=catArrays.perf_fee;
+    // Rebuild total fund expenses from sub-items
+    for(let i=0;i<nq;i++){
+      R2.qTotalFundExp[i]=(R2.qCustody[i]||0)+(R2.qSPV[i]||0)+(R2.qFundSetup[i]||0)+(R2.qAuditor[i]||0)+(R2.qSharia[i]||0)+(R2.qEngineering[i]||0)+(R2.qBoard[i]||0)+(R2.qFinAdvisor[i]||0)+(R2.qMgmtFee[i]||0)+(R2.qBankMgmt[i]||0)+(R2.qPerfFee[i]||0)+(R2.qArrFee[i]||0);
+    }
+  }
+
+  // Interest — use reforecast values
+  if(catArrays.interest){
+    R2.qInterest=catArrays.interest;
+  }
+
+  // Rebuild qCon = qBaseCon + qDevFee + qContingency + qInsurance + qDesignFee + qSupervision + qLicensing (all inc VAT)
+  const V=1+R.A.vat_rate/100;
+  for(let i=0;i<nq;i++){
+    R2.qCon[i]=(R2.qBaseCon[i]+R2.qDevFee[i]+R2.qContingency[i]+R2.qInsurance[i]+R2.qDesignFee[i]+R2.qSupervision[i]+R2.qLicensing[i]);
+  }
+  R2.tCon=R2.qCon.reduce((a,b)=>a+b,0);
+
+  // Rebuild qNetOp = qSales + qVATNet - qTotalFundExp - qInterest
+  // Simplified: keep VAT arrays from original for forecast quarters
+  for(let i=0;i<nq;i++){
+    R2.qNetOp[i]=R2.qSales[i]+(R2.qVATNet[i]||0)-(R2.qTotalFundExp[i]||0)-R2.qInterest[i];
+  }
+
+  // Rebuild qNetInv = qLandCF - qCon
+  for(let i=0;i<nq;i++){
+    R2.qNetInv[i]=R2.qLandCF[i]-R2.qCon[i];
+  }
+
+  // Debt cascade: use actual loan balance at cutoff if provided
+  if(reforecastSettings.actualLoanBalance!==null&&cutoffQ>0){
+    // Set loan close at cutoff-1 to actual balance
+    R2.qLoanClose[cutoffQ-1]=reforecastSettings.actualLoanBalance;
+    // Recalculate forward from cutoff
+    for(let i=cutoffQ;i<nq;i++){
+      R2.qLoanOpen[i]=R2.qLoanClose[i-1];
+      // Keep original drawdowns and repayments for forecast quarters
+      R2.qLoanClose[i]=R2.qLoanOpen[i]+R2.drawdowns[i]-R2.qRepay[i];
+    }
+  }
+
+  // Rebuild cash flow
+  for(let i=0;i<nq;i++){
+    // qNetFin = drawdowns - repay + equity + IK - dividends
+    R2.qNetFin[i]=(R2.drawdowns[i]||0)-(R2.qRepay[i]||0)+(R2.qEquity[i]||0)+(R2.qIKTotal[i]||0)-(R2.qDividends[i]||0);
+  }
+  // Cash open/close
+  for(let i=0;i<nq;i++){
+    R2.qCashOpen[i]=i===0?0:R2.qCashClose[i-1];
+    R2.qCashClose[i]=R2.qCashOpen[i]+R2.qNetOp[i]+R2.qNetInv[i]+R2.qNetFin[i];
+  }
+
+  // Mark actual vs forecast quarters on R2 for rendering
+  R2._cutoffQ=cutoffQ;
+  R2._isReforecast=true;
+
+  // Add actual-only income/expense totals
+  R2._actualOnlyIncome=(catArrays.murabaha||Array(nq).fill(0)).map((v,i)=>v+(catArrays.other_inc||Array(nq).fill(0))[i]);
+  R2._actualOnlyExpense=catArrays.other_exp||Array(nq).fill(0);
+
+  // Recalculate summary totals
+  R2.totalCost=R2.tLand+R2.tCon+(R2.qTotalFundExp||[]).reduce((a,b)=>a+b,0)+R2.qInterest.reduce((a,b)=>a+b,0);
+  R2.grossProfit=R2.tRev-R2.totalCost;
+  R2.profitMargin=R2.totalCost?R2.grossProfit/R2.totalCost:0;
+
+  buildReforecastUI();
+  renderCashFlow();
 }
 
 // =============================================
@@ -4524,6 +5583,162 @@ function dlExcel(){
   }
 
   sheets.push({name:'Summary',rows,cols:colsSummary()});
+
+  // ═══════════════════════════════════════════════
+  // SHEET: BUDGET vs ACTUAL
+  // ═══════════════════════════════════════════════
+  if(actuals.length>0){
+    rows=[];
+    rows.push('<row>'+title('BUDGET vs ACTUAL')+'</row>');
+    {let h=colHdr('Category')+colHdr('Type');
+     for(let i=0;i<nq;i++) h+=colHdr(R.labels[i]);
+     h+=colHdr('Total');
+     rows.push('<row>'+h+'</row>');}
+
+    const isFundMode=Number(A.is_fund);
+    const bvaCats=ACT_CATS.filter(c=>!c.fundOnly||isFundMode);
+    let rowN=3;
+
+    for(const cat of bvaCats){
+      const isRev=cat.group==='revenue';
+      // Category header
+      rows.push('<row>'+secHdr((lang==='ar'?cat.ar:cat.en)+(cat.actualOnly?' (Actual Only)':''))+'</row>');
+      rowN++;
+
+      // Budget row
+      const budgetRow=rowN;
+      {let c=lbl('',0)+lbl('Budget',1);
+       let total=0;
+       for(let i=0;i<nq;i++){
+         const b=R&&!cat.actualOnly?cat.getQ(R,i):0;
+         total+=b;
+         c+=vc(b,S.bkN);
+       }
+       c+=vc(total,S.bdN);
+       rows.push('<row>'+c+'</row>');
+       rowN++;}
+
+      // Actual row
+      const actualRow=rowN;
+      {let c=lbl('',1)+lbl('Actual',0);
+       for(let i=0;i<nq;i++){
+         const a=actuals.filter(p=>p.category===cat.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
+         c+=vc(a,S.blN);
+       }
+       c+=fc('SUM(C'+rowN+':'+cl(nq)+rowN+')',S.bdN);
+       rows.push('<row>'+c+'</row>');
+       rowN++;}
+
+      // Variance row (only for budgeted categories)
+      if(!cat.actualOnly){
+        {let c=lbl('',0)+lbl('Variance',1);
+         for(let i=0;i<nq;i++){
+           const bCol=cl(1+i); // column for this quarter (B=0 offset by 1 for label+type)
+           if(isRev){
+             c+=fc(bCol+actualRow+'-'+bCol+budgetRow,S.grN);
+           }else{
+             c+=fc(bCol+budgetRow+'-'+bCol+actualRow,S.grN);
+           }
+         }
+         const tCol=cl(nq+1);
+         if(isRev){
+           c+=fc(tCol+actualRow+'-'+tCol+budgetRow,S.bdN);
+         }else{
+           c+=fc(tCol+budgetRow+'-'+tCol+actualRow,S.bdN);
+         }
+         rows.push('<row>'+c+'</row>');
+         rowN++;}
+      }
+      rows.push('<row/>');
+      rowN++;
+    }
+
+    // Payment log section
+    rows.push('<row/>'); rowN++;
+    rows.push('<row>'+secHdr('PAYMENT LOG')+'</row>'); rowN++;
+    {let h=colHdr('Date')+colHdr('Quarter')+colHdr('Category')+colHdr('Payee')+colHdr('Amount')+colHdr('Invoice Ref')+colHdr('Notes');
+     rows.push('<row>'+h+'</row>'); rowN++;}
+
+    const sortedPayments=[...actuals].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    for(const p of sortedPayments){
+      let c=tx(p.date||'',S.def);
+      c+=tx(R.labels[p.quarter]||'Q'+(p.quarter+1),S.def);
+      c+=tx(_actCatLabel(p.category),S.def);
+      c+=tx(p.payee||'',S.def);
+      c+=vc(p.amount||0,S.bkN);
+      c+=tx(p.invoiceRef||'',S.def);
+      c+=tx(p.notes||'',S.def);
+      rows.push('<row>'+c+'</row>');
+      rowN++;
+    }
+
+    sheets.push({name:'Budget vs Actual',rows,cols:'<cols><col min="1" max="2" width="18" customWidth="1"/><col min="3" max="'+(nq+2)+'" width="16" customWidth="1"/><col min="'+(nq+3)+'" max="'+(nq+3)+'" width="16" customWidth="1"/></cols>'});
+  }
+
+  // ═══════════════════════════════════════════════
+  // SHEET: REFORECAST CASH FLOW (if R2 exists)
+  // ═══════════════════════════════════════════════
+  if(R2&&R2._isReforecast){
+    let rows=[];let rowN=1;
+    const r2=R2;
+    const cutQ=r2._cutoffQ||0;
+    rows.push('<row>'+title('REFORECAST CASH FLOW')+'</row>');rowN++;
+    rows.push('<row>'+tx('Actual Q1-Q'+cutQ+' | Forecast Q'+(cutQ+1)+'-Q'+nq+' | Mode: '+reforecastSettings.redistMode,S.sub)+'</row>');rowN++;
+
+    // Headers
+    let hdr='<row>'+colHdr('Cash Flow Item');
+    for(let i=0;i<nq;i++) hdr+=colHdr((i<cutQ?'✓ ':'')+'Q'+(i+1));
+    hdr+=colHdr('Total');
+    rows.push(hdr+'</row>');rowN++;
+
+    // Helper row builders for reforecast
+    function rfRow(label,data,si){
+      let c=lbl(label,rowN%2);
+      let tot=0;
+      for(let i=0;i<nq;i++){const v=data[i]||0;tot+=v;c+=vc(v,si||(rowN%2?S.alt:S.bkN));}
+      c+=vc(tot,S.sub);
+      rows.push('<row>'+c+'</row>');rowN++;
+    }
+    function rfSubRow(label,data){
+      let c='<c s="'+S.sub+'"><is><t>'+esc(label)+'</t></is></c>';
+      let tot=0;
+      for(let i=0;i<nq;i++){const v=data[i]||0;tot+=v;c+=vc(v,S.sub);}
+      c+=vc(tot,S.sub);
+      rows.push('<row>'+c+'</row>');rowN++;
+    }
+
+    rfRow('Gross Revenue',r2.qGrossSales);
+    rfRow('Wafi Fees',r2.qWafi.map(v=>-v));
+    rfRow('Selling Expenses',r2.qSellExp.map(v=>-v));
+    rfSubRow('Net Revenue',r2.qSales);
+    rows.push('<row/>');rowN++;
+    rfRow('Total Fund Expenses',r2.qTotalFundExp.map(v=>-v));
+    rfRow('Interest',r2.qInterest.map(v=>-v));
+    rfSubRow('Net Operating',r2.qNetOp);
+    rows.push('<row/>');rowN++;
+    rfRow('Land',r2.qLandCF);
+    rfRow('Base Construction',r2.qBaseCon.map(v=>-v));
+    rfRow('Development Fee',r2.qDevFee.map(v=>-v));
+    rfRow('Contingency',r2.qContingency.map(v=>-v));
+    rfRow('Insurance',r2.qInsurance.map(v=>-v));
+    rfRow('Design',r2.qDesignFee.map(v=>-v));
+    rfRow('Supervision',r2.qSupervision.map(v=>-v));
+    rfRow('Licensing',r2.qLicensing.map(v=>-v));
+    rfSubRow('Total Construction',r2.qCon.map(v=>-v));
+    rfSubRow('Net Investment',r2.qNetInv);
+    rows.push('<row/>');rowN++;
+    rfRow('Net Borrowing',r2.drawdowns.map((d,i)=>d-r2.qRepay[i]));
+    rfRow('Equity',r2.qEquity);
+    rfRow('In-Kind',r2.qIKTotal);
+    rfRow('Dividends',r2.qDividends.map(v=>-v));
+    rfSubRow('Net Financing',r2.qNetFin);
+    rows.push('<row/>');rowN++;
+    rfSubRow('Opening Cash',r2.qCashOpen);
+    rfRow('Cash Change',Array.from({length:nq},(_,i)=>r2.qCashClose[i]-r2.qCashOpen[i]));
+    rfSubRow('Closing Cash',r2.qCashClose);
+
+    sheets.push({name:'Reforecast CF',rows,cols:colsQ(32,16)});
+  }
 
   // ═══════════════════════════════════════════════
   // BUILD OOXML ZIP
