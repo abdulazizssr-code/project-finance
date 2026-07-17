@@ -45,59 +45,98 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 
 
 /* ── LOGIN SCREEN ── */
-.login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--primary),var(--primary-c));z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#f8f6f1;z-index:9999;display:flex;align-items:stretch;justify-content:center;overflow:hidden}
 .login-overlay.hidden{display:none}
-.login-box{background:var(--surface-cw);border-radius:var(--radius);padding:48px 40px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
-.login-box .login-logo{width:64px;height:64px;background:var(--secondary);border-radius:var(--radius);display:inline-flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:20px}
-.login-box h2{font-family:'Noto Serif',serif;font-size:1.4rem;color:var(--primary);margin-bottom:6px}
-.login-box p{font-size:.88rem;color:var(--on-surface-vl);margin-bottom:28px}
-.login-field{display:flex;flex-direction:column;text-align:left;margin-bottom:16px}
-.login-field label{font-size:.82rem;font-weight:600;color:var(--on-surface-v);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
-.login-field input{padding:12px 14px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.95rem;font-family:inherit;transition:var(--t);background:var(--surface)}
-.login-field input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(0,50,45,.08)}
-.login-btn{width:100%;padding:14px;border:none;border-radius:var(--radius-s);background:linear-gradient(135deg,var(--primary),var(--primary-c));color:#fff;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Noto Serif',serif;margin-top:8px;transition:var(--t)}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,50,45,.25)}
-.login-error{color:var(--error);font-size:.85rem;margin-top:10px;display:none}
-.login-success{color:var(--success);font-size:.85rem;margin-top:10px;display:none}
-.login-toggle{margin-top:20px;font-size:.88rem;color:var(--on-surface-vl)}.login-toggle a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none}.login-toggle a:hover{text-decoration:underline}
-.login-remember{display:flex;align-items:center;justify-content:space-between;margin:12px 0 4px;text-align:left}
+/* Split layout: branding left, form right */
+.login-brand{flex:1;background:linear-gradient(160deg,#00322d 0%,#004b44 40%,#00635a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;position:relative;overflow:hidden}
+.login-brand::before{content:'';position:absolute;top:-20%;right:-30%;width:80%;height:140%;background:radial-gradient(ellipse,rgba(119,90,25,.12) 0%,transparent 70%);pointer-events:none}
+.login-brand::after{content:'';position:absolute;bottom:-10%;left:-20%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none}
+.login-brand-logo{width:90px;height:90px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;backdrop-filter:blur(10px);overflow:hidden;padding:8px}
+.login-brand h1{font-family:'Noto Serif',serif;font-size:1.8rem;color:#fff;text-align:center;line-height:1.4;margin-bottom:12px;font-weight:600;letter-spacing:-.02em}
+.login-brand .login-brand-ar{font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif;font-size:1.5rem;color:rgba(255,255,255,.85);text-align:center;margin-bottom:24px;font-weight:600;direction:rtl}
+.login-brand-desc{font-size:.92rem;color:rgba(255,255,255,.55);text-align:center;max-width:360px;line-height:1.7}
+.login-brand-features{display:flex;flex-direction:column;gap:14px;margin-top:40px;max-width:320px}
+.login-brand-feat{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.7);font-size:.88rem;font-weight:500}
+.login-brand-feat-icon{width:36px;height:36px;background:rgba(255,255,255,.08);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:1px solid rgba(255,255,255,.06)}
+/* Form side */
+.login-form-side{width:480px;min-width:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 52px;background:#fff;position:relative}
+.login-form-side::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--primary),var(--secondary),var(--primary))}
+.login-box{width:100%;max-width:380px;text-align:center}
+.login-box .login-logo{display:none}
+.login-box h2{font-family:'Noto Serif',serif;font-size:1.5rem;color:var(--primary);margin-bottom:6px;font-weight:700;letter-spacing:-.02em}
+.login-box p{font-size:.88rem;color:var(--on-surface-vl);margin-bottom:28px;line-height:1.5}
+.login-field{display:flex;flex-direction:column;text-align:left;margin-bottom:18px}
+.login-field label{font-size:.78rem;font-weight:600;color:var(--on-surface-v);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+.login-field input{padding:14px 16px;border:1.5px solid rgba(27,28,25,.1);border-radius:10px;font-size:.95rem;font-family:inherit;transition:var(--t);background:#f8f6f1}
+.login-field input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 4px rgba(0,50,45,.06);background:#fff}
+.login-field input::placeholder{color:var(--on-surface-vl);font-weight:400}
+.login-btn{width:100%;padding:15px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-c));color:#fff;font-size:1.02rem;font-weight:700;cursor:pointer;font-family:'Manrope',system-ui,sans-serif;margin-top:10px;transition:var(--t);letter-spacing:.02em;position:relative;overflow:hidden}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,50,45,.2)}
+.login-btn:active{transform:translateY(0)}
+.login-error{color:var(--error);font-size:.85rem;margin-top:12px;display:none;background:rgba(186,26,26,.06);padding:10px 14px;border-radius:8px;text-align:center}
+.login-success{color:var(--success);font-size:.85rem;margin-top:12px;display:none;background:rgba(26,107,60,.06);padding:10px 14px;border-radius:8px;text-align:center}
+.login-toggle{margin-top:24px;font-size:.88rem;color:var(--on-surface-vl)}.login-toggle a{color:var(--primary);font-weight:700;cursor:pointer;text-decoration:none;border-bottom:1.5px solid transparent;transition:var(--t)}.login-toggle a:hover{border-bottom-color:var(--primary)}
+.login-remember{display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px;text-align:left}
 .login-remember label{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--on-surface-v);cursor:pointer;font-weight:500}
-.login-remember input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);cursor:pointer;margin:0}
+.login-remember input[type=checkbox]{width:17px;height:17px;accent-color:var(--primary);cursor:pointer;margin:0;border-radius:4px}
 .signup-fields{display:none}.signup-fields.show{display:block}
+.login-footer{margin-top:32px;padding-top:20px;border-top:1px solid rgba(27,28,25,.06);font-size:.82rem;color:var(--on-surface-vl);text-align:center}
+.login-footer a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none}
+/* RTL login */
+[dir=rtl] .login-field{text-align:right}
+[dir=rtl] .login-field label{font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
+[dir=rtl] .login-brand h1{font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
+[dir=rtl] .login-form-side::before{left:auto;right:0}
+/* Responsive login */
+@media(max-width:900px){
+  .login-overlay{flex-direction:column;overflow-y:auto}
+  .login-brand{flex:none;padding:32px 24px;min-height:auto}
+  .login-brand h1{font-size:1.3rem}.login-brand .login-brand-ar{font-size:1.1rem}
+  .login-brand-features{display:none}
+  .login-brand-desc{display:none}
+  .login-form-side{width:100%;min-width:auto;padding:32px 24px}
+  .login-form-side::before{width:100%;height:3px;top:0;left:0}
+}
 /* ── PROJECT BAR ── */
-.project-bar{background:var(--surface-cl);padding:8px 40px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--outline-v);position:sticky;top:72px;z-index:90}
-.project-bar select{padding:8px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.88rem;font-family:inherit;background:var(--surface-cw);min-width:200px}
-.project-bar button{padding:8px 16px;border:none;border-radius:var(--radius-s);font-size:.85rem;cursor:pointer;font-weight:600;font-family:inherit;transition:var(--t)}
+.project-bar{background:#fff;padding:0 40px;height:58px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--outline);position:sticky;top:64px;z-index:90;overflow-x:auto;overflow-y:hidden}
+.project-bar>*{flex-shrink:0}
+.project-bar select{padding:9px 14px;border:1.5px solid var(--outline);border-radius:10px;font-size:.88rem;font-family:inherit;background:var(--surface);min-width:200px;transition:var(--t)}
+.project-bar select:focus{border-color:var(--primary);outline:none}
+.project-bar button{padding:8px 16px;border:none;border-radius:10px;font-size:.84rem;cursor:pointer;font-weight:600;font-family:inherit;transition:var(--t)}
 .project-bar .proj-new{background:var(--primary);color:#fff}
-.project-bar .proj-del{background:var(--error);color:#fff}
+.project-bar .proj-new:hover{background:var(--primary-c)}
+.project-bar .proj-del{background:transparent;color:var(--error);border:1.5px solid var(--error)}
+.project-bar .proj-del:hover{background:var(--error);color:#fff}
 .project-bar .proj-save{background:var(--secondary);color:#fff}
-.project-bar label{font-size:.85rem;font-weight:600;color:var(--on-surface-v)}
-.project-bar .btn-calc{margin-left:auto;padding:10px 28px;background:linear-gradient(135deg,var(--primary),var(--primary-c));color:#fff;font-size:.95rem;font-weight:700;letter-spacing:.03em}
+.project-bar .proj-save:hover{background:var(--secondary-l)}
+.project-bar label{font-size:.84rem;font-weight:600;color:var(--on-surface-v)}
+.project-bar .btn-calc{margin-left:auto;padding:11px 32px;background:linear-gradient(135deg,var(--primary),var(--primary-c));color:#fff;font-size:.95rem;font-weight:700;letter-spacing:.03em;border-radius:10px}
+.project-bar .btn-calc:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,50,45,.2)}
 .user-badge{font-size:.82rem;color:rgba(255,255,255,.6);font-weight:500}
-.btn-logout{background:rgba(186,26,26,.7);color:#fff}
-.btn-logout:hover{background:rgba(186,26,26,.9)}
+.btn-logout{background:transparent;color:var(--error);border:1.5px solid rgba(186,26,26,.3)}
+.btn-logout:hover{background:var(--error);color:#fff}
 
 /* ── HEADER ── */
-.hdr{background:linear-gradient(135deg,var(--primary),var(--primary-c));color:var(--primary-on);padding:0 40px;height:72px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.hdr-left{display:flex;align-items:center;gap:16px}
-.hdr-logo{width:44px;height:44px;background:var(--secondary);border-radius:var(--radius-s);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:#fff;letter-spacing:-.5px}
-.hdr h1{font-family:'Noto Serif',serif;font-size:1.35rem;font-weight:600;letter-spacing:-.01em}
-.hdr-sub{font-size:.78rem;color:rgba(255,255,255,.45);font-weight:400;margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
-.hdr-btns{display:flex;gap:10px;align-items:center}
-.hdr-btns button{padding:10px 22px;border-radius:var(--radius-s);cursor:pointer;font-size:.88rem;border:none;font-weight:600;transition:var(--t);font-family:inherit}
-.btn-lang{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.12)!important}
-.btn-lang:hover{background:rgba(255,255,255,.14);color:#fff}
-.btn-dl{background:var(--secondary);color:#fff;letter-spacing:.02em}
+.hdr{background:var(--primary);color:var(--primary-on);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.06)}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-logo{width:42px;height:42px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);overflow:hidden;padding:4px}
+.hdr h1{font-family:'Manrope',system-ui,sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+.hdr-sub{font-size:.72rem;color:rgba(255,255,255,.55);font-weight:500;margin-top:1px;letter-spacing:.06em;text-transform:uppercase}
+.hdr-btns{display:flex;gap:8px;align-items:center}
+.hdr-btns button{padding:9px 20px;border-radius:10px;cursor:pointer;font-size:.85rem;border:none;font-weight:600;transition:var(--t);font-family:inherit}
+.btn-lang{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.1)!important}
+.btn-lang:hover{background:rgba(255,255,255,.12);color:#fff}
+.btn-dl{background:var(--secondary);color:#fff;letter-spacing:.02em;border-radius:10px}
 .btn-dl:hover{background:var(--secondary-l);transform:translateY(-1px)}
 .btn-dl:not(.show){display:none}
 
 /* ── TABS ── */
-.tabs{display:flex;background:var(--surface-cl);padding:0 40px;gap:4px;position:sticky;top:113px;z-index:89;box-shadow:0 2px 4px rgba(0,0,0,.08)}
-.tab{padding:15px 24px;border:none;background:none;cursor:pointer;color:var(--on-surface-vl);border-bottom:2px solid transparent;font-weight:500;font-size:.92rem;transition:var(--t);position:relative;letter-spacing:.02em}
-.tab:hover:not(:disabled){color:var(--primary);background:rgba(0,50,45,.03)}
+.tabs{display:flex;background:#fff;padding:0 40px;gap:2px;position:sticky;top:122px;z-index:89;border-bottom:1px solid var(--outline);overflow-x:auto;overflow-y:hidden}
+.tab{padding:14px 22px;border:none;background:none;cursor:pointer;color:var(--on-surface-vl);border-bottom:2.5px solid transparent;font-weight:500;font-size:.88rem;transition:var(--t);position:relative;letter-spacing:.01em;white-space:nowrap;flex-shrink:0}
+.tab:hover:not(:disabled){color:var(--primary);background:rgba(0,50,45,.02)}
 .tab.act{color:var(--primary);border-bottom-color:var(--secondary);font-weight:700}
-.tab:disabled{color:var(--on-surface-vl);cursor:not-allowed;opacity:.4}
-.tab .tab-icon{margin-right:7px;font-size:.85rem}
+.tab:disabled{color:var(--on-surface-vl);cursor:not-allowed;opacity:.35}
+.tab .tab-icon{margin-right:7px;font-size:.82rem}
 [dir=rtl] .tab .tab-icon{margin-right:0;margin-left:7px}
 
 
@@ -113,49 +152,55 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 
 /* ── FORM ── */
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:24px}
-.sec{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);transition:var(--t)}
-.sec:hover{box-shadow:var(--shadow)}
-.sec-t{font-family:'Noto Serif',serif;font-size:1.05rem;font-weight:600;color:var(--primary);margin-bottom:16px;padding-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:.01em}
-.sec-t::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
+.sec{background:#fff;border-radius:12px;padding:28px;box-shadow:0 1px 3px rgba(27,28,25,.04),0 4px 16px rgba(27,28,25,.02);transition:var(--t);border:1px solid rgba(27,28,25,.04)}
+.sec:hover{box-shadow:0 2px 6px rgba(27,28,25,.06),0 8px 24px rgba(27,28,25,.04)}
+.sec-t{font-family:'Noto Serif',serif;font-size:1rem;font-weight:600;color:var(--primary);margin-bottom:18px;padding-bottom:12px;display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.sec-t::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
 .frow{display:grid;grid-template-columns:1fr 130px 130px;gap:10px;align-items:center;margin-bottom:8px;padding:4px 0}
 .frow label{font-size:.88rem;color:var(--on-surface-v);font-weight:500}
-.frow input,.frow select{padding:9px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.92rem;background:var(--surface-cw);transition:var(--t);font-family:inherit;color:var(--on-surface)}
-.frow input:focus,.frow select:focus{border-color:var(--primary);outline:none;background:rgba(0,50,45,.02);box-shadow:0 0 0 3px rgba(0,50,45,.08)}
-.frow input[readonly]{color:var(--on-surface-v);background:var(--surface-cl);border:none;border-radius:var(--radius-s);padding:9px 12px;font-weight:600}
+.frow input,.frow select{padding:10px 14px;border:1.5px solid rgba(27,28,25,.1);border-radius:10px;font-size:.92rem;background:var(--surface);transition:var(--t);font-family:inherit;color:var(--on-surface)}
+.frow input:focus,.frow select:focus{border-color:var(--primary);outline:none;background:#fff;box-shadow:0 0 0 4px rgba(0,50,45,.06)}
+.frow input[readonly]{color:var(--on-surface-v);background:var(--surface-cl);border:1px solid rgba(27,28,25,.04);border-radius:10px;padding:10px 14px;font-weight:600}
 .frow-2{grid-template-columns:1fr 130px}
 .sep{height:1px;background:var(--outline-v);margin:12px 0;border:none}
 .calc-bar{margin-top:32px;text-align:center}
-.btn-calc{background:linear-gradient(135deg,var(--primary),var(--primary-c));color:var(--primary-on);border:none;padding:16px 64px;border-radius:var(--radius-s);font-size:1.1rem;font-weight:700;cursor:pointer;transition:var(--t);letter-spacing:.03em;font-family:'Noto Serif',serif}
-.btn-calc:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,50,45,.25)}
+.btn-calc{background:linear-gradient(135deg,var(--primary),var(--primary-c));color:var(--primary-on);border:none;padding:15px 56px;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:var(--t);letter-spacing:.02em;font-family:'Manrope',system-ui,sans-serif}
+.btn-calc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,50,45,.2)}
 .btn-calc:active{transform:translateY(0)}
 
 /* ── SCHEDULE ── */
-.sch-wrap{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);overflow-x:auto;margin-bottom:24px}
+.sch-wrap{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(27,28,25,.04),0 4px 16px rgba(27,28,25,.02);overflow-x:auto;margin-bottom:24px;border:1px solid rgba(27,28,25,.04)}
 .sch-wrap h3{font-family:'Noto Serif',serif;color:var(--primary);margin-bottom:14px;font-size:1rem;font-weight:600;display:flex;align-items:center;gap:10px}
-.sch-wrap h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px}
-.sch-tbl{border-collapse:collapse;font-size:.9rem;width:100%}
+.sch-wrap h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
+.sch-tbl{border-collapse:separate;border-spacing:0;font-size:.9rem;width:100%}
 .sch-tbl th{background:var(--primary);color:var(--primary-on);padding:10px 12px;text-align:center;min-width:72px;font-weight:500;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase}
-.sch-tbl th:first-child{border-radius:var(--radius-s) 0 0 0;text-align:left}
+.sch-tbl th:first-child{border-radius:var(--radius-s) 0 0 0;text-align:left;position:sticky;left:0;z-index:6}
 .sch-tbl th:last-child{border-radius:0 var(--radius-s) 0 0}
+[dir=rtl] .sch-tbl th:first-child{left:auto;right:0;border-radius:0 var(--radius-s) 0 0}
+[dir=rtl] .sch-tbl th:last-child{border-radius:var(--radius-s) 0 0 0}
 .sch-tbl td{padding:7px 8px;text-align:center}
-.sch-tbl td:first-child{text-align:left;font-weight:500;min-width:200px;background:var(--surface-cl);color:var(--on-surface)}
+.sch-tbl td:first-child{text-align:left;font-weight:500;min-width:200px;background:var(--surface-cl);color:var(--on-surface);position:sticky;left:0;z-index:5;border-right:1px solid var(--outline-v);box-shadow:2px 0 4px rgba(0,0,0,.06)}
+[dir=rtl] .sch-tbl td:first-child{left:auto;right:0;border-right:none;border-left:1px solid var(--outline-v);box-shadow:-2px 0 4px rgba(0,0,0,.06)}
+.sch-tbl td.tot:first-child{background:#eae6dc}
 .sch-tbl input{width:66px;text-align:center;border:none;border-bottom:1.5px solid var(--outline);border-radius:0;padding:6px 4px;font-size:.9rem;transition:var(--t);font-family:inherit;background:transparent}
 .sch-tbl input:focus{border-bottom-color:var(--primary);border-bottom-width:2px;outline:none}
 .sch-tbl .tot{background:rgba(119,90,25,.08);font-weight:700;color:var(--primary);font-family:'Noto Serif',serif}
 .sch-tbl tbody tr:hover td{background:rgba(0,50,45,.02)}
+.sch-tbl tbody tr:hover td:first-child{background:#efede6}
 
 /* ── KPIs ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:32px}
-.kpi{background:var(--surface-cw);border-radius:var(--radius);padding:20px 16px;text-align:center;box-shadow:var(--shadow-l);position:relative;overflow:hidden;transition:var(--t)}
-.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.kpi-v{font-family:'Noto Serif',serif;font-size:1.3rem;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:-.02em}
-.kpi-l{font-size:.8rem;color:var(--on-surface-vl);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.kpi{background:#fff;border-radius:12px;padding:22px 18px;text-align:center;box-shadow:0 1px 3px rgba(27,28,25,.04),0 4px 16px rgba(27,28,25,.02);position:relative;overflow:hidden;transition:var(--t);border:1px solid rgba(27,28,25,.04)}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 2px 6px rgba(27,28,25,.06),0 8px 24px rgba(27,28,25,.04)}
+.kpi-v{font-family:'Noto Serif',serif;font-size:1.25rem;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:-.02em}
+.kpi-l{font-size:.76rem;color:var(--on-surface-vl);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 
 /* ── CHARTS ── */
 .ch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:24px;margin-top:12px}
-.ch-card{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);transition:var(--t);overflow:hidden}
-.ch-card:hover{box-shadow:var(--shadow)}
-.ch-card h3{font-family:'Noto Serif',serif;font-size:1rem;color:var(--primary);margin-bottom:14px;font-weight:600}
+.ch-card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(27,28,25,.04),0 4px 16px rgba(27,28,25,.02);transition:var(--t);overflow:hidden;border:1px solid rgba(27,28,25,.04)}
+.ch-card:hover{box-shadow:0 2px 6px rgba(27,28,25,.06),0 8px 24px rgba(27,28,25,.04)}
+.ch-card h3{font-family:'Noto Serif',serif;font-size:1rem;color:var(--primary);margin-bottom:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.ch-card h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
 
 /* ── TABLES ── */
 .tbl-wrap{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);overflow-x:auto;margin-bottom:24px}
@@ -164,13 +209,15 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 .dt{border-collapse:separate;border-spacing:0;font-size:.88rem;white-space:nowrap;width:max-content;min-width:100%}
 .dt th{background:var(--primary);color:var(--primary-on);padding:10px 14px;text-align:right;font-weight:500;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
 .dt td{background:var(--surface-cw)}
-.dt th:first-child{border-radius:var(--radius-s) 0 0 0;position:sticky;left:0;z-index:6}.dt th:last-child{border-radius:0 var(--radius-s) 0 0}
+.dt th:first-child{border-radius:var(--radius-s) 0 0 0;position:sticky;left:0;z-index:6;text-align:left}.dt th:last-child{border-radius:0 var(--radius-s) 0 0}
+[dir=rtl] .dt th:first-child{text-align:right;left:auto;right:0;border-radius:0 var(--radius-s) 0 0}
+[dir=rtl] .dt th:last-child{border-radius:var(--radius-s) 0 0 0}
 .dt td{padding:8px 14px;text-align:right;background:var(--surface-cw);min-width:110px}
 .dt tbody tr{transition:background .15s}
 .dt tbody tr:hover td:not(.rl){background:#f9f8f5}
 .dt .rl{position:sticky;left:0;background:#ffffff;text-align:left;font-weight:500;min-width:220px;z-index:5;color:var(--on-surface);border-right:1px solid var(--outline-v);box-shadow:2px 0 4px rgba(0,0,0,.06)}
 .dt tbody tr:hover td.rl{background:#f9f8f5}
-[dir=rtl] .dt .rl{text-align:right;left:auto;right:0}
+[dir=rtl] .dt .rl{text-align:right;left:auto;right:0;border-right:none;border-left:1px solid var(--outline-v);box-shadow:-2px 0 4px rgba(0,0,0,.06)}
 .dt .bld td{font-weight:700;background:var(--surface-cl);color:var(--primary);font-family:'Noto Serif',serif}
 .dt .sep td{height:10px;border:none;background:var(--surface)}
 .dt .neg{color:var(--error)}
@@ -201,7 +248,7 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 
 /* ── SENSITIVITY ── */
 .sens-layout{display:grid;grid-template-columns:300px 1fr;gap:24px}
-.sens-sidebar{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);position:sticky;top:92px;height:fit-content}
+.sens-sidebar{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);position:sticky;top:188px;height:fit-content}
 .sens-sidebar h3{font-family:'Noto Serif',serif;color:var(--primary);font-size:1rem;font-weight:600;margin-bottom:20px;padding-bottom:12px;display:flex;align-items:center;gap:10px}
 .sens-sidebar h3::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px}
 .sens-main{display:flex;flex-direction:column;gap:24px;overflow:hidden;min-width:0}
@@ -231,71 +278,116 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 .footer span{color:var(--secondary);font-weight:600}
 
 /* ── ACTUALS TAB ── */
-.act-section{margin-bottom:32px}
-.act-section h2{font-family:'Noto Serif',serif;font-size:1.15rem;color:var(--primary);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--outline)}
+.act-section{background:var(--surface-cw);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-l);margin-bottom:24px;transition:var(--t)}
+.act-section:hover{box-shadow:var(--shadow)}
+.act-section h2{font-family:'Noto Serif',serif;font-size:1rem;color:var(--primary);margin-bottom:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.act-section h2::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
+[dir=rtl] .act-section h2{text-align:right;font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
 .act-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;background:var(--surface-cl);padding:20px;border-radius:var(--radius);margin-bottom:16px}
 .act-form label{font-size:.78rem;font-weight:600;color:var(--on-surface-v);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block}
+[dir=rtl] .act-form label{text-align:right;font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
 .act-form input,.act-form select,.act-form textarea{width:100%;padding:10px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.9rem;font-family:inherit;background:var(--surface-cw);transition:var(--t)}
 .act-form input:focus,.act-form select:focus,.act-form textarea:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(0,50,45,.08)}
 .act-form textarea{resize:vertical;min-height:40px}
 .act-form .act-full{grid-column:1/-1}
 .act-form .act-btn-row{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+[dir=rtl] .act-form .act-btn-row{justify-content:flex-start}
 .act-btn{padding:10px 24px;border:none;border-radius:var(--radius-s);font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:var(--t)}
-.act-btn-add{background:var(--primary);color:#fff}.act-btn-add:hover{background:var(--primary-c)}
+.act-btn-add{background:var(--primary);color:#fff}.act-btn-add:hover{background:var(--primary-c);transform:translateY(-1px)}
 .act-btn-cancel{background:var(--surface-ch);color:var(--on-surface-v)}.act-btn-cancel:hover{background:var(--outline)}
 .act-btn-del{background:var(--error);color:#fff;padding:6px 12px;font-size:.8rem}.act-btn-del:hover{opacity:.85}
 .act-btn-edit{background:var(--secondary);color:#fff;padding:6px 12px;font-size:.8rem}.act-btn-edit:hover{opacity:.85}
-.act-btn-open{background:var(--primary);color:#fff;padding:8px 20px;font-size:.88rem;display:inline-flex;align-items:center;gap:6px}
+.act-btn-open{background:var(--primary);color:#fff;padding:8px 20px;font-size:.88rem;display:inline-flex;align-items:center;gap:6px}.act-btn-open:hover{background:var(--primary-c);transform:translateY(-1px)}
+/* BVA table — matches cash flow .dt pattern with sticky first column */
 .act-bva{width:100%;overflow-x:auto;margin-bottom:24px}
-.act-bva table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:800px}
-.act-bva th,.act-bva td{padding:8px 10px;border:1px solid var(--outline);text-align:right;white-space:nowrap}
-.act-bva th{background:var(--primary);color:#fff;font-weight:600;font-size:.78rem;position:sticky;top:0}
-.act-bva th:first-child{text-align:left;min-width:160px}
-[dir=rtl] .act-bva th:first-child{text-align:right}
-.act-bva .act-cat-hd{background:var(--surface-cl);font-weight:700;color:var(--primary);text-align:left;font-size:.85rem}
-[dir=rtl] .act-bva .act-cat-hd{text-align:right}
-.act-bva .act-row-bgt{background:var(--surface-cw);color:var(--on-surface-v)}
-.act-bva .act-row-act{background:var(--surface-cw);font-weight:600}
-.act-bva .act-row-var{background:var(--surface-cl)}
+.act-bva table{border-collapse:separate;border-spacing:0;font-size:.82rem;white-space:nowrap;width:max-content;min-width:100%}
+.act-bva th{background:var(--primary);color:#fff;padding:10px 14px;text-align:right;font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+.act-bva th:first-child{border-radius:var(--radius-s) 0 0 0;position:sticky;left:0;z-index:6;text-align:left;min-width:180px}
+.act-bva th:last-child{border-radius:0 var(--radius-s) 0 0}
+[dir=rtl] .act-bva th:first-child{text-align:right;left:auto;right:0}
+.act-bva td{padding:8px 14px;text-align:right;background:var(--surface-cw);min-width:100px}
+.act-bva td:first-child{position:sticky;left:0;background:var(--surface-cw);text-align:left;font-weight:500;min-width:180px;z-index:5;border-right:1px solid var(--outline-v);box-shadow:2px 0 4px rgba(0,0,0,.06)}
+[dir=rtl] .act-bva td:first-child{text-align:right;left:auto;right:0;border-right:none;border-left:1px solid var(--outline-v);box-shadow:-2px 0 4px rgba(0,0,0,.06)}
+.act-bva tbody tr{transition:background .15s}
+.act-bva tbody tr:hover td{background:rgba(0,50,45,.02)}
+.act-bva tbody tr:hover td:first-child{background:#f9f8f5}
+.act-bva .act-cat-hd td{background:var(--surface-cl)!important;font-weight:700;color:var(--primary);font-size:.85rem}
+.act-bva .act-cat-hd td:first-child{background:var(--surface-cl)!important}
+[dir=rtl] .act-bva .act-cat-hd td{text-align:right}
+.act-bva .act-row-bgt td{color:var(--on-surface-v);font-weight:400}
+.act-bva .act-row-bgt td:not(:first-child):not(:nth-child(2)),.act-bva .act-row-act td:not(:first-child):not(:nth-child(2)),.act-bva .act-row-var td:not(:first-child):not(:nth-child(2)){font-family:'Noto Serif',serif}
+.act-bva .act-row-act td{font-weight:600}
+.act-bva .act-row-var td{background:var(--surface-cl)}
+.act-bva .act-row-var td:first-child{background:var(--surface-cl)}
 .act-bva .act-over{color:var(--error);font-weight:700}
 .act-bva .act-under{color:var(--success);font-weight:700}
-.act-bva .act-total-col{background:rgba(0,50,45,.06);font-weight:700}
-.act-bva .act-sect-total{background:var(--surface-ch);font-weight:700;border-top:2px solid var(--primary)}
-.act-log table{width:100%;border-collapse:collapse;font-size:.84rem}
-.act-log th,.act-log td{padding:10px 12px;border-bottom:1px solid var(--outline);text-align:left}
-[dir=rtl] .act-log th,[dir=rtl] .act-log td{text-align:right}
-.act-log th{background:var(--surface-cl);font-weight:600;color:var(--on-surface-v);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}
-.act-log tr:hover{background:rgba(0,50,45,.02)}
-.act-log .act-amt{font-family:'Work Sans',monospace;font-weight:600}
+.act-bva .act-total-col{background:rgba(0,50,45,.06)!important;font-weight:700}
+.act-bva .act-sect-total td{background:var(--surface-ch)!important;font-weight:700;border-top:2px solid var(--primary);font-family:'Noto Serif',serif}
+.act-bva .act-sect-total td:first-child{background:var(--surface-ch)!important}
+.act-bva .act-row-act td:not(:first-child):not(:nth-child(2)){font-family:'Noto Serif',serif;font-weight:700;color:var(--primary)}
+.act-bva .act-row-var .act-over,.act-bva .act-row-var .act-under{font-family:'Noto Serif',serif}
+/* Payment log table */
+.act-log table{width:100%;border-collapse:separate;border-spacing:0;font-size:.84rem}
+.act-log th{background:var(--surface-cl);font-weight:600;color:var(--on-surface-v);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;padding:10px 12px;text-align:left}
+.act-log th:first-child{border-radius:var(--radius-s) 0 0 0}
+.act-log th:last-child{border-radius:0 var(--radius-s) 0 0}
+.act-log td{padding:10px 12px;border-bottom:1px solid var(--outline-v);text-align:left}
+[dir=rtl] .act-log th,[dir=rtl] .act-log td{text-align:right;font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
+.act-log tbody tr{transition:background .15s}
+.act-log tbody tr:hover td{background:rgba(0,50,45,.02)}
+.act-log .act-amt{font-family:'Noto Serif',serif;font-weight:700;color:var(--primary)}
 .act-log .act-actions{display:flex;gap:6px}
-.act-empty{text-align:center;padding:40px;color:var(--on-surface-vl);font-size:.95rem}
+.act-empty{text-align:center;padding:48px 24px;color:var(--on-surface-vl);font-size:.95rem;font-style:italic}
+[dir=rtl] .act-empty{font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
 .act-filters{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.act-filters select,.act-filters input{padding:8px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.85rem;font-family:inherit;background:var(--surface-cw)}
+[dir=rtl] .act-filters{direction:rtl}
+.act-filters select,.act-filters input{padding:8px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.85rem;font-family:inherit;background:var(--surface-cw);transition:var(--t)}
+.act-filters select:focus,.act-filters input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(0,50,45,.08)}
+/* Summary cards — matches .kpi pattern */
 .act-summary-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
-.act-sum-card{background:var(--surface-cw);border:1.5px solid var(--outline);border-radius:var(--radius);padding:16px;text-align:center}
-.act-sum-card .act-sum-label{font-size:.78rem;font-weight:600;color:var(--on-surface-vl);text-transform:uppercase;letter-spacing:.04em}
-.act-sum-card .act-sum-val{font-size:1.3rem;font-weight:800;color:var(--primary);margin-top:4px;font-family:'Work Sans',monospace}
+.act-sum-card{background:var(--surface-cw);border-radius:var(--radius);padding:20px 16px;text-align:center;box-shadow:var(--shadow-l);position:relative;overflow:hidden;transition:var(--t)}
+.act-sum-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.act-sum-card .act-sum-label{font-size:.8rem;font-weight:600;color:var(--on-surface-vl);text-transform:uppercase;letter-spacing:.06em}
+[dir=rtl] .act-sum-card .act-sum-label{font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
+.act-sum-card .act-sum-val{font-size:1.3rem;font-weight:700;color:var(--primary);margin-top:6px;font-family:'Noto Serif',serif;letter-spacing:-.02em}
 .act-sum-card .act-sum-sub{font-size:.78rem;color:var(--on-surface-vl);margin-top:2px}
 
 /* ── IMPORT ── */
 .import-methods{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px}
-.import-method{background:var(--surface-cl);padding:20px;border-radius:var(--radius);border:1.5px solid var(--outline)}
-.import-method h4{margin:0 0 12px;font-size:.95rem;color:var(--primary)}
-.import-method input[type=file]{width:100%;padding:10px;border:2px dashed var(--outline);border-radius:var(--radius-s);background:var(--surface-cw);cursor:pointer}
-.import-method textarea{width:100%;padding:10px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.84rem;font-family:monospace;resize:vertical;background:var(--surface-cw)}
+.import-method{background:var(--surface-cw);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow-l);border:none;transition:var(--t)}
+.import-method:hover{box-shadow:var(--shadow)}
+.import-method h4{margin:0 0 12px;font-size:.95rem;color:var(--primary);font-family:'Noto Serif',serif;display:flex;align-items:center;gap:8px}
+.import-method h4::before{content:'';width:3px;height:14px;background:linear-gradient(180deg,var(--primary),var(--secondary));border-radius:2px;flex-shrink:0}
+[dir=rtl] .import-method h4{text-align:right;font-family:'Cairo','Noto Kufi Arabic',system-ui,sans-serif}
+.import-method input[type=file]{width:100%;padding:10px;border:2px dashed var(--outline);border-radius:var(--radius-s);background:var(--surface-cl);cursor:pointer;transition:var(--t)}
+.import-method input[type=file]:hover{border-color:var(--primary);background:rgba(0,50,45,.02)}
+.import-method textarea{width:100%;padding:10px 12px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.84rem;font-family:monospace;resize:vertical;background:var(--surface-cl)}
 .import-hint{font-size:.78rem;color:var(--on-surface-vl);margin-top:6px}
+/* Import review table — matches .dt pattern */
 .import-review{width:100%;overflow-x:auto;margin-bottom:16px}
-.import-review table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:900px}
-.import-review th,.import-review td{padding:8px 10px;border:1px solid var(--outline);text-align:right}
-[dir=rtl] .import-review th,[dir=rtl] .import-review td{text-align:left}
-.import-review th{background:var(--primary);color:#fff;font-weight:600;font-size:.78rem;position:sticky;top:0}
+.import-review table{border-collapse:separate;border-spacing:0;font-size:.82rem;white-space:nowrap;width:max-content;min-width:100%}
+.import-review th{background:var(--primary);color:#fff;padding:10px 14px;text-align:right;font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+.import-review th:first-child{border-radius:var(--radius-s) 0 0 0;position:sticky;left:0;z-index:6}
+.import-review th:last-child{border-radius:0 var(--radius-s) 0 0}
+.import-review td{padding:8px 10px;text-align:right;background:var(--surface-cw)}
+.import-review td:first-child{position:sticky;left:0;background:var(--surface-cw);z-index:5;border-right:1px solid var(--outline-v);box-shadow:2px 0 4px rgba(0,0,0,.06)}
+[dir=rtl] .import-review th:first-child{left:auto;right:0}
+[dir=rtl] .import-review td:first-child{left:auto;right:0;border-right:none;border-left:1px solid var(--outline-v);box-shadow:-2px 0 4px rgba(0,0,0,.06)}
+.import-review tbody tr{transition:background .15s}
+.import-review tbody tr:hover td{background:rgba(0,50,45,.02)}
 .import-review select{padding:4px 8px;font-size:.8rem;border:1px solid var(--outline);border-radius:var(--radius-s);background:var(--surface-cw);min-width:130px}
 .import-review .import-excluded{opacity:.4}
 .import-desc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .import-summary{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 0;border-top:2px solid var(--outline)}
 .import-summary span{font-size:.9rem;color:var(--on-surface-v)}
 .import-summary b{color:var(--primary)}
-@media(max-width:768px){.import-methods{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .import-methods{grid-template-columns:1fr}
+  .act-summary-cards{grid-template-columns:repeat(2,1fr)}
+  .act-form{grid-template-columns:1fr}
+  .act-filters{flex-direction:column;align-items:stretch}
+  .act-filters select,.act-filters input{width:100%}
+}
 
 /* ── REFORECAST ── */
 .rfcs-banner{background:linear-gradient(135deg,#0d6efd,#0b5ed7);color:#fff;padding:14px 24px;border-radius:var(--radius);margin-bottom:16px;display:flex;align-items:center;gap:12px;font-size:.9rem;flex-wrap:wrap}
@@ -316,7 +408,7 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 [dir=rtl] .rfcs-tbl th,[dir=rtl] .rfcs-tbl td{text-align:left}
 .rfcs-tbl th{background:#0d6efd;color:#fff;font-size:.78rem;font-weight:600}
 .rfcs-tbl tr:nth-child(even){background:var(--surface-cl)}
-.rfcs-num{font-family:'Work Sans',monospace;font-weight:500}
+.rfcs-num{font-family:'Noto Serif',serif;font-weight:500;font-variant-numeric:tabular-nums}
 .rfcs-input{width:100%;padding:8px 10px;border:1.5px solid var(--outline);border-radius:var(--radius-s);font-size:.84rem;font-family:inherit;background:var(--surface-cw);text-align:right}
 .rfcs-input:focus{border-color:#0d6efd;outline:none}
 @media(max-width:768px){.rfcs-panel{margin:0 16px 16px;padding:16px}.rfcs-row{grid-template-columns:1fr}}
@@ -326,8 +418,11 @@ body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:var(--s
 @media(max-width:768px){
   .hdr{padding:0 20px;height:60px}.hdr h1{font-size:1rem}
   .hdr-center{gap:6px}.role-btn{padding:6px 10px;font-size:.75rem}
-  .tabs{padding:0 16px;overflow-x:auto;top:101px}.tab{padding:12px 16px;font-size:.78rem;white-space:nowrap}
-  .project-bar{top:60px;padding:8px 16px}
+  .tabs{padding:0 16px;overflow-x:auto;top:112px}.tab{padding:12px 16px;font-size:.78rem;white-space:nowrap}
+  .project-bar{top:60px;height:52px;padding:0 16px}
+  .project-bar select{min-width:140px}
+  .hdr-btns{gap:6px}.hdr-btns button{padding:7px 12px;font-size:.78rem}
+  .user-badge{display:none}
   .main{padding:20px 16px}
   .form-grid{grid-template-columns:1fr}.ch-grid{grid-template-columns:1fr}
   .frow{grid-template-columns:1fr}.frow-2{grid-template-columns:1fr}
@@ -510,29 +605,43 @@ canvas{max-width:100%;display:block}
 
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
-  <div class="login-box">
-    <div class="login-logo">RF</div>
-    <h2 id="authTitle">Real Estate Fund</h2>
-    <p id="authSubtitle">Sign in to your account</p>
-    <div class="login-field"><label>Username</label><input type="text" id="loginUser" placeholder="Enter username" autocomplete="username"></div>
-    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"></div>
-    <div class="signup-fields" id="signupFields">
-      <div class="login-field"><label>Email (for password recovery)</label><input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email"></div>
-      <div class="login-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm password"></div>
+  <div class="login-brand">
+    <div class="login-brand-logo"><svg viewBox="0 0 200 180" width="74" height="66" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="saMap"><path d="M38,12 L58,8 L80,6 L100,4 L120,6 L138,10 L155,18 L168,28 L175,40 L178,50 L176,58 L170,62 L164,58 L158,52 L152,50 L148,54 L150,62 L154,70 L155,78 L148,86 L138,92 L128,100 L118,108 L108,118 L98,128 L88,138 L78,148 L65,155 L50,158 L38,152 L30,142 L25,132 L22,120 L20,108 L18,96 L16,84 L18,72 L22,60 L26,48 L30,38 L34,26 Z"/></clipPath><linearGradient id="mapG" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="rgba(255,255,255,.28)"/></linearGradient></defs><path d="M38,12 L58,8 L80,6 L100,4 L120,6 L138,10 L155,18 L168,28 L175,40 L178,50 L176,58 L170,62 L164,58 L158,52 L152,50 L148,54 L150,62 L154,70 L155,78 L148,86 L138,92 L128,100 L118,108 L108,118 L98,128 L88,138 L78,148 L65,155 L50,158 L38,152 L30,142 L25,132 L22,120 L20,108 L18,96 L16,84 L18,72 L22,60 L26,48 L30,38 L34,26 Z" fill="url(#mapG)" stroke="rgba(255,255,255,.45)" stroke-width="1.5"/><g clip-path="url(#saMap)"><polyline points="5,130 30,108 52,118 78,78 95,90 125,52 148,65 195,20" fill="none" stroke="#6ECB63" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><polygon points="195,20 183,27 187,36" fill="#6ECB63" opacity=".9"/><polyline points="5,148 35,126 58,136 82,100 100,110 130,72 158,56" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6,4"/><polygon points="158,56 148,62 152,70" fill="rgba(255,255,255,.4)"/></g></svg></div>
+    <h1>Real Estate Fund<br>Financial Study</h1>
+    <div class="login-brand-ar">منصة الدراسة المالية للمشاريع العقارية</div>
+    <div class="login-brand-desc">Professional-grade financial modeling for real estate funds — feasibility, cash flow, sensitivity analysis, and investor reporting in one platform.</div>
+    <div class="login-brand-features">
+      <div class="login-brand-feat"><div class="login-brand-feat-icon">📊</div>Full cash flow & IRR modeling</div>
+      <div class="login-brand-feat"><div class="login-brand-feat-icon">🏗️</div>Construction & sales scheduling</div>
+      <div class="login-brand-feat"><div class="login-brand-feat-icon">📈</div>Sensitivity & scenario analysis</div>
+      <div class="login-brand-feat"><div class="login-brand-feat-icon">📋</div>Budget vs actual tracking</div>
     </div>
-    <div class="signup-fields" id="resetFields">
-      <div class="login-field" id="resetEmailField"><label>Registered Email</label><input type="email" id="resetEmail" placeholder="Enter your registered email" autocomplete="email"></div>
-      <div class="login-field" id="resetNewPassField" style="display:none"><label>New Password</label><input type="password" id="resetNewPass" placeholder="Enter new password (min 6 chars)" autocomplete="new-password"></div>
-      <div class="login-field" id="resetConfirmField" style="display:none"><label>Confirm New Password</label><input type="password" id="resetConfirm" placeholder="Confirm new password" autocomplete="new-password"></div>
-    </div>
-    <div class="login-remember"><label><input type="checkbox" id="rememberMe"> <span id="rememberLabel">Remember me</span></label><a id="forgotLink" onclick="showForgotPassword()" style="font-size:.82rem;color:var(--primary);cursor:pointer;text-decoration:none;font-weight:500">Forgot Password?</a></div>
-    <button class="login-btn" id="authBtn" onclick="doLogin()">Sign In</button>
-    <div class="login-error" id="loginError">Invalid username or password</div>
-    <div class="login-success" id="loginSuccess">Account created! You can now sign in.</div>
-    <div class="login-toggle" id="authToggle">Don't have an account? <a onclick="toggleAuthMode()">Sign Up</a></div>
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--outline);font-size:.85rem;color:var(--on-surface-vl)">
-      <a id="guestLink" onclick="enterGuestMode()" style="color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none">Continue as Guest</a>
-      <div style="font-size:.78rem;color:var(--on-surface-vl);margin-top:4px" id="guestHint">Try the platform without an account — projects won't be saved</div>
+  </div>
+  <div class="login-form-side">
+    <div class="login-box">
+      <div class="login-logo">RF</div>
+      <h2 id="authTitle">Welcome Back</h2>
+      <p id="authSubtitle">Sign in to access your projects</p>
+      <div class="login-field"><label>Username</label><input type="text" id="loginUser" placeholder="Enter your username" autocomplete="username"></div>
+      <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password"></div>
+      <div class="signup-fields" id="signupFields">
+        <div class="login-field"><label>Email (for password recovery)</label><input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email"></div>
+        <div class="login-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm your password"></div>
+      </div>
+      <div class="signup-fields" id="resetFields">
+        <div class="login-field" id="resetEmailField"><label>Registered Email</label><input type="email" id="resetEmail" placeholder="Enter your registered email" autocomplete="email"></div>
+        <div class="login-field" id="resetNewPassField" style="display:none"><label>New Password</label><input type="password" id="resetNewPass" placeholder="Enter new password (min 6 chars)" autocomplete="new-password"></div>
+        <div class="login-field" id="resetConfirmField" style="display:none"><label>Confirm New Password</label><input type="password" id="resetConfirm" placeholder="Confirm new password" autocomplete="new-password"></div>
+      </div>
+      <div class="login-remember"><label><input type="checkbox" id="rememberMe"> <span id="rememberLabel">Remember me</span></label><a id="forgotLink" onclick="showForgotPassword()" style="font-size:.82rem;color:var(--primary);cursor:pointer;text-decoration:none;font-weight:600">Forgot Password?</a></div>
+      <button class="login-btn" id="authBtn" onclick="doLogin()">Sign In</button>
+      <div class="login-error" id="loginError">Invalid username or password</div>
+      <div class="login-success" id="loginSuccess">Account created! You can now sign in.</div>
+      <div class="login-toggle" id="authToggle">Don't have an account? <a onclick="toggleAuthMode()">Create Account</a></div>
+      <div class="login-footer">
+        <a id="guestLink" onclick="enterGuestMode()">Continue as Guest</a>
+        <div style="font-size:.76rem;color:var(--on-surface-vl);margin-top:6px" id="guestHint">Explore the platform — projects won't be saved</div>
+      </div>
     </div>
   </div>
 </div>
@@ -575,10 +684,10 @@ canvas{max-width:100%;display:block}
 <div id="appMain" style="display:none">
 <div class="hdr">
   <div class="hdr-left">
-    <div class="hdr-logo">RF</div>
+    <div class="hdr-logo"><svg viewBox="0 0 200 180" width="32" height="29" xmlns="http://www.w3.org/2000/svg"><path d="M38,12 L58,8 L80,6 L100,4 L120,6 L138,10 L155,18 L168,28 L175,40 L178,50 L176,58 L170,62 L164,58 L158,52 L152,50 L148,54 L150,62 L154,70 L155,78 L148,86 L138,92 L128,100 L118,108 L108,118 L98,128 L88,138 L78,148 L65,155 L50,158 L38,152 L30,142 L25,132 L22,120 L20,108 L18,96 L16,84 L18,72 L22,60 L26,48 L30,38 L34,26 Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.45)" stroke-width="2"/><polyline points="5,130 30,108 52,118 78,78 95,90 125,52 148,65 195,20" fill="none" stroke="#6ECB63" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/><polygon points="195,20 183,27 187,36" fill="#6ECB63" opacity=".85"/></svg></div>
     <div>
-      <h1 id="appTitle">Real Estate Fund Financial Study</h1>
-      <div class="hdr-sub" id="appSub">Professional Fund Modeling Platform</div>
+      <h1 id="appTitle">RE Fund Financial Study</h1>
+      <div class="hdr-sub" id="appSub">منصة الدراسة المالية للمشاريع العقارية</div>
     </div>
   </div>
   <div class="hdr-btns">
@@ -626,8 +735,27 @@ canvas{max-width:100%;display:block}
 //      rules_version = '2';
 //      service cloud.firestore {
 //        match /databases/{database}/documents {
+//          // Private per-user project data — owner only
 //          match /users/{userId}/projects/{projectId} {
 //            allow read, write: if request.auth != null && request.auth.uid == userId;
+//          }
+//          // Shared snapshots: anyone with the (unguessable) link may read,
+//          // only the owner may create/update/delete
+//          match /users/{userId}/shares/{shareId} {
+//            allow read: if true;
+//            allow write: if request.auth != null && request.auth.uid == userId;
+//          }
+//          // Username → email mapping used by login/signup.
+//          // WARNING: 'get' must be public for username login to work, which
+//          // means anyone who knows a username can learn its email. 'list'
+//          // MUST stay disabled so the user directory cannot be dumped.
+//          // Creation is allowed only for new usernames (no hijacking),
+//          // updates only by a signed-in user whose email matches the mapping.
+//          match /users/{username} {
+//            allow get: if true;
+//            allow list: if false;
+//            allow create: if request.auth != null || !exists(/databases/$(database)/documents/users/$(username));
+//            allow update, delete: if request.auth != null && request.auth.token.email == resource.data.realEmail;
 //          }
 //        }
 //      }
@@ -659,6 +787,18 @@ let currentUser=null;
 let currentUid=null;
 let authMode='login';
 let isGuest=false;
+// createUserWithEmailAndPassword auto-signs the new user in before doSignup
+// signs them back out; this flag stops onAuthStateChanged from opening the
+// app (and kicking off project loads) during that transient window.
+let signupInProgress=false;
+
+// ═══════════════════════════════════════════════
+// SECURITY HELPERS
+// ═══════════════════════════════════════════════
+// HTML-escape any user-controlled string before inserting via innerHTML (XSS protection)
+function escH(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// Block prototype-pollution keys when copying untrusted objects (Firestore docs, share payloads)
+function isUnsafeKey(k){return k==='__proto__'||k==='constructor'||k==='prototype';}
 
 function enterGuestMode(){
   isGuest=true;
@@ -692,19 +832,19 @@ function toggleAuthMode(){
   if(authMode==='login'){
     authMode='signup';
     document.getElementById('authTitle').textContent='Create Account';
-    document.getElementById('authSubtitle').textContent='Sign up for a new account';
-    document.getElementById('authBtn').textContent='Sign Up';
+    document.getElementById('authSubtitle').textContent='Set up your account to save projects';
+    document.getElementById('authBtn').textContent='Create Account';
     document.getElementById('authBtn').setAttribute('onclick','doSignup()');
     document.getElementById('signupFields').classList.add('show');
     document.getElementById('authToggle').innerHTML='Already have an account? <a onclick="toggleAuthMode()">Sign In</a>';
   } else {
     authMode='login';
-    document.getElementById('authTitle').textContent='Real Estate Fund';
-    document.getElementById('authSubtitle').textContent='Sign in to your account';
+    document.getElementById('authTitle').textContent='Welcome Back';
+    document.getElementById('authSubtitle').textContent='Sign in to access your projects';
     document.getElementById('authBtn').textContent='Sign In';
     document.getElementById('authBtn').setAttribute('onclick','doLogin()');
     document.getElementById('signupFields').classList.remove('show');
-    document.getElementById('authToggle').innerHTML='Don\'t have an account? <a onclick="toggleAuthMode()">Sign Up</a>';
+    document.getElementById('authToggle').innerHTML='Don\'t have an account? <a onclick="toggleAuthMode()">Create Account</a>';
   }
 }
 
@@ -736,145 +876,46 @@ let resetStep=1;
 let resetVerifiedEmail=null; // The Firebase Auth email verified in step 1
 
 async function doResetPassword(){
+  // SECURITY: password resets are performed exclusively via Firebase's emailed
+  // reset link (sendPasswordResetEmail). The old flow tried to verify identity
+  // client-side and change the password via the REST API — that allowed anyone
+  // who knew a username+email to attempt a takeover and leaked account existence.
   const err=document.getElementById('loginError');
   const suc=document.getElementById('loginSuccess');
   err.style.display='none';suc.style.display='none';
   const btn=document.getElementById('authBtn');
   if(!fbReady){err.textContent='Firebase not configured.';err.style.display='block';return;}
 
-  if(resetStep===1){
-    // Step 1: Verify identity — username/email + registered email must match
-    const input=document.getElementById('loginUser').value.trim();
-    const verifyEmail=(document.getElementById('resetEmail').value||'').trim().toLowerCase();
-    if(!input){err.textContent='Please enter your username or email';err.style.display='block';return;}
-    if(!verifyEmail||!verifyEmail.includes('@')){err.textContent='Please enter your registered email for verification';err.style.display='block';return;}
+  const input=document.getElementById('loginUser').value.trim();
+  const verifyEmail=(document.getElementById('resetEmail').value||'').trim().toLowerCase();
+  if(!input){err.textContent='Please enter your username or email';err.style.display='block';return;}
+  if(!verifyEmail||!verifyEmail.includes('@')){err.textContent='Please enter your registered email';err.style.display='block';return;}
 
-    btn.disabled=true;btn.textContent='Verifying...';
-    try{
-      const isEmail=input.includes('@');
-      let authEmail=null;
-      let verified=false;
-
-      if(isEmail){
-        // User entered email directly — use it as auth email if it matches verify
-        authEmail=input.toLowerCase();
-        if(authEmail===verifyEmail) verified=true;
-      } else {
-        // User entered username — look up in Firestore
-        try{
-          const doc=await fbDb.collection('users').doc(input).get();
-          if(doc.exists&&doc.data().realEmail){
-            if(doc.data().realEmail===verifyEmail){
-              authEmail=doc.data().realEmail;
-              verified=true;
-            } else {
-              err.textContent='The email does not match the one registered with this username.';
-              err.style.display='block';return;
-            }
-          }
-        }catch(fe){}
-        // If no Firestore record, accept email at face value (old account)
-        if(!authEmail){authEmail=verifyEmail;verified=true;}
-      }
-
-      if(!verified){
-        err.textContent='Please make sure your username/email and registered email match.';
-        err.style.display='block';return;
-      }
-
-      // Identity verified — move to step 2: set new password
-      resetVerifiedEmail=authEmail;
-      resetStep=2;
-      document.getElementById('authSubtitle').textContent='Identity verified. Enter your new password.';
-      document.getElementById('loginUser').parentElement.style.display='none';
-      document.getElementById('resetEmailField').style.display='none';
-      document.getElementById('resetNewPassField').style.display='';
-      document.getElementById('resetConfirmField').style.display='';
-      btn.textContent='Set New Password';
-      suc.textContent='Identity verified! Please set your new password below.';
-      suc.style.display='block';
-    }catch(e){
-      err.textContent='Verification failed: '+(e.message||'Please try again.');
-      err.style.display='block';
-    }finally{
-      btn.disabled=false;
-      if(resetStep===1) btn.textContent='Verify Identity';
+  btn.disabled=true;btn.textContent=lang==='ar'?'جارٍ الإرسال...':'Sending...';
+  try{
+    // Resolve all possible emails for this user
+    const emailsToTry=new Set();
+    if(input.includes('@')){
+      emailsToTry.add(input.toLowerCase());
+    }else{
+      // Look up real email from Firestore by username (case-insensitive)
+      try{
+        const doc=await fbDb.collection('users').doc(input.toLowerCase()).get();
+        if(doc.exists&&doc.data().realEmail) emailsToTry.add(doc.data().realEmail);
+      }catch(e){}
+      // Also try the old internal domain format
+      emailsToTry.add(input.toLowerCase().replace(/\s+/g,'_')+EMAIL_DOMAIN);
     }
-
-  } else if(resetStep===2){
-    // Step 2: Set new password via Firebase Auth REST API
-    const newPass=document.getElementById('resetNewPass').value;
-    const confirmPass=document.getElementById('resetConfirm').value;
-    if(!newPass||newPass.length<6){err.textContent='Password must be at least 6 characters.';err.style.display='block';return;}
-    if(newPass!==confirmPass){err.textContent='Passwords do not match.';err.style.display='block';return;}
-
-    btn.disabled=true;btn.textContent='Updating password...';
-    try{
-      const apiKey=FIREBASE_CONFIG.apiKey;
-      // Request password reset OOB code via REST API
-      const sendRes=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key='+apiKey,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({requestType:'PASSWORD_RESET',email:resetVerifiedEmail})
-      });
-      const sendData=await sendRes.json();
-      if(sendData.error){throw new Error(sendData.error.message);}
-
-      if(sendData.oobCode){
-        // Got the OOB code directly — use it to confirm the password reset
-        const confirmRes=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key='+apiKey,{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({oobCode:sendData.oobCode,newPassword:newPass})
-        });
-        const confirmData=await confirmRes.json();
-        if(confirmData.error){throw new Error(confirmData.error.message);}
-        suc.textContent='Password updated successfully! You can now sign in with your new password.';
-        suc.style.display='block';
-        resetStep=1;resetVerifiedEmail=null;
-        setTimeout(()=>toggleAuthMode(),2500);
-      } else {
-        // OOB code not in response — REST API sent the email instead
-        // Since email delivery is unreliable, offer to delete+recreate the account
-        suc.textContent='Attempting alternative reset method...';
-        suc.style.display='block';
-        // Alternative: delete the auth account via admin endpoint and recreate
-        // We'll try to use signUp to detect if account exists, then guide accordingly
-        try{
-          // Try creating a new account with same email — if it fails with EMAIL_EXISTS, the account exists
-          const signupRes=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+apiKey,{
-            method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({email:resetVerifiedEmail,password:newPass,returnSecureToken:true})
-          });
-          const signupData=await signupRes.json();
-          if(signupData.error&&signupData.error.message==='EMAIL_EXISTS'){
-            // Account exists but we can't change password without being signed in
-            // Last resort: use the admin-style endpoint
-            err.textContent='Unable to reset password automatically. As the administrator, please go to Firebase Console → Authentication → Users, find the account, click the three-dot menu → Reset password or delete and ask the user to re-register.';
-            err.style.display='block';
-            suc.style.display='none';
-          } else if(signupData.localId){
-            // Account was recreated (old one didn't exist or was already deleted)
-            // Update display name
-            await fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key='+apiKey,{
-              method:'POST',headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({idToken:signupData.idToken,displayName:document.getElementById('loginUser').value.trim()||resetVerifiedEmail.split('@')[0]})
-            });
-            suc.textContent='Password has been reset! You can now sign in with your new password.';
-            suc.style.display='block';
-            resetStep=1;resetVerifiedEmail=null;
-            setTimeout(()=>toggleAuthMode(),2500);
-          }
-        }catch(altErr){
-          err.textContent='Reset failed. Please contact the administrator.';
-          err.style.display='block';suc.style.display='none';
-        }
-      }
-    }catch(e){
-      console.error('Password reset error:',e);
-      err.textContent='Failed to update password: '+(e.message||'Please try again.');
-      err.style.display='block';
-    }finally{
-      btn.disabled=false;btn.textContent='Set New Password';
-    }
+    // Also try the email the user entered in the verify field
+    if(verifyEmail) emailsToTry.add(verifyEmail);
+    // Swallow errors so the response never reveals whether an account exists
+    for(const em of emailsToTry){try{await fbAuth.sendPasswordResetEmail(em);}catch(ignored){}}
+    suc.textContent=lang==='ar'?'إذا كان الحساب موجوداً، سيتم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.':'If an account exists for these details, a password reset link has been sent to the registered email address.';
+    suc.style.display='block';
+    resetStep=1;resetVerifiedEmail=null;
+    setTimeout(()=>toggleAuthMode(),4000);
+  }finally{
+    btn.disabled=false;btn.textContent=lang==='ar'?'تحقق من الهوية':'Verify Identity';
   }
 }
 
@@ -920,10 +961,10 @@ async function saveAcctSettings(){
     // Update email if different
     if(newEmail!==user.email){
       await user.updateEmail(newEmail);
-      // Update Firestore mapping
+      // Update Firestore mapping (lowercase key for case-insensitive lookup)
       const username=user.displayName||currentUser;
       if(username){
-        await fbDb.collection('users').doc(username).set({realEmail:newEmail},{merge:true});
+        await fbDb.collection('users').doc(username.toLowerCase()).set({realEmail:newEmail},{merge:true});
       }
       changed.push('recovery email updated');
     }
@@ -967,6 +1008,9 @@ async function doSignup(){
   err.style.display='none';suc.style.display='none';
 
   if(!u||u.length<3){err.textContent='Username must be at least 3 characters';err.style.display='block';return;}
+  // SECURITY: username becomes a Firestore doc ID — restrict charset to prevent
+  // path traversal ('/'), reserved IDs ('.', '..', '__id__') and HTML injection
+  if(!/^[A-Za-z0-9_.-]{3,30}$/.test(u)||u==='.'||u==='..'||/^__.*__$/.test(u)){err.textContent='Username may only contain letters, numbers, dot, dash and underscore (3-30 chars)';err.style.display='block';return;}
   if(!realEmail||!realEmail.includes('@')){err.textContent='Please enter a valid email address';err.style.display='block';return;}
   if(!p||p.length<6){err.textContent='Password must be at least 6 characters';err.style.display='block';return;}
   if(p!==c){err.textContent='Passwords do not match';err.style.display='block';return;}
@@ -975,12 +1019,35 @@ async function doSignup(){
 
   const btn=document.getElementById('authBtn');
   btn.disabled=true;btn.textContent='Creating...';
+  signupInProgress=true;
   try{
+    // SECURITY: refuse to hijack an existing username→email mapping (case-insensitive)
+    try{
+      const existing=await fbDb.collection('users').doc(u.toLowerCase()).get();
+      if(existing.exists){err.textContent='This username is already taken.';err.style.display='block';btn.disabled=false;btn.textContent='Create Account';return;}
+    }catch(ignored){}
     // Register with real email so Firebase password reset works
+    const uLower=u.toLowerCase();
     const cred=await fbAuth.createUserWithEmailAndPassword(realEmail,p);
     await cred.user.updateProfile({displayName:u});
-    // Store username→email mapping in Firestore
-    await fbDb.collection('users').doc(u).set({realEmail:realEmail,username:u,createdAt:new Date().toISOString()},{merge:true});
+    // Store username→email mapping in Firestore (lowercase key for case-insensitive lookup).
+    // NON-FATAL: if Firestore security rules block this write, signup must still
+    // complete (and we must still sign out below) — login uses the device-local
+    // mapping as a fallback. Previously a failure here threw, skipped signOut(),
+    // and left the account with NO username mapping → login-after-logout broke.
+    try{
+      await fbDb.collection('users').doc(uLower).set({realEmail:realEmail,username:u,createdAt:new Date().toISOString()},{merge:true});
+      console.log('[signup] Firestore mapping users/'+uLower+' written');
+    }catch(mapErr){
+      console.warn('[signup] Firestore username mapping write FAILED ('+(mapErr.code||mapErr.message)+') — continuing; device-local mapping will be used for login');
+    }
+    // Always store the mapping on this device so username login keeps working
+    // even when Firestore reads are blocked for signed-out users
+    try{
+      const map=JSON.parse(localStorage.getItem('rf_user_emails')||'{}');
+      if(!isUnsafeKey(uLower)) map[uLower]=realEmail;
+      localStorage.setItem('rf_user_emails',JSON.stringify(map));
+    }catch(e){}
     // Sign out so they login explicitly
     await fbAuth.signOut();
     suc.textContent='Account created! You can now sign in.';
@@ -996,18 +1063,19 @@ async function doSignup(){
     else msg=e.message;
     err.textContent=msg;err.style.display='block';
   }finally{
-    btn.disabled=false;btn.textContent=authMode==='signup'?'Sign Up':'Sign In';
+    signupInProgress=false;
+    btn.disabled=false;btn.textContent=authMode==='signup'?'Create Account':'Sign In';
   }
 }
 
-// Remember me: restore saved credentials on page load
+// Remember me: restore saved USERNAME only on page load (never store passwords)
 (function(){
   try{
     const saved=localStorage.getItem('rf_remember');
     if(saved){
       const d=JSON.parse(saved);
       if(d.u) document.getElementById('loginUser').value=d.u;
-      if(d.p) document.getElementById('loginPass').value=d.p;
+      // Security: never restore password from localStorage
       document.getElementById('rememberMe').checked=true;
     }
   }catch(e){}
@@ -1023,10 +1091,10 @@ async function doLogin(){
   if(!u||!p){err.textContent='Enter username and password';err.style.display='block';return;}
   if(!fbReady){err.textContent='Firebase not configured. Contact administrator.';err.style.display='block';return;}
 
-  // Save or clear remember me
+  // Save or clear remember me (username only — never store passwords)
   const rememberCb=document.getElementById('rememberMe');
   if(rememberCb&&rememberCb.checked){
-    localStorage.setItem('rf_remember',JSON.stringify({u:u,p:p}));
+    localStorage.setItem('rf_remember',JSON.stringify({u:u}));
   }else{
     localStorage.removeItem('rf_remember');
   }
@@ -1034,25 +1102,75 @@ async function doLogin(){
   const btn=document.getElementById('authBtn');
   btn.disabled=true;btn.textContent='Signing in...';
   try{
-    // Try new flow first: look up real email from username in Firestore
-    let loginEmail=null;
+    // SECURITY: session persistence — LOCAL if "remember me", SESSION otherwise
+    try{await fbAuth.setPersistence(rememberCb&&rememberCb.checked?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);}catch(ignored){}
+
+    // Build ALL candidate emails for this identifier and try each one.
+    // The Firestore username→email mapping can be unreadable for signed-out
+    // users (security rules), so we also keep a device-local mapping
+    // (rf_user_emails) written at signup and on every successful login.
+    const uLower=u.toLowerCase();
+    const candidates=[];
+    if(u.includes('@')){
+      // Case 1: user typed an email address directly
+      candidates.push(uLower);
+    }else{
+      // Case 2a: device-local mapping (survives logout, needs no Firestore access)
+      try{
+        const map=JSON.parse(localStorage.getItem('rf_user_emails')||'{}');
+        if(map&&typeof map[uLower]==='string'&&map[uLower].includes('@')) candidates.push(map[uLower].toLowerCase());
+      }catch(e){}
+      // Case 2b: Firestore mapping (case-insensitive doc id)
+      try{
+        const doc=await fbDb.collection('users').doc(uLower).get();
+        console.log('[login] Firestore lookup users/'+uLower+' → exists='+doc.exists);
+        if(doc.exists&&doc.data().realEmail) candidates.push(String(doc.data().realEmail).toLowerCase());
+      }catch(e){
+        console.warn('[login] Firestore username lookup FAILED ('+(e.code||e.message)+') — using local/legacy fallbacks');
+      }
+      // Case 3: legacy internal-domain fallback for old accounts
+      candidates.push(uLower.replace(/\s+/g,'_')+EMAIL_DOMAIN);
+    }
+
+    const tried=[...new Set(candidates)];
+    console.log('[login] candidate emails:',tried);
+    let signedIn=false,lastErr=null;
+    for(const em of tried){
+      try{
+        await fbAuth.signInWithEmailAndPassword(em,p);
+        console.log('[login] signed in as '+em);
+        signedIn=true;break;
+      }catch(e){
+        lastErr=e;
+        console.warn('[login] signIn failed for '+em+' → '+(e.code||e.message));
+        // Keep trying other candidates only for "no such account / bad
+        // credential" errors; abort immediately on throttling/hard failures.
+        const retryable=['auth/user-not-found','auth/invalid-email','auth/invalid-credential','auth/invalid-login-credentials','auth/wrong-password'];
+        if(!retryable.includes(e.code)) break;
+      }
+    }
+    if(!signedIn) throw (lastErr||new Error('login failed'));
+
+    // Remember which email this username maps to on THIS device so login
+    // keeps working after logout even if Firestore reads are blocked.
     try{
-      const doc=await fbDb.collection('users').doc(u).get();
-      if(doc.exists&&doc.data().realEmail) loginEmail=doc.data().realEmail;
+      const realEm=fbAuth.currentUser&&fbAuth.currentUser.email;
+      if(realEm&&!u.includes('@')){
+        const map=JSON.parse(localStorage.getItem('rf_user_emails')||'{}');
+        if(!isUnsafeKey(uLower)) map[uLower]=realEm;
+        localStorage.setItem('rf_user_emails',JSON.stringify(map));
+      }
     }catch(e){}
-    // Fallback: old accounts use internal email domain
-    if(!loginEmail) loginEmail=u.toLowerCase().replace(/\s+/g,'_')+EMAIL_DOMAIN;
-    await fbAuth.signInWithEmailAndPassword(loginEmail,p);
     // onAuthStateChanged handles the rest
   }catch(e){
-    let msg='Invalid username or password';
-    if(e.code==='auth/user-not-found') msg='Account not found';
-    else if(e.code==='auth/wrong-password') msg='Incorrect password';
-    else if(e.code==='auth/too-many-requests') msg='Too many attempts. Try again later.';
-    else if(e.code==='auth/invalid-credential') msg='Invalid username or password';
+    console.warn('[login] final failure:',e.code||e.message);
+    // SECURITY: use one generic message for bad username/password so the
+    // login form cannot be used to enumerate which accounts exist
+    let msg=lang==='ar'?'اسم المستخدم أو كلمة المرور غير صحيحة':'Invalid username or password';
+    if(e.code==='auth/too-many-requests') msg=lang==='ar'?'محاولات كثيرة. حاول لاحقًا.':'Too many attempts. Try again later.';
     err.textContent=msg;err.style.display='block';
   }finally{
-    btn.disabled=false;btn.textContent=authMode==='signup'?'Sign Up':'Sign In';
+    btn.disabled=false;btn.textContent=authMode==='signup'?(lang==='ar'?'إنشاء حساب':'Sign Up'):(lang==='ar'?'تسجيل الدخول':'Sign In');
   }
 }
 
@@ -1063,20 +1181,35 @@ function doLogout(){
     fbAuth.signOut();
   }
   currentUser=null;currentUid=null;
+  // SECURITY: wipe the previous user's in-memory data and project list so a
+  // subsequent user on the same machine cannot see it
+  try{newProject();}catch(ignored){}
+  try{const sel=document.getElementById('projSelect');if(sel) sel.innerHTML='<option value="">-- New Unsaved --</option>';}catch(ignored){}
   document.getElementById('loginOverlay').classList.remove('hidden');
   document.getElementById('appMain').style.display='none';
-  document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
   document.getElementById('loginError').style.display='none';
   document.getElementById('loginSuccess').style.display='none';
-  if(authMode==='signup') toggleAuthMode();
+  // Restore remembered username if it exists, otherwise clear field
+  try{
+    const saved=localStorage.getItem('rf_remember');
+    if(saved){const d=JSON.parse(saved);document.getElementById('loginUser').value=d.u||'';}
+    else{document.getElementById('loginUser').value='';}
+  }catch(e){document.getElementById('loginUser').value='';}
+  // Restore the form to LOGIN mode whatever state it was left in ('signup'
+  // OR 'reset' — reset mode hides the password field and repoints the button
+  // to doResetPassword, which used to survive logout and break re-login)
+  if(authMode!=='login') toggleAuthMode();
 }
 
 // Firebase Auth state listener — handles login, logout, and session persistence
 function setupAuthListener(){
   if(!fbAuth) return;
-  fbAuth.onAuthStateChanged(user=>{
+  fbAuth.onAuthStateChanged(async user=>{
     if(user){
+      // Ignore the transient auto-signin that createUserWithEmailAndPassword
+      // triggers during signup — doSignup signs the user out again itself.
+      if(signupInProgress) return;
       currentUser=user.displayName||user.email.split('@')[0];
       currentUid=user.uid;
       document.getElementById('loginOverlay').classList.add('hidden');
@@ -1084,6 +1217,41 @@ function setupAuthListener(){
       document.getElementById('userBadge').textContent='\u{1F464} '+currentUser;
       const acctBtn=document.getElementById('btnAcct');
       if(acctBtn) acctBtn.style.display='';
+      // Refresh the device-local username→email mapping on every auth event.
+      // This repairs accounts created before this fix: one successful login
+      // (e.g. with the email address) makes username login work from then on,
+      // even if Firestore reads are blocked for signed-out users.
+      try{
+        if(user.email&&user.displayName){
+          const k=user.displayName.toLowerCase();
+          const map=JSON.parse(localStorage.getItem('rf_user_emails')||'{}');
+          if(!isUnsafeKey(k)&&map[k]!==user.email){
+            map[k]=user.email;
+            localStorage.setItem('rf_user_emails',JSON.stringify(map));
+            console.log('[auth] local username mapping refreshed for '+k);
+          }
+        }
+      }catch(e){}
+      // ── ONE-TIME MIGRATION: ensure lowercase username→email mapping exists ──
+      try{
+        const uName=user.displayName||currentUser;
+        if(uName){
+          const lower=uName.toLowerCase();
+          const lowerDoc=await fbDb.collection('users').doc(lower).get();
+          if(!lowerDoc.exists||!lowerDoc.data().realEmail){
+            // Try to find the old case-sensitive doc
+            const oldDoc=uName!==lower?await fbDb.collection('users').doc(uName).get():null;
+            const realEmail=user.email;
+            // Write the lowercase mapping
+            await fbDb.collection('users').doc(lower).set({
+              realEmail:realEmail,
+              username:uName,
+              migratedAt:new Date().toISOString()
+            },{merge:true});
+            console.log('Migrated username mapping to lowercase: '+lower);
+          }
+        }
+      }catch(migErr){console.log('Username migration skipped:',migErr.message);}
       loadProjectList();
     } else {
       currentUser=null;currentUid=null;
@@ -1102,8 +1270,8 @@ function checkSession(){
   if(fbReady){setupAuthListener();}
 }
 
-document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter'){if(authMode==='signup')doSignup();else doLogin();}});
-document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter'){if(authMode==='signup')document.getElementById('loginPass').focus();else doLogin();}});
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter'){if(authMode==='signup')doSignup();else if(authMode==='reset')doResetPassword();else doLogin();}});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter'){if(authMode==='signup')document.getElementById('loginPass').focus();else if(authMode==='reset')doResetPassword();else doLogin();}});
 
 // ═══════════════════════════════════════════════
 // PROJECT STORAGE (Firestore)
@@ -1121,7 +1289,7 @@ async function loadProjectList(){
   try{
     const snap=await ref.orderBy('savedAt','desc').get();
     const names=snap.docs.map(d=>d.id);
-    sel.innerHTML='<option value="">-- New Unsaved --</option>'+names.map(n=>'<option value="'+n+'">'+n+'</option>').join('');
+    sel.innerHTML='<option value="">-- New Unsaved --</option>'+names.map(n=>'<option value="'+escH(n)+'">'+escH(n)+'</option>').join('');
   }catch(e){
     console.error('loadProjectList error:',e);
     sel.innerHTML='<option value="">-- New Unsaved --</option>';
@@ -1132,8 +1300,9 @@ async function saveProject(){
   if(isGuest){alert(lang==='ar'?'وضع الزائر: المشاريع لا تُحفظ. يرجى إنشاء حساب للحفظ.':'Guest mode: projects are not saved. Please create an account to save.');return;}
   let name=document.getElementById('projSelect').value;
   if(!name){name=D.fund_name||'Untitled Project';const el=document.getElementById('fund_name');if(el&&el.value) name=el.value;}
-  // Sanitize Firestore doc ID (no slashes, max 1500 bytes)
-  name=name.replace(/[\/\\]/g,'-').substring(0,100);
+  // Sanitize Firestore doc ID (no slashes, no reserved IDs, max 100 chars)
+  name=name.replace(/[\/\\]/g,'-').substring(0,100).trim();
+  if(!name||name==='.'||name==='..'||/^__.*__$/.test(name)){alert('Invalid project name');return;}
   const ref=getProjectsRef();
   if(!ref){alert('Not signed in');return;}
   try{
@@ -1153,6 +1322,38 @@ async function saveProject(){
   }
 }
 
+async function saveSharedToMyProjects(){
+  if(!currentUid){alert(lang==='ar'?'يرجى تسجيل الدخول أولاً':'Please sign in first');return;}
+  if(isGuest){alert(lang==='ar'?'وضع الزائر: يرجى إنشاء حساب للحفظ':'Guest mode: please create an account to save');return;}
+  let name=document.getElementById('projSelect').value||D.fund_name||'Shared Project';
+  // Prompt user for the project name they want to save as
+  const _t=TX[lang];
+  const newName=prompt(_t.projSaveSharedPrompt||'Save this shared project to your account as:',name);
+  if(!newName) return;
+  name=newName.replace(/[\/\\]/g,'-').substring(0,100).trim();
+  if(!name||name==='.'||name==='..'||/^__.*__$/.test(name)){alert('Invalid project name');return;}
+  const ref=getProjectsRef();
+  if(!ref){alert('Not signed in');return;}
+  try{
+    // Check if project name already exists
+    const existing=await ref.doc(name).get();
+    if(existing.exists){
+      if(!confirm((_t.projOverwrite||'A project named "%name%" already exists. Overwrite?').replace('%name%',name))) return;
+    }
+    await ref.doc(name).set({
+      D:JSON.parse(JSON.stringify(D)),
+      projects:JSON.parse(JSON.stringify(projects)),
+      activeProjectIdx,
+      actuals:JSON.parse(JSON.stringify(actuals)),
+      reforecastSettings:JSON.parse(JSON.stringify(reforecastSettings)),
+      savedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert((_t.projSavedShared||'Project "%name%" saved to your account!').replace('%name%',name));
+  }catch(e){
+    alert('Error saving: '+e.message);
+  }
+}
+
 async function loadProject(){
   const name=document.getElementById('projSelect').value;
   if(!name) return;
@@ -1162,7 +1363,7 @@ async function loadProject(){
     const doc=await ref.doc(name).get();
     if(!doc.exists){alert('Project not found');return;}
     const p=doc.data();
-    Object.keys(p.D).forEach(k=>{D[k]=p.D[k];});
+    Object.keys(p.D).forEach(k=>{if(!isUnsafeKey(k)) D[k]=p.D[k];});
     // Migrate old vat_refund_con/vat_refund_land to unified vat_refund
     if(!('vat_refund' in D)&&'vat_refund_con' in D) D.vat_refund=D.vat_refund_con;
     if(p.projects){projects=JSON.parse(JSON.stringify(p.projects));}
@@ -1234,7 +1435,7 @@ async function openShareModal(){
   if(names.length===0){
     listEl.innerHTML='<div class="share-no-proj">'+_t.shareNoProj+'</div>';
   } else {
-    listEl.innerHTML=names.map((n,i)=>'<div class="share-proj-item"><input type="checkbox" id="sp_'+i+'" value="'+n.replace(/"/g,'&quot;')+'"><label for="sp_'+i+'">'+n+'</label></div>').join('');
+    listEl.innerHTML=names.map((n,i)=>'<div class="share-proj-item"><input type="checkbox" id="sp_'+i+'" value="'+escH(n)+'"><label for="sp_'+i+'">'+escH(n)+'</label></div>').join('');
   }
   // Also offer current unsaved project
   document.getElementById('shareLinkArea').style.display='none';
@@ -1253,8 +1454,8 @@ function stripZero(obj){const r={};for(const k in obj){const v=obj[k];if(v===0||
 const _DK={fund_name:'fn',is_fund:'if',project_location:'pl',project_type:'pt',fund_period_months:'fpm',start_date:'sd',num_projects:'np',custody_annual:'ca',custody_freq:'cf',spv_setup:'ss',fund_setup:'fs',auditor_annual:'aa',auditor_freq:'af',sharia_annual:'sa',sharia_freq:'sf',engineering_annual:'ea',engineering_freq:'ef',board_annual:'ba',board_freq:'bf',fin_advisor:'fa',mgmt_fee_mode:'mfm',mgmt_fee_pct:'mfp',mgmt_fee_fixed:'mff',marketing_cost:'mc',marketing_date:'md',vat_rate:'vr',vat_refund:'vrf',vat_refund_months:'vrm',vat_advisor_pct:'vap',hurdle_rate:'hr',perf_fee_pct:'pfp',bank_mgmt_pct:'bmp',ik_land_pct:'ilp',ik_brok_pct:'ibp',ik_dev_pct:'idp',ik_mkt_pct:'imp',ik_con_pct:'icp',ik_sell_pct:'isp',equity:'eq',gp_commit_cash:'gcc',gp_commit_inkind_pct:'gip',saibor:'sb',margin:'mg',arr_fee_pct:'afp',min_cash:'mnc',vat_refund_con:'vrc',rett_pct:'rtp'};
 const _DKR={};for(const k in _DK) _DKR[_DK[k]]=k;
 function compactD(obj){const r={};for(const k in obj){r[_DK[k]||k]=obj[k];}return r;}
-function expandD(obj){const r={};for(const k in obj){r[_DKR[k]||k]=obj[k];}return r;}
-function applyDefaults(obj,def){const r=JSON.parse(JSON.stringify(def));for(const k in obj) r[k]=obj[k];return r;}
+function expandD(obj){const r={};for(const k in obj){const kk=_DKR[k]||k;if(isUnsafeKey(k)||isUnsafeKey(kk)) continue;r[kk]=obj[k];}return r;}
+function applyDefaults(obj,def){const r=JSON.parse(JSON.stringify(def));for(const k in obj){if(!isUnsafeKey(k)) r[k]=obj[k];}return r;}
 // Compact schedule: remove trailing zeros e.g. [10,20,30,0,0,0] → [10,20,30]
 function trimSch(a){const c=[...a];while(c.length>0&&c[c.length-1]===0) c.pop();return c;}
 
@@ -1321,8 +1522,11 @@ async function generateShareLink(){
 }
 
 function generateShareId(){
+  // SECURITY: cryptographically random, 16 chars (~95 bits) — Math.random()
+  // 8-char IDs were predictable/enumerable
   const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let id='';for(let i=0;i<8;i++) id+=chars.charAt(Math.floor(Math.random()*chars.length));
+  const buf=new Uint32Array(16);crypto.getRandomValues(buf);
+  let id='';for(let i=0;i<16;i++) id+=chars.charAt(buf[i]%chars.length);
   return id;
 }
 
@@ -1366,7 +1570,7 @@ function expandProject(cp){
   return {D:fullD,projects:[proj],activeProjectIdx:0};
 }
 function loadProjectData(proj){
-  Object.keys(proj.D).forEach(k=>{D[k]=proj.D[k];});
+  Object.keys(proj.D).forEach(k=>{if(!isUnsafeKey(k)) D[k]=proj.D[k];});
   if(!('vat_refund' in D)&&'vat_refund_con' in D) D.vat_refund=D.vat_refund_con;
   if(proj.projects){projects=JSON.parse(JSON.stringify(proj.projects));}
   if(typeof proj.activeProjectIdx==='number') activeProjectIdx=proj.activeProjectIdx;
@@ -1388,7 +1592,7 @@ function applySharedPayload(payload){
   if(names.length===0) return false;
   loadProjectData(sharedProjects[names[0]]);
   const sel=document.getElementById('projSelect');
-  sel.innerHTML=names.map(n=>'<option value="'+n+'">'+n+'</option>').join('');
+  sel.innerHTML=names.map(n=>'<option value="'+escH(n)+'">'+escH(n)+'</option>').join('');
   window.__sharedProjects=sharedProjects;
   sel.onchange=function(){
     const sn=this.value;
@@ -1403,10 +1607,19 @@ function applySharedPayload(payload){
   document.getElementById('sharedBadge').textContent=_t.shareViewBadge||'SHARED VIEW';
   document.getElementById('sharedMsg').textContent=(_t.shareViewMsg||'You are viewing shared projects')+(sharedReadOnly?(_t.shareViewMsgRO||' (read-only assumptions)'):'');
   document.getElementById('sharedExitBtn').textContent=_t.shareExit||'Exit Shared View';
-  document.getElementById('btnProjSave').style.display='none';
   document.getElementById('btnProjNew').style.display='none';
   document.getElementById('btnProjDel').style.display='none';
   document.getElementById('btnProjShare').style.display='none';
+  // If edit is allowed and user is logged in, show "Save to My Projects" button
+  if(!sharedReadOnly && currentUid){
+    const saveBtn=document.getElementById('btnProjSave');
+    const _t=TX[lang];
+    saveBtn.style.display='';
+    saveBtn.textContent=_t.projSaveShared||'💾 Save to My Projects';
+    saveBtn.onclick=function(){saveSharedToMyProjects();};
+  } else {
+    document.getElementById('btnProjSave').style.display='none';
+  }
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('appMain').style.display='';
   return true;
@@ -1434,6 +1647,8 @@ async function checkSharedLink(){
       const parts=hash.substring(3).split('.');
       if(parts.length!==2) throw new Error('Invalid share format');
       const [uid,shareId]=parts;
+      // SECURITY: validate URL-supplied IDs before using them as Firestore paths
+      if(!/^[A-Za-z0-9]{1,128}$/.test(uid)||!/^[A-Za-z0-9]{1,64}$/.test(shareId)) throw new Error('Invalid share format');
       if(!fbDb) throw new Error('Firestore not ready');
       const doc=await fbDb.collection('users').doc(uid).collection('shares').doc(shareId).get();
       if(!doc.exists) throw new Error('Share not found');
@@ -1481,7 +1696,11 @@ function exitSharedView(){
   window.__sharedProjects=null;
   window.location.hash='';
   document.getElementById('sharedBanner').style.display='none';
-  document.getElementById('btnProjSave').style.display='';
+  // Restore save button to original behavior
+  const saveBtn=document.getElementById('btnProjSave');
+  saveBtn.style.display='';
+  saveBtn.textContent=TX[lang].projSave;
+  saveBtn.onclick=function(){saveProject();};
   document.getElementById('btnProjNew').style.display='';
   document.getElementById('btnProjDel').style.display='';
   document.getElementById('btnProjShare').style.display='';
@@ -1594,7 +1813,7 @@ function compLabel(comp){
 const tabIcons=['⚙','📅','📊','💰','🏦','🔬','📋','✅'];
 const TX={
   en:{title:'Real Estate Fund Financial Study',sub:'Professional Fund Modeling Platform',calc:'Calculate',dl:'Excel',langB:'العربية',
-    projLbl:'Project:',projSave:'💾 Save',projNew:'+ New',projDel:'🗑 Delete',projShare:'🔗 Share',pdf:'PDF',
+    projLbl:'Project:',projSave:'💾 Save',projSaveShared:'💾 Save to My Projects',projSaveSharedPrompt:'Save this shared project to your account as:',projSavedShared:'Project "%name%" saved to your account!',projOverwrite:'A project named "%name%" already exists. Overwrite?',projNew:'+ New',projDel:'🗑 Delete',projShare:'🔗 Share',pdf:'PDF',
     shareTitle:'Share Projects',shareDesc:'Select one or more projects to share via a unique link. Recipients can view the financial model.',shareProjHead:'Select Projects',shareToggle:'Allow recipient to modify assumptions',shareGenLink:'Generate Link',shareCopyLink:'Copy Link',shareClose:'Close',shareNoProj:'No saved projects to share. Save a project first.',shareCopied:'Link copied!',shareShortening:'Shortening link...',shareViewBadge:'SHARED VIEW',shareViewMsg:'You are viewing shared projects',shareViewMsgRO:' (read-only assumptions)',shareExit:'Exit Shared View',
     tabs:['Assumptions','Schedule','Dashboard','Cash Flow','Debt','Sensitivity','Summary','Actuals'],
     roles:['Fund Manager','Developer','Financer'],
@@ -1621,7 +1840,8 @@ const TX={
       conBase:'Base Construction',conDevFee:'Developer Fees',conContingency:'Contingency',conInsurance:'Insurance',conDesign:'Design Fee',conSupervision:'Supervision Fee',conLicensing:'Licensing Fee',
       netInv:'Net Investing',netBorrow:'Net Borrowing',equity:'Investor Equity',
       inKind:'In-Kind Participation',dividends:'Dividends',netFin:'Net Financing',
-      openCash:'Opening Cash',changeCash:'Change in Cash',closeCash:'Closing Cash'},
+      openCash:'Opening Cash',changeCash:'Change in Cash',closeCash:'Closing Cash',
+      murabaha:'Murabaha Income',otherInc:'Other Income'},
     debt:{hdr:'Debt Schedule',totalDrawn:'Total Debt Drawn',totalInt:'Total Debt Profit',ltc:'LTC Ratio',
       open:'Opening Balance',dd:'Drawdowns',repay:'Repayment',close:'Closing Balance',int:'Debt Profit',bankMgmt:'Bank Mgmt Fees'},
     dash:{revCost:'Revenue & Cost',invRet:'Investor Returns',debtFin:'Debt & Finance',
@@ -1678,7 +1898,7 @@ const TX={
       quarterly:'Quarterly',semiannual:'Semi-Annual',annual:'Annual'},
   },
   ar:{title:'الدراسة المالية للصندوق العقاري',sub:'منصة النمذجة المالية للصناديق',calc:'احسب',dl:'إكسل',langB:'English',
-    projLbl:'المشروع:',projSave:'💾 حفظ',projNew:'+ جديد',projDel:'🗑 حذف',projShare:'🔗 مشاركة',pdf:'PDF',
+    projLbl:'المشروع:',projSave:'💾 حفظ',projSaveShared:'💾 حفظ في مشاريعي',projSaveSharedPrompt:'حفظ المشروع المشارك في حسابك باسم:',projSavedShared:'تم حفظ المشروع "%name%" في حسابك!',projOverwrite:'يوجد مشروع باسم "%name%" بالفعل. هل تريد استبداله؟',projNew:'+ جديد',projDel:'🗑 حذف',projShare:'🔗 مشاركة',pdf:'PDF',
     shareTitle:'مشاركة المشاريع',shareDesc:'اختر مشروعًا أو أكثر لمشاركته عبر رابط فريد. يمكن للمستلمين عرض النموذج المالي.',shareProjHead:'اختر المشاريع',shareToggle:'السماح للمستلم بتعديل الافتراضات',shareGenLink:'إنشاء رابط',shareCopyLink:'نسخ الرابط',shareClose:'إغلاق',shareNoProj:'لا توجد مشاريع محفوظة للمشاركة. احفظ مشروعًا أولًا.',shareCopied:'تم نسخ الرابط!',shareShortening:'جارٍ اختصار الرابط...',shareViewBadge:'عرض مشترك',shareViewMsg:'أنت تشاهد مشاريع مشتركة',shareViewMsgRO:' (الافتراضات للقراءة فقط)',shareExit:'خروج من العرض المشترك',
     tabs:['الافتراضات','الجدول الزمني','لوحة المعلومات','التدفقات النقدية','هيكلة الدين','تحليل الحساسية','الملخص التنفيذي','الفعلي'],
     roles:['مدير الصندوق','المطور','الممول'],
@@ -1705,7 +1925,8 @@ const TX={
       conBase:'التطوير الأساسي',conDevFee:'أتعاب المطور',conContingency:'الاحتياطي',conInsurance:'التأمين',conDesign:'رسوم التصميم',conSupervision:'رسوم الإشراف',conLicensing:'رسوم الرخص',
       netInv:'صافي الاستثمار',netBorrow:'صافي الاقتراض',equity:'اكتتاب المستثمرين',
       inKind:'الحصص العينية',dividends:'توزيعات الأرباح',netFin:'صافي التمويل',
-      openCash:'النقد الافتتاحي',changeCash:'التغير في النقد',closeCash:'النقد الختامي'},
+      openCash:'النقد الافتتاحي',changeCash:'التغير في النقد',closeCash:'النقد الختامي',
+      murabaha:'دخل المرابحات',otherInc:'دخل آخر'},
     debt:{hdr:'جدول الدين',totalDrawn:'إجمالي الدين المسحوب',totalInt:'إجمالي أرباح التمويل',ltc:'نسبة الدين للتكلفة',
       open:'الرصيد الافتتاحي',dd:'السحوبات',repay:'السداد',close:'الرصيد الختامي',int:'أرباح التمويل',bankMgmt:'رسوم إدارة البنك'},
     dash:{revCost:'الإيرادات والتكاليف',invRet:'عوائد المستثمرين',debtFin:'الدين والتمويل',
@@ -1792,7 +2013,7 @@ function fld(id,label,val,type,opts){
   }
   const t=type||'number';
   const step=t==='number'?'any':'';
-  return `<div class="frow frow-2"><label>${label}</label><input type="${t}" id="${id}" value="${val}" step="${step}" onchange="onInput('${id}')"></div>`;
+  return `<div class="frow frow-2"><label>${label}</label><input type="${t}" id="${id}" value="${escH(val)}" step="${step}" onchange="onInput('${id}')"></div>`;
 }
 function fldFreq(id,label,val,freqId,freqVal){
   const F=TX[lang].f;
@@ -1806,7 +2027,7 @@ function fldProj(id,label,val,projIdx,type,opts){
   }
   const t=type||'number';
   const step=t==='number'?'any':'';
-  return `<div class="frow frow-2"><label>${label}</label><input type="${t}" id="proj_${id}" value="${val}" step="${step}" onchange="onInputProj('${id}',${projIdx})"></div>`;
+  return `<div class="frow frow-2"><label>${label}</label><input type="${t}" id="proj_${id}" value="${escH(val)}" step="${step}" onchange="onInputProj('${id}',${projIdx})"></div>`;
 }
 function updateProjRETT(projIdx){
   const proj=projects[projIdx];
@@ -1833,14 +2054,14 @@ function buildForm(){
   </div>`;
 
   // Build project tabs
-  const projTabs=projects.map((proj,idx)=>`<button class="proj-sub-tab${idx===activeProjectIdx?' act':''}" onclick="activeProjectIdx=${idx};buildForm()">${proj.name}</button>`).join('');
+  const projTabs=projects.map((proj,idx)=>`<button class="proj-sub-tab${idx===activeProjectIdx?' act':''}" onclick="activeProjectIdx=${idx};buildForm()">${escH(proj.name)}</button>`).join('');
 
   // Build per-project sections with tabs (Sections 1,2,4)
   let projSections=`<div style="margin-top:8px;margin-bottom:8px;padding-top:0">
     <div class="proj-sub-tabs">${projTabs}</div>
     <div class="form-grid">
-    <div class="sec"><div class="sec-t">${TX[lang].s[1]} - ${P.name||(lang==='ar'?'مشروع ':'Project ')+( activeProjectIdx+1)}</div>
-      <div class="frow frow-2"><label>${F.projName}</label><input type="text" id="proj_name" value="${P.name||''}" onchange="projects[${activeProjectIdx}].name=this.value;buildForm()"></div>
+    <div class="sec"><div class="sec-t">${TX[lang].s[1]} - ${escH(P.name)||(lang==='ar'?'مشروع ':'Project ')+( activeProjectIdx+1)}</div>
+      <div class="frow frow-2"><label>${F.projName}</label><input type="text" id="proj_name" value="${escH(P.name||'')}" onchange="projects[${activeProjectIdx}].name=this.value;buildForm()"></div>
       ${fldProj('strategy',F.strategy,P.strategy,activeProjectIdx,'select',[['sell',F.stratSell],['lease',F.stratLease]])}
       ${fldProj('land_area',F.landArea,P.land_area,activeProjectIdx)}
       ${fldProj('land_price_sqm',F.pricePerSqm,P.land_price_sqm,activeProjectIdx)}
@@ -2029,7 +2250,7 @@ function buildSchedule(){
       <table class="sch-tbl"><thead><tr>${t.conCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
     proj.conComponents.forEach((c,i)=>{
       const comp_total=c.gfa*c.cost;
-      const displayName=compLabel(c);
+      const displayName=escH(compLabel(c));
       html+=`<tr><td><input type="text" value="${displayName}" style="width:100%;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="if(lang==='ar'){projects[${activeProjectIdx}].conComponents[${i}].name=this.value;projects[${activeProjectIdx}].conComponents[${i}].nameEn=compNameMap[this.value]||projects[${activeProjectIdx}].conComponents[${i}].nameEn}else{projects[${activeProjectIdx}].conComponents[${i}].nameEn=this.value;projects[${activeProjectIdx}].conComponents[${i}].name=compNameMap[this.value]||projects[${activeProjectIdx}].conComponents[${i}].name}"></td>
         <td><input type="number" value="${c.gfa}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="projects[${activeProjectIdx}].conComponents[${i}].gfa=parseFloat(this.value)||0;updateConComponents()"></td>
         <td><input type="number" value="${c.cost}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="projects[${activeProjectIdx}].conComponents[${i}].cost=parseFloat(this.value)||0;updateConComponents()"></td>
@@ -2052,7 +2273,7 @@ function buildSchedule(){
       <table class="sch-tbl"><thead><tr>${t2.saleCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
     proj.salesComponents.forEach((s,i)=>{
       const sale_total=s.area*s.price;
-      const displayName=compLabel(s);
+      const displayName=escH(compLabel(s));
       html+=`<tr><td><input type="text" value="${displayName}" style="width:100%;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="if(lang==='ar'){projects[${activeProjectIdx}].salesComponents[${i}].name=this.value;projects[${activeProjectIdx}].salesComponents[${i}].nameEn=compNameMap[this.value]||projects[${activeProjectIdx}].salesComponents[${i}].nameEn}else{projects[${activeProjectIdx}].salesComponents[${i}].nameEn=this.value;projects[${activeProjectIdx}].salesComponents[${i}].name=compNameMap[this.value]||projects[${activeProjectIdx}].salesComponents[${i}].name}"></td>
         <td><input type="number" value="${s.area}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="projects[${activeProjectIdx}].salesComponents[${i}].area=parseFloat(this.value)||0;updateSalesComponents()"></td>
         <td><input type="number" value="${s.price}" step="any" style="width:80px;padding:5px;border:1px solid #ccd;border-radius:4px;font-size:.85rem" onchange="projects[${activeProjectIdx}].salesComponents[${i}].price=parseFloat(this.value)||0;updateSalesComponents()"></td>
@@ -2069,7 +2290,7 @@ function buildSchedule(){
   const schHdr=lang==='ar'?'البند':'Item', schTot=lang==='ar'?'المجموع':'Total';
   const secSep='<div style="height:48px;border-top:3px solid var(--primary);margin:32px 0;position:relative"><div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--surface-bg);padding:0 16px;color:var(--primary);font-weight:700;font-size:.85rem;white-space:nowrap">'+(lang==='ar'?'جدول المبيعات':'Sales Schedule')+'</div></div>';
   // Project switcher for schedule tab
-  const schProjTabs=projects.length>1?`<div class="proj-sub-tabs" style="margin-bottom:16px">${projects.map((proj,idx)=>`<button class="proj-sub-tab${idx===activeProjectIdx?' act':''}" onclick="activeProjectIdx=${idx};buildSchedule()">${proj.name}</button>`).join('')}</div>`:'';
+  const schProjTabs=projects.length>1?`<div class="proj-sub-tabs" style="margin-bottom:16px">${projects.map((proj,idx)=>`<button class="proj-sub-tab${idx===activeProjectIdx?' act':''}" onclick="activeProjectIdx=${idx};buildSchedule()">${escH(proj.name)}</button>`).join('')}</div>`:'';
   p.innerHTML=schProjTabs+`
   <div style="margin-bottom:8px;font-family:'Manrope',system-ui;font-size:1.1rem;font-weight:700;color:var(--primary);letter-spacing:.03em"${lang==='ar'?' dir="rtl"':''}>${lang==='ar'?'① مكونات التطوير':'① Construction Components'}</div>
   `+buildConTable()+`
@@ -2110,7 +2331,7 @@ function buildSchedule(){
     const modeOpts=[['pct_egi',F.pctEgi],['sqm',F.costSqm],['fixed',F.fixedAmt]];
     let opexRows='';
     P.opexItems.forEach((item,idx)=>{
-      const nm=lang==='ar'?(item.nameAr||item.name):item.name;
+      const nm=escH(lang==='ar'?(item.nameAr||item.name):item.name);
       const modeSelect=modeOpts.map(o=>`<option value="${o[0]}"${String(item.mode)==String(o[0])?' selected':''}>${o[1]}</option>`).join('');
       opexRows+=`<tr>
         <td><input type="text" value="${nm}" style="width:120px;padding:4px;border:1px solid #ccd;border-radius:4px;font-size:.82rem" onchange="if(lang==='ar'){projects[${pi}].opexItems[${idx}].nameAr=this.value;}else{projects[${pi}].opexItems[${idx}].name=this.value;}"></td>
@@ -2750,6 +2971,14 @@ function calculate(){
     avgLandPriceSqm:totalLandArea?totalLandPrice/totalLandArea:0,avgSalePriceSqm:totalSellArea?totalSalePrice/totalSellArea:0,
     perProjectRevenue,hasLeaseProjects:projects.some(p=>p.strategy==='lease')};
 
+  // Auto-distribute remaining cash as final dividends
+  const finalCash = R.qCashClose[nq-1];
+  if(finalCash > 0.01) {
+    R.qDividends[nq-1] += finalCash;
+    R.qNetFin[nq-1] -= finalCash;
+    R.qCashClose[nq-1] = 0;
+  }
+
   document.querySelectorAll('.tab').forEach(t=>t.disabled=false);
   document.getElementById('btnDL').classList.add('show');
   document.getElementById('btnPDF').classList.add('show');
@@ -2846,9 +3075,9 @@ function renderDashboard(){
       const sepRow=`<tr class="sep"><td colspan="${qlb.length+2}"></td></tr>`;
       ppR.forEach(pr=>{
         if(pr.strategy==='lease'){
-          revH+=mkRow(`<b>${pr.name}</b> — ${L('Rental Income (EGI)','إيرادات الإيجار')}`,pr.qRental,false);
+          revH+=mkRow(`<b>${escH(pr.name)}</b> — ${L('Rental Income (EGI)','إيرادات الإيجار')}`,pr.qRental,false);
           (pr.opExItems||[]).forEach(oxi=>{
-            const oxLabel=lang==='ar'?(oxi.nameAr||oxi.name):oxi.name;
+            const oxLabel=escH(lang==='ar'?(oxi.nameAr||oxi.name):oxi.name);
             revH+=mkRow(`&nbsp;&nbsp;&nbsp;${oxLabel}`,oxi.quarterly.map(v=>-v),false);
           });
           revH+=mkRow(`&nbsp;&nbsp;<b>${L('NOI','صافي الدخل التشغيلي')}</b>`,pr.qNOI,true);
@@ -2858,9 +3087,9 @@ function renderDashboard(){
             revH+=mkRow(`&nbsp;&nbsp;&nbsp;${L('Selling Costs','تكاليف البيع')}`,pr.qSellingCosts.map(v=>-v),false);
           }
           const netLease=Array(R.nq).fill(0).map((_,qi)=>pr.qNOI[qi]+(pr.qExit[qi]||0)-(pr.qSellingCosts[qi]||0));
-          revH+=mkRow(`<b>${pr.name} — ${L('Net Revenue','صافي الإيرادات')}</b>`,netLease,true);
+          revH+=mkRow(`<b>${escH(pr.name)} — ${L('Net Revenue','صافي الإيرادات')}</b>`,netLease,true);
         }else{
-          revH+=mkRow(`<b>${pr.name}</b> — ${L('Sales Revenue','إيرادات المبيعات')}`,pr.qSales,false);
+          revH+=mkRow(`<b>${escH(pr.name)}</b> — ${L('Sales Revenue','إيرادات المبيعات')}`,pr.qSales,false);
         }
         revH+=sepRow;
       });
@@ -3063,6 +3292,17 @@ function renderCashFlow(){
   h+=`<div class="tbl-wrap" id="cfTableWrap"><table class="dt"><thead><tr><th class="rl">${L.hdr}</th>${lb.map((q,i)=>`<th class="${isRF&&i<cutoffQ?'rfcs-hdr-actual':''}">${q}${isRF?(i<cutoffQ?' ✓':' ⟶'):''}</th>`).join('')}<th>${lang==='ar'?'المجموع':'Total'}</th></tr></thead><tbody>`;
 
   h+=tr(L.grossSales,r.qGrossSales);
+  // Murabaha & Other Income from actuals
+  if(typeof actuals!=='undefined' && actuals.length){
+    const nqArr=Array(nq).fill(0);
+    const qMurabaha=[...nqArr],qOtherInc=[...nqArr];
+    for(const p of actuals){
+      if(p.category==='murabaha'&&p.quarter>=0&&p.quarter<nq) qMurabaha[p.quarter]+=p.amount;
+      if(p.category==='other_inc'&&p.quarter>=0&&p.quarter<nq) qOtherInc[p.quarter]+=p.amount;
+    }
+    if(qMurabaha.some(v=>v>0)) h+=tr(L.murabaha||'Murabaha Income',qMurabaha);
+    if(qOtherInc.some(v=>v>0)) h+=tr(L.otherInc||'Other Income',qOtherInc);
+  }
   h+=tr(L.wafi,r.qWafi.map(v=>-v));
   h+=tr(L.sellExp,r.qSellExp.map(v=>-v));
   h+=tr(L.vatRefCon,r.qVATRefundCon);
@@ -3284,7 +3524,7 @@ function renderSummary(){
   const base=calcWith({}), irr=base?base.irr:0, eqMult=base?base.eqMult:0;
   const isAr=lang==='ar';
   const dateStr=new Date().toLocaleDateString(isAr?'ar-SA':'en-US',{month:'long',year:'numeric'});
-  const loc=AA.project_location||D.project_location||(isAr?'الرياض، المملكة العربية السعودية':'Riyadh, KSA');
+  const loc=escH(AA.project_location||D.project_location||(isAr?'الرياض، المملكة العربية السعودية':'Riyadh, KSA'));
   const _ptKey=AA.project_type||D.project_type||'residential';
   const _ptMap={residential:'ptResidential',commercial:'ptCommercial',mixed:'ptMixed',hospitality:'ptHospitality',industrial:'ptIndustrial',infrastructure:'ptInfra'};
   const ptype=TX[lang].f[_ptMap[_ptKey]]||_ptKey;
@@ -3346,7 +3586,7 @@ function renderSummary(){
   h+=`<div>`;
   h+=`<div class="es-sec"><div class="es-sec-title">${L('Key Assumptions & Project Info','الافتراضات الرئيسية')}</div></div>`;
   h+=`<table class="es-tbl" dir="${tblDir}">`;
-  [[L('Fund Name','اسم الصندوق'),AA.fund_name||D.fund_name],[L('Project Type','نوع المشروع'),ptype],[L('Location','الموقع'),loc],[L('Fund Period','مدة الصندوق'),(isAr?'<bdi>'+yrP+'</bdi> '+(parseFloat(yrP)>=3&&parseFloat(yrP)<=10?'سنوات':'سنة')+' / <bdi>'+nq+'</bdi> '+(nq>=3&&nq<=10?'أرباع':'ربع'):yrP+' yrs / '+nq+' Q')],
+  [[L('Fund Name','اسم الصندوق'),escH(AA.fund_name||D.fund_name)],[L('Project Type','نوع المشروع'),ptype],[L('Location','الموقع'),loc],[L('Fund Period','مدة الصندوق'),(isAr?'<bdi>'+yrP+'</bdi> '+(parseFloat(yrP)>=3&&parseFloat(yrP)<=10?'سنوات':'سنة')+' / <bdi>'+nq+'</bdi> '+(nq>=3&&nq<=10?'أرباع':'ربع'):yrP+' yrs / '+nq+' Q')],
    [L('Land Area','مساحة الأرض'),fU(fmt(R.totalLandArea),sqm)],[L('Land Price','سعر المتر'),fUr(fmt(R.avgLandPriceSqm||0),cur,sqm)],
    [L('Total GFA','المساحة المبنية'),fU(fmt(R.totalBuildArea),sqm)],[L('Hurdle Rate','معدل العائد المستهدف'),AA.hurdle_rate+'%'],[L('Performance Fee','رسوم الأداء'),AA.perf_fee_pct+'%']
   ].forEach(([l,v])=>{
@@ -3366,7 +3606,7 @@ function renderSummary(){
   h+=`<div class="es-gap"></div>`;
   h+=`<div class="es-sec"><div class="es-sec-title">${L('Construction Components','مكونات التطوير')}</div></div>`;
   h+=`<table class="es-tbl es-tbl3" dir="${tblDir}"><tr class="es-tbl-hdr"><td>${L('Type','النوع')}</td><td>${L('GFA','المساحة')}</td><td>${L('Cost/sqm','التكلفة/م²')}</td></tr>`;
-  if(R.conComponents&&R.conComponents.length) R.conComponents.forEach(c=>{h+=`<tr><td class="es-lbl">${compLabel(c).substring(0,26)}</td><td class="es-val" dir="${numDir}">${fmt(c.gfa)}</td><td class="es-val" dir="${numDir}">${fmt(c.cost)}</td></tr>`;});
+  if(R.conComponents&&R.conComponents.length) R.conComponents.forEach(c=>{h+=`<tr><td class="es-lbl">${escH(compLabel(c).substring(0,26))}</td><td class="es-val" dir="${numDir}">${fmt(c.gfa)}</td><td class="es-val" dir="${numDir}">${fmt(c.cost)}</td></tr>`;});
   h+=`</table>`;
   h+=`</div>`;
 
@@ -3414,7 +3654,7 @@ function renderSummary(){
   h+=`<div class="es-gap"></div>`;
   h+=`<div class="es-sec"><div class="es-sec-title">${L('Sales Components','مكونات المبيعات')}</div></div>`;
   h+=`<table class="es-tbl es-tbl3" dir="${tblDir}"><tr class="es-tbl-hdr"><td>${L('Type','النوع')}</td><td>${L('Area','المساحة')}</td><td>${L('Price/sqm','السعر/م²')}</td></tr>`;
-  if(R.salesComponents&&R.salesComponents.length) R.salesComponents.forEach(c=>{h+=`<tr><td class="es-lbl">${compLabel(c).substring(0,26)}</td><td class="es-val" dir="${numDir}">${fmt(c.area)}</td><td class="es-val" dir="${numDir}">${fmt(c.price)}</td></tr>`;});
+  if(R.salesComponents&&R.salesComponents.length) R.salesComponents.forEach(c=>{h+=`<tr><td class="es-lbl">${escH(compLabel(c).substring(0,26))}</td><td class="es-val" dir="${numDir}">${fmt(c.area)}</td><td class="es-val" dir="${numDir}">${fmt(c.price)}</td></tr>`;});
   h+=`</table>`;
   h+=`</div>`;
 
@@ -3624,7 +3864,7 @@ function dlPDF(){
 const ACT_CATS=[
   // Costs with per-quarter budget
   {key:'land',        en:'Land Cost',          ar:'تكلفة الأرض',        group:'cost', getQ:(R,i)=>i===0?R.baseLand:0},
-  {key:'brokerage',   en:'Brokerage',          ar:'السعاية',            group:'cost', getQ:(R,i)=>i===0?R.brokerageIncVAT:0},
+  {key:'brokerage',   en:'Brokerage',          ar:'السعي',              group:'cost', getQ:(R,i)=>i===0?R.brokerageIncVAT:0},
   {key:'rett',        en:'RETT',               ar:'رسوم نقل الملكية',   group:'cost', getQ:(R,i)=>i===0?R.rettAmount:0},
   {key:'base_con',    en:'Base Construction',   ar:'تكاليف البناء',      group:'cost', getQ:(R,i)=>R.qBaseCon[i]},
   {key:'dev_fee',     en:'Development Fee',     ar:'رسوم التطوير',       group:'cost', getQ:(R,i)=>R.qDevFee[i]},
@@ -3654,6 +3894,8 @@ const ACT_CATS=[
   {key:'murabaha',    en:'Murabaha Income',     ar:'دخل المرابحات',      group:'revenue', actualOnly:true, getQ:()=>0},
   {key:'other_inc',   en:'Other Income',        ar:'دخل آخر',            group:'revenue', actualOnly:true, getQ:()=>0},
   {key:'other_exp',   en:'Other Expense',       ar:'مصاريف أخرى',        group:'cost',    actualOnly:true, getQ:()=>0},
+  {key:'vat_paid',    en:'VAT Paid',            ar:'ضريبة مدفوعة',       group:'cost',    actualOnly:true, getQ:(R,i)=>0},
+  {key:'vat_received',en:'VAT Received',        ar:'ضريبة مستردة',       group:'revenue', actualOnly:true, getQ:(R,i)=>0},
 ];
 
 let _actEditId=null; // id of payment being edited
@@ -3667,8 +3909,8 @@ function _actCatLabel(key){
 }
 
 function _actFmt(v){
-  if(v===0||v===undefined||v===null) return '—';
-  return v.toLocaleString(lang==='ar'?'ar-SA':'en-SA',{maximumFractionDigits:0});
+  if(!v||Math.abs(v)<0.5) return '—';
+  return fN(v);
 }
 
 function _actFmtVar(v,isRev){
@@ -3694,21 +3936,24 @@ function buildActualsTab(){
   const catOpts=cats.map(c=>`<option value="${c.key}">${t?c.ar:c.en}</option>`).join('');
 
   // Summary cards
-  let totalBudgetCost=0,totalActualCost=0,totalBudgetRev=0,totalActualRev=0,totalMurabaha=0;
+  let totalBudgetCost=0,totalActualCost=0,totalBudgetRev=0,totalActualRev=0,totalMurabaha=0,totalVATPaid=0,totalVATReceived=0;
   for(const c of cats){
-    if(c.actualOnly&&c.key!=='murabaha'&&c.key!=='other_inc') continue;
+    if(c.actualOnly&&c.key!=='murabaha'&&c.key!=='other_inc'&&c.key!=='vat_paid'&&c.key!=='vat_received') continue;
     let bgt=0,act=0;
     for(let i=0;i<nq;i++){
       if(R&&!c.actualOnly) bgt+=c.getQ(R,i);
       act+=actuals.filter(p=>p.category===c.key&&p.quarter===i).reduce((s,p)=>s+p.amount,0);
     }
     if(c.key==='murabaha'||c.key==='other_inc'){totalMurabaha+=act;}
+    else if(c.key==='vat_paid'){totalVATPaid+=act;}
+    else if(c.key==='vat_received'){totalVATReceived+=act;}
     else if(c.group==='cost'){totalBudgetCost+=bgt;totalActualCost+=act;}
     else{totalBudgetRev+=bgt;totalActualRev+=act;}
   }
+  const vatRemaining=totalVATPaid-totalVATReceived+(R?R.totalVATNet:0);
 
   let html=`<div id="importSection"></div>
-  <div class="act-section" style="display:flex;justify-content:flex-end;margin-bottom:0;border:none;padding-bottom:0">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
     <button class="act-btn act-btn-open" onclick="_importShowUI()">📥 ${t?'استيراد مدفوعات':'Import Payments'}</button>
   </div>
   <div class="act-section">
@@ -3721,6 +3966,9 @@ function buildActualsTab(){
       <div class="act-sum-card"><div class="act-sum-label">${t?'إجمالي الإيرادات (الفعلي)':'Total Revenue (Actual)'}</div><div class="act-sum-val">${_actFmt(totalActualRev)}</div>
         ${R?`<div class="act-sum-sub">${_actFmtVar(totalActualRev-totalBudgetRev,true)}</div>`:''}</div>
       <div class="act-sum-card"><div class="act-sum-label">${t?'دخل المرابحات وأخرى':'Murabaha & Other Income'}</div><div class="act-sum-val">${_actFmt(totalMurabaha)}</div></div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'ضريبة مدفوعة':'VAT Paid'}</div><div class="act-sum-val">${_actFmt(totalVATPaid)}</div></div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'ضريبة مستردة':'VAT Received'}</div><div class="act-sum-val">${_actFmt(totalVATReceived)}</div></div>
+      <div class="act-sum-card"><div class="act-sum-label">${t?'الضريبة المتبقية':'VAT Remaining'}</div><div class="act-sum-val" style="color:${vatRemaining>0?'var(--error)':'var(--success)'}">${_actFmt(vatRemaining)}</div></div>
     </div>
   </div>`;
 
@@ -3828,16 +4076,16 @@ function buildActualsTab(){
       </tr></thead><tbody>`;
     for(const p of filtered){
       html+=`<tr>
-        <td>${p.date||'—'}</td>
+        <td>${escH(p.date)||'—'}</td>
         <td>${labels[p.quarter]||'Q'+(p.quarter+1)}</td>
-        <td>${_actCatLabel(p.category)}</td>
-        <td>${p.payee||'—'}</td>
+        <td>${escH(_actCatLabel(p.category))}</td>
+        <td>${escH(p.payee)||'—'}</td>
         <td class="act-amt">${_actFmt(p.amount)}</td>
-        <td>${p.invoiceRef||'—'}</td>
-        <td>${p.notes||'—'}</td>
+        <td>${escH(p.invoiceRef)||'—'}</td>
+        <td>${escH(p.notes)||'—'}</td>
         <td class="act-actions">
-          <button class="act-btn act-btn-edit" onclick="_actEdit('${p.id}')">✎</button>
-          <button class="act-btn act-btn-del" onclick="_actDelete('${p.id}')">✕</button>
+          <button class="act-btn act-btn-edit" onclick="_actEdit('${escH(p.id)}')">✎</button>
+          <button class="act-btn act-btn-del" onclick="_actDelete('${escH(p.id)}')">✕</button>
         </td>
       </tr>`;
     }
@@ -3890,7 +4138,8 @@ function _actSave(){
   const notes=document.getElementById('act_notes').value.trim();
 
   if(!category){alert(lang==='ar'?'يرجى اختيار البند':'Please select a category');return;}
-  if(!amount||amount<=0){alert(lang==='ar'?'يرجى إدخال المبلغ':'Please enter an amount');return;}
+  if(!isFinite(amount)||amount<=0){alert(lang==='ar'?'يرجى إدخال المبلغ':'Please enter an amount');return;}
+  if(!isFinite(quarter)||quarter<0){alert(lang==='ar'?'يرجى اختيار الربع':'Please select a quarter');return;}
   if(!payee){alert(lang==='ar'?'يرجى إدخال اسم المستفيد':'Please enter a payee name');return;}
 
   if(_actEditId){
@@ -3959,6 +4208,8 @@ const IMPORT_RULES=[
   {keywords:['إيراد','revenue','بيع وحد'],cat:'revenue'},
   {keywords:['مرابح','murabaha','deposit'],cat:'murabaha'},
   {keywords:['SPV','شركة ذات غرض'],cat:'spv'},
+  {keywords:['ضريبة مدفوعة','vat paid','ضريبة القيمة المضافة','vat payment'],cat:'vat_paid'},
+  {keywords:['ضريبة مستردة','vat refund','استرداد ضريبة','vat received','vat recovery'],cat:'vat_received'},
 ];
 
 function _importGuessCategory(desc,payee){
@@ -4016,10 +4267,10 @@ function _importShowUI(){
       const qLabel=qi<nq?'Q'+(qi+1):'—';
       html+=`<tr class="${r.include?'':'import-excluded'}">
         <td><input type="checkbox" ${r.include?'checked':''} onchange="_importPending[${idx}].include=this.checked;_importRefreshReview()"></td>
-        <td>${r.date||'—'}</td>
+        <td>${escH(r.date)||'—'}</td>
         <td class="rfcs-num">${_actFmt(r.amount)}</td>
-        <td>${r.payee||'—'}</td>
-        <td class="import-desc">${(r.description||'').substring(0,60)}</td>
+        <td>${escH(r.payee)||'—'}</td>
+        <td class="import-desc">${escH((r.description||'').substring(0,60))}</td>
         <td><select onchange="_importPending[${idx}].category=this.value">${catOpts.replace('value="'+r.category+'"','value="'+r.category+'" selected')}</select></td>
         <td>${qLabel}</td>
       </tr>`;
@@ -4322,6 +4573,7 @@ function buildReforecastUI(){
 
   html+=`</tbody></table></div>
     <button class="act-btn act-btn-add" onclick="runReforecast()" style="margin-top:12px">${t?'🔄 إعادة حساب التوقع':'🔄 Recalculate Reforecast'}</button>
+    <button class="act-btn" onclick="_saveReforecastCopy()" style="margin-top:8px">${t?'💾 حفظ نسخة إعادة التوقع':'💾 Save Reforecast Copy'}</button>
   </div>`;
 
   const panel=document.getElementById('reforecastPanel');
@@ -4350,6 +4602,7 @@ function runReforecast(){
   // Phase 1: Build actual quarterly arrays for each category (Q0..cutoffQ-1)
   // Phase 2: Redistribute remaining budget across forecast quarters (cutoffQ..nq-1)
   const catArrays={}; // {key: Array(nq)} — blended actual+forecast per quarter
+  const budgetOverruns=[]; // FIX 6: categories whose actual spend exceeded (adjusted) budget
 
   for(const c of cats){
     const arr=Array(nq).fill(0);
@@ -4370,6 +4623,10 @@ function runReforecast(){
     }
 
     // Phase 2: Remaining budget to distribute across forecast quarters
+    // FIX 6: flag over-budget categories instead of silently zeroing the forecast
+    if(adjTotal-actualSpent<-0.01){
+      budgetOverruns.push({key:c.key,en:c.en,ar:c.ar,budget:adjTotal,actual:actualSpent,overrun:actualSpent-adjTotal});
+    }
     const remaining=Math.max(0,adjTotal-actualSpent);
     const forecastQs=nq-cutoffQ;
 
@@ -4410,6 +4667,7 @@ function runReforecast(){
 
   // Build R2 — clone R and override quarterly arrays with reforecast values
   R2=JSON.parse(JSON.stringify(R));
+  R2._budgetOverruns=budgetOverruns; // FIX 6: expose overruns so the UI can display warnings
 
   // Map category arrays back to R2 arrays
   if(catArrays.land) R2.qLandCF=catArrays.land.map((v,i)=>i===0?-v:0); // land is negative in CF
@@ -4472,9 +4730,10 @@ function runReforecast(){
     if(catArrays.arr_fee) R2.qArrFee=catArrays.arr_fee;
     if(catArrays.bank_mgmt) R2.qBankMgmt=catArrays.bank_mgmt;
     if(catArrays.perf_fee) R2.qPerfFee=catArrays.perf_fee;
-    // Rebuild total fund expenses from sub-items
+    // Rebuild total fund expenses from sub-items (must match calculate(): baseExp + qMgmtFee + qPerfFee)
+    // baseExp includes: custody, spv, fundSetup, auditor, sharia, engineering, board, finAdvisor, mkt, bankMgmt, wafi, sellExp, arrFee
     for(let i=0;i<nq;i++){
-      R2.qTotalFundExp[i]=(R2.qCustody[i]||0)+(R2.qSPV[i]||0)+(R2.qFundSetup[i]||0)+(R2.qAuditor[i]||0)+(R2.qSharia[i]||0)+(R2.qEngineering[i]||0)+(R2.qBoard[i]||0)+(R2.qFinAdvisor[i]||0)+(R2.qMgmtFee[i]||0)+(R2.qBankMgmt[i]||0)+(R2.qPerfFee[i]||0)+(R2.qArrFee[i]||0);
+      R2.qTotalFundExp[i]=(R2.qCustody[i]||0)+(R2.qSPV[i]||0)+(R2.qFundSetup[i]||0)+(R2.qAuditor[i]||0)+(R2.qSharia[i]||0)+(R2.qEngineering[i]||0)+(R2.qBoard[i]||0)+(R2.qFinAdvisor[i]||0)+(R2.qMgmtFee[i]||0)+(R2.qBankMgmt[i]||0)+(R2.qPerfFee[i]||0)+(R2.qArrFee[i]||0)+(R2.qMkt[i]||0)+(R2.qWafi[i]||0)+(R2.qSellExp[i]||0);
     }
   }
 
@@ -4490,27 +4749,92 @@ function runReforecast(){
   }
   R2.tCon=R2.qCon.reduce((a,b)=>a+b,0);
 
-  // Rebuild qNetOp = qSales + qVATNet - qTotalFundExp - qInterest
-  // Simplified: keep VAT arrays from original for forecast quarters
-  for(let i=0;i<nq;i++){
-    R2.qNetOp[i]=R2.qSales[i]+(R2.qVATNet[i]||0)-(R2.qTotalFundExp[i]||0)-R2.qInterest[i];
+  // ── FIX 1: Recalculate VAT refunds from the updated cost arrays (mirrors calculate()) ──
+  const delayQ=Math.floor((Number(R2.A.vat_refund_months)||0)/3);
+  const lastQ=nq-1;
+  const qConVAT2=R2.qCon.map(c=>c-c/V);
+  R2.qVATRefundCon=Array(nq).fill(0);
+  if(Number(R2.A.vat_refund)){
+    for(let i=delayQ;i<nq;i++) R2.qVATRefundCon[i]=qConVAT2[i-delayQ];
+    for(let i=0;i<nq;i++){if(i+delayQ>=nq) R2.qVATRefundCon[lastQ]+=qConVAT2[i];}
   }
+  // Brokerage & RETT refunds — scale original refund totals by updated brokerage/RETT amounts
+  const _origBrokRef=(R.qBrokVATRefund||[]).reduce((a,b)=>a+b,0);
+  const _origRETTRef=(R.qRETTRefund||[]).reduce((a,b)=>a+b,0);
+  const _newBrokRef=(R.brokerageIncVAT>0)?_origBrokRef*(R2.brokerageIncVAT/R.brokerageIncVAT):_origBrokRef;
+  const _newRETTRef=(R.rettAmount>0)?_origRETTRef*(R2.rettAmount/R.rettAmount):_origRETTRef;
+  R2.qBrokVATRefund=Array(nq).fill(0);
+  R2.qRETTRefund=Array(nq).fill(0);
+  if(_newBrokRef>0) R2.qBrokVATRefund[Math.min(delayQ,lastQ)]=_newBrokRef;
+  if(_newRETTRef>0) R2.qRETTRefund[Math.min(delayQ,lastQ)]=_newRETTRef;
+
+  // Rebuild expense-VAT refunds + net VAT schedule (reused after perf-fee recalc)
+  function _rfRebuildVATNet(){
+    const qExpVAT2=(R2.qTotalFundExp||Array(nq).fill(0)).map(e=>e-e/V);
+    R2.qVATRefundExp=Array(nq).fill(0);
+    if(Number(R2.A.vat_refund)){
+      for(let i=delayQ;i<nq;i++) R2.qVATRefundExp[i]=qExpVAT2[i-delayQ];
+      for(let i=0;i<nq;i++){if(i+delayQ>=nq) R2.qVATRefundExp[lastQ]+=qExpVAT2[i];}
+    }
+    R2.qVATAdvisor=Array(nq).fill(0);
+    R2.qVATNet=Array(nq).fill(0);
+    for(let i=0;i<nq;i++){
+      const totalRef=R2.qVATRefundCon[i]+R2.qVATRefundExp[i]+R2.qBrokVATRefund[i]+R2.qRETTRefund[i];
+      R2.qVATAdvisor[i]=totalRef*((Number(R2.A.vat_advisor_pct)||0)/100);
+      R2.qVATNet[i]=totalRef-R2.qVATAdvisor[i];
+    }
+  }
+  _rfRebuildVATNet();
 
   // Rebuild qNetInv = qLandCF - qCon
   for(let i=0;i<nq;i++){
     R2.qNetInv[i]=R2.qLandCF[i]-R2.qCon[i];
   }
 
-  // Debt cascade: use actual loan balance at cutoff if provided
-  if(reforecastSettings.actualLoanBalance!==null&&cutoffQ>0){
-    // Set loan close at cutoff-1 to actual balance
+  // ── FIXES 2, 5, 7: Debt cascade — resize forecast drawdowns for cash needs (min_cash floor)
+  //     and recalculate interest from the debt schedule instead of redistributing budget ──
+  const _rate=((Number(R2.A.saibor)||0)+(Number(R2.A.margin)||0))/100;
+  const _minCash=Number(R2.A.min_cash)||0;
+  // Anchor loan balance at end of last completed actual quarter (user override wins)
+  if(cutoffQ>0&&reforecastSettings.actualLoanBalance!==null){
     R2.qLoanClose[cutoffQ-1]=reforecastSettings.actualLoanBalance;
-    // Recalculate forward from cutoff
+  }
+  // Clear stale forecast-quarter dividends (final distribution recomputed below — FIX 3)
+  for(let i=cutoffQ;i<nq;i++) R2.qDividends[i]=0;
+
+  for(let iter=0;iter<100;iter++){
+    // Debt schedule & interest for forecast quarters (actual quarters kept as-is)
     for(let i=cutoffQ;i<nq;i++){
-      R2.qLoanOpen[i]=R2.qLoanClose[i-1];
-      // Keep original drawdowns and repayments for forecast quarters
-      R2.qLoanClose[i]=R2.qLoanOpen[i]+R2.drawdowns[i]-R2.qRepay[i];
+      R2.qLoanOpen[i]=i===0?0:R2.qLoanClose[i-1];
+      R2.qInterest[i]=R2.qLoanOpen[i]*_rate/4; // FIX 7: interest from debt schedule
+      const bal=R2.qLoanOpen[i]+(R2.drawdowns[i]||0);
+      R2.qRepay[i]=(i===nq-1)?bal:0;
+      R2.qLoanClose[i]=bal-R2.qRepay[i];
     }
+    // Rebuild qNetOp with updated interest (matches calculate())
+    for(let i=0;i<nq;i++){
+      R2.qNetOp[i]=R2.qGrossSales[i]+(R2.qVATNet[i]||0)-(R2.qTotalFundExp[i]||0)-R2.qInterest[i];
+    }
+    // FIX 5: size forecast drawdowns so cash close never falls below min_cash
+    const newDD=R2.drawdowns.slice();
+    const tempCash=Array(nq).fill(0);
+    for(let i=0;i<nq;i++){
+      const open=i===0?0:tempCash[i-1];
+      if(i<cutoffQ){
+        // Actual quarters: keep recorded financing as-is
+        const netFin=(R2.drawdowns[i]||0)-(R2.qRepay[i]||0)+(R2.qEquity[i]||0)+(R2.qIKTotal[i]||0)-(R2.qDividends[i]||0);
+        tempCash[i]=open+R2.qNetOp[i]+R2.qNetInv[i]+netFin;
+      }else{
+        const netNoBorrow=R2.qNetOp[i]+R2.qNetInv[i]+(R2.qEquity[i]||0)+(R2.qIKTotal[i]||0)-(i===nq-1?(R2.qRepay[i]||0):0);
+        const raw=open+netNoBorrow;
+        newDD[i]=(raw<_minCash&&i<nq-1)?_minCash-raw:0;
+        tempCash[i]=raw+newDD[i];
+      }
+    }
+    let delta=0;
+    for(let i=cutoffQ;i<nq;i++) delta+=Math.abs(newDD[i]-(R2.drawdowns[i]||0));
+    for(let i=cutoffQ;i<nq;i++) R2.drawdowns[i]=newDD[i];
+    if(delta<1) break;
   }
 
   // Rebuild cash flow
@@ -4522,6 +4846,42 @@ function runReforecast(){
   for(let i=0;i<nq;i++){
     R2.qCashOpen[i]=i===0?0:R2.qCashClose[i-1];
     R2.qCashClose[i]=R2.qCashOpen[i]+R2.qNetOp[i]+R2.qNetInv[i]+R2.qNetFin[i];
+  }
+
+  // ── FIX 4: Recalculate performance fee at final quarter (same hurdle logic as calculate()) ──
+  if(isFund){
+    const _oldPF=R2.qPerfFee[nq-1]||0;
+    const _gpCash=Number(R2.A.gp_commit_cash)||0;
+    const _totalEquity=(Number(R2.A.equity)||0)+_gpCash+(R2.qIKTotal||[]).reduce((a,b)=>a+b,0);
+    const _interimDiv=R2.qDividends.slice(0,nq-1).reduce((a,b)=>a+b,0);
+    // Cash before perf fee: add back the stale perf fee already embedded in qTotalFundExp/qNetOp
+    const _cashBeforePerf=R2.qCashClose[nq-1]+(R2.qDividends[nq-1]||0)+_oldPF;
+    const _totalReturn=_cashBeforePerf+_interimDiv;
+    const _years=(Number(R2.A.fund_period_months)||nq*3)/12;
+    const _hurdleAmount=_totalEquity*(Math.pow(1+(Number(R2.A.hurdle_rate)||0)/100,_years)-1);
+    const _profit=_totalReturn-_totalEquity;
+    const _newPF=(_profit>_hurdleAmount)?(_profit-_hurdleAmount)*((Number(R2.A.perf_fee_pct)||0)/100):0;
+    const _dPF=_newPF-_oldPF;
+    if(Math.abs(_dPF)>0.01){
+      R2.qPerfFee[nq-1]=_newPF;
+      R2.qTotalFundExp[nq-1]+=_dPF;
+      R2.qNetOp[nq-1]-=_dPF;
+      R2.qCashClose[nq-1]-=_dPF;
+      // Refresh expense-VAT refunds for the changed final-quarter fund expenses (as calculate() does)
+      const _oldVATNetLast=R2.qVATNet[nq-1]||0;
+      _rfRebuildVATNet();
+      const _dVAT=(R2.qVATNet[nq-1]||0)-_oldVATNetLast;
+      R2.qNetOp[nq-1]+=_dVAT;
+      R2.qCashClose[nq-1]+=_dVAT;
+    }
+  }
+
+  // ── FIX 3: Auto-distribute remaining final cash as dividends ──
+  const finalCash=R2.qCashClose[nq-1];
+  if(finalCash>0.01){
+    R2.qDividends[nq-1]+=finalCash;
+    R2.qNetFin[nq-1]-=finalCash;
+    R2.qCashClose[nq-1]=0;
   }
 
   // Mark actual vs forecast quarters on R2 for rendering
@@ -4539,6 +4899,27 @@ function runReforecast(){
 
   buildReforecastUI();
   renderCashFlow();
+}
+
+function _saveReforecastCopy(){
+  if(!R2){alert(lang==='ar'?'لا يوجد توقع محسوب':'No reforecast calculated');return;}
+  const copyName=(D.project_name||D.fund_name||'Project')+' (Reforecast)';
+  const copyData=JSON.parse(JSON.stringify(D));
+  copyData.project_name=copyName;
+  copyData.fund_name=copyName;
+  copyData._reforecastSettings=JSON.parse(JSON.stringify(reforecastSettings));
+  copyData._reforecastActuals=JSON.parse(JSON.stringify(actuals));
+  const projId='proj_'+Date.now();
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).collection('projects').doc(projId).set({
+      name:copyName,data:copyData,actuals:actuals,reforecastSettings:reforecastSettings,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(()=>{
+      alert(lang==='ar'?'تم حفظ نسخة إعادة التوقع بنجاح':'Reforecast copy saved successfully');
+      loadProjectList();
+    }).catch(e=>{alert('Error: '+e.message);});
+  }else{
+    alert(lang==='ar'?'يجب تسجيل الدخول أولًا':'Please login first');
+  }
 }
 
 // =============================================
@@ -5691,51 +6072,80 @@ function dlExcel(){
     hdr+=colHdr('Total');
     rows.push(hdr+'</row>');rowN++;
 
-    // Helper row builders for reforecast
-    function rfRow(label,data,si){
-      let c=lbl(label,rowN%2);
+    // Helper row builders matching main Cash Flow format
+    function rfRow(label,data,alt){
+      let c=lbl(label,alt);
       let tot=0;
-      for(let i=0;i<nq;i++){const v=data[i]||0;tot+=v;c+=vc(v,si||(rowN%2?S.alt:S.bkN));}
-      c+=vc(tot,S.sub);
+      for(let i=0;i<nq;i++){const v=data[i]||0;tot+=v;c+=vc(v,alt?S.bkNA:S.bkN);}
+      c+=vc(tot,alt?S.bkNA:S.bkN);
       rows.push('<row>'+c+'</row>');rowN++;
     }
-    function rfSubRow(label,data){
-      let c='<c s="'+S.sub+'"><is><t>'+esc(label)+'</t></is></c>';
+    function rfBoldRow(label,data){
+      let c='<c s="'+S.bdN+'"><is><t>'+esc(label)+'</t></is></c>';
       let tot=0;
-      for(let i=0;i<nq;i++){const v=data[i]||0;tot+=v;c+=vc(v,S.sub);}
-      c+=vc(tot,S.sub);
+      for(let i=0;i<nq;i++){const v=data[i]||0;tot+=v;c+=vc(v,S.bdN);}
+      c+=vc(tot,S.bdN);
       rows.push('<row>'+c+'</row>');rowN++;
     }
 
-    rfRow('Gross Revenue',r2.qGrossSales);
-    rfRow('Wafi Fees',r2.qWafi.map(v=>-v));
-    rfRow('Selling Expenses',r2.qSellExp.map(v=>-v));
-    rfSubRow('Net Revenue',r2.qSales);
+    // ─── OPERATING ACTIVITIES ───
+    rows.push('<row>'+secHdr('OPERATING ACTIVITIES')+'</row>');rowN++;
+    rfRow('Gross Sales Revenue',r2.qGrossSales,false);
+    rfRow('WAFI Fee',r2.qWafi.map(v=>-v),true);
+    rfRow('Commission Fees',r2.qSellExp.map(v=>-v),false);
+    rfRow('VAT Refund (Construction)',r2.qVATRefundCon,true);
+    rfRow('VAT Refund (Expenses)',r2.qVATRefundExp,false);
+    rfRow('VAT Refund (Brokerage)',r2.qBrokVATRefund,true);
+    rfRow('RETT Refund',r2.qRETTRefund,false);
+    rfRow('VAT Advisor',r2.qVATAdvisor.map(v=>-v),true);
+    rfBoldRow('Net Refunds',r2.qVATNet);
     rows.push('<row/>');rowN++;
-    rfRow('Total Fund Expenses',r2.qTotalFundExp.map(v=>-v));
-    rfRow('Interest',r2.qInterest.map(v=>-v));
-    rfSubRow('Net Operating',r2.qNetOp);
+    rfRow('Custody Expenses',r2.qCustody.map(v=>-v),false);
+    rfRow('SPV Setup',r2.qSPV.map(v=>-v),true);
+    rfRow('Fund Setup',r2.qFundSetup.map(v=>-v),false);
+    rfRow('Auditor Expenses',r2.qAuditor.map(v=>-v),true);
+    rfRow('Sharia Committee',r2.qSharia.map(v=>-v),false);
+    rfRow('Engineering Consultant',r2.qEngineering.map(v=>-v),true);
+    rfRow('Board Compensation',r2.qBoard.map(v=>-v),false);
+    rfRow('Financial Advisor',r2.qFinAdvisor.map(v=>-v),true);
+    rfRow('Fund Management Fees',r2.qMgmtFee.map(v=>-v),false);
+    rfRow('Marketing Costs',r2.qMkt.map(v=>-v),true);
+    rfRow('Bank Management Fees',r2.qBankMgmt.map(v=>-v),false);
+    rfRow('Arrangement Fee',r2.qArrFee.map(v=>-v),true);
+    rfRow('Performance Fees',r2.qPerfFee.map(v=>-v),false);
+    rfBoldRow('Total Fund Expenses',r2.qTotalFundExp.map(v=>-v));
+    rfRow('Interest / Debt Profit',r2.qInterest.map(v=>-v),true);
+    rfBoldRow('Net Operating Cash Flow',r2.qNetOp);
+
+    // ─── INVESTING ACTIVITIES ───
     rows.push('<row/>');rowN++;
-    rfRow('Land',r2.qLandCF);
-    rfRow('Base Construction',r2.qBaseCon.map(v=>-v));
-    rfRow('Development Fee',r2.qDevFee.map(v=>-v));
-    rfRow('Contingency',r2.qContingency.map(v=>-v));
-    rfRow('Insurance',r2.qInsurance.map(v=>-v));
-    rfRow('Design',r2.qDesignFee.map(v=>-v));
-    rfRow('Supervision',r2.qSupervision.map(v=>-v));
-    rfRow('Licensing',r2.qLicensing.map(v=>-v));
-    rfSubRow('Total Construction',r2.qCon.map(v=>-v));
-    rfSubRow('Net Investment',r2.qNetInv);
+    rows.push('<row>'+secHdr('INVESTING ACTIVITIES')+'</row>');rowN++;
+    rfRow('Land Acquisition',r2.qLandCF,false);
+    rfRow('Base Construction',r2.qBaseCon.map(v=>-v),true);
+    rfRow('Developer Fees',r2.qDevFee.map(v=>-v),false);
+    rfRow('Contingency',r2.qContingency.map(v=>-v),true);
+    rfRow('Insurance',r2.qInsurance.map(v=>-v),false);
+    rfRow('Design Fee',r2.qDesignFee.map(v=>-v),true);
+    rfRow('Supervision Fee',r2.qSupervision.map(v=>-v),false);
+    rfRow('Licensing Fee',r2.qLicensing.map(v=>-v),true);
+    rfBoldRow('Total Construction Cost',r2.qCon.map(v=>-v));
+    rfBoldRow('Net Investing Cash Flow',r2.qNetInv);
+
+    // ─── FINANCING ACTIVITIES ───
     rows.push('<row/>');rowN++;
-    rfRow('Net Borrowing',r2.drawdowns.map((d,i)=>d-r2.qRepay[i]));
-    rfRow('Equity',r2.qEquity);
-    rfRow('In-Kind',r2.qIKTotal);
-    rfRow('Dividends',r2.qDividends.map(v=>-v));
-    rfSubRow('Net Financing',r2.qNetFin);
+    rows.push('<row>'+secHdr('FINANCING ACTIVITIES')+'</row>');rowN++;
+    rfRow('Net Borrowing',r2.drawdowns.map((d,i)=>d-r2.qRepay[i]),false);
+    rfRow('Investor Equity',r2.qEquity,true);
+    rfRow('In-Kind Participation',r2.qIKTotal,false);
+    rfRow('Dividends Paid',r2.qDividends.map(v=>-v),true);
+    rfBoldRow('Net Financing Cash Flow',r2.qNetFin);
+
+    // ─── CASH BALANCE ───
     rows.push('<row/>');rowN++;
-    rfSubRow('Opening Cash',r2.qCashOpen);
-    rfRow('Cash Change',Array.from({length:nq},(_,i)=>r2.qCashClose[i]-r2.qCashOpen[i]));
-    rfSubRow('Closing Cash',r2.qCashClose);
+    rows.push('<row>'+secHdr('CASH BALANCE')+'</row>');rowN++;
+    rfBoldRow('Opening Cash',r2.qCashOpen);
+    rfRow('Change in Cash',Array.from({length:nq},(_,i)=>r2.qCashClose[i]-r2.qCashOpen[i]),false);
+    rfBoldRow('Closing Cash',r2.qCashClose);
 
     sheets.push({name:'Reforecast CF',rows,cols:colsQ(32,16)});
   }
@@ -5893,7 +6303,7 @@ function calcWith(overrides){
     totalDesignFee+=pDesignFee;
     totalSupervisionFee+=pSupervisionFee;
     totalLicensingFee+=P.licensing_fee||0;
-    totalSellArea+=P.sell_area||0;
+    if(P.strategy!=='lease') totalSellArea+=P.sell_area||0;
 
     const pRev=(P.sell_area||0)*(P.sale_price_sqm||0);
     const pSellExpTotal=pRev*pct(P.sell_exp_pct||0);
@@ -6647,9 +7057,17 @@ function toggleLang(){
   document.querySelector('.btn-lang').textContent=TX[lang].langB;
   const rl=document.getElementById('rememberLabel');if(rl) rl.textContent=lang==='ar'?'تذكرني':'Remember me';
   const gl=document.getElementById('guestLink');if(gl) gl.textContent=lang==='ar'?'المتابعة كزائر':'Continue as Guest';
-  const gh=document.getElementById('guestHint');if(gh) gh.textContent=lang==='ar'?'جرّب المنصة بدون حساب — لن يتم حفظ المشاريع':'Try the platform without an account — projects won\'t be saved';
+  const gh=document.getElementById('guestHint');if(gh) gh.textContent=lang==='ar'?'استكشف المنصة — لن يتم حفظ المشاريع':'Explore the platform — projects won\'t be saved';
+  const fl=document.getElementById('forgotLink');if(fl) fl.textContent=lang==='ar'?'نسيت كلمة المرور؟':'Forgot Password?';
+  // Update login form labels
+  if(authMode==='login'){
+    document.getElementById('authTitle').textContent=lang==='ar'?'مرحباً بعودتك':'Welcome Back';
+    document.getElementById('authSubtitle').textContent=lang==='ar'?'سجّل دخولك للوصول إلى مشاريعك':'Sign in to access your projects';
+    document.getElementById('authBtn').textContent=lang==='ar'?'تسجيل الدخول':'Sign In';
+  }
   updateProjectBar();
   buildTabs();buildForm();
+  if(document.getElementById('p-actuals')) buildActualsTab();
   if(R){renderDashboard();renderCashFlow();renderDebt();renderSensitivity();renderSummary();}
 }
 
@@ -6660,7 +7078,7 @@ function updateProjectBar(){
   const _t=TX[lang];
   const el=id=>document.getElementById(id);
   if(el('projLbl')) el('projLbl').textContent=_t.projLbl;
-  if(el('btnProjSave')) el('btnProjSave').textContent=_t.projSave;
+  if(el('btnProjSave')) el('btnProjSave').textContent=(isSharedView&&!sharedReadOnly)?(_t.projSaveShared||_t.projSave):_t.projSave;
   if(el('btnProjNew')) el('btnProjNew').textContent=_t.projNew;
   if(el('btnProjDel')) el('btnProjDel').textContent=_t.projDel;
   if(el('btnProjShare')) el('btnProjShare').textContent=_t.projShare||'🔗 Share';
